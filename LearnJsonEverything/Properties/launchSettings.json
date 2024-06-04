@@ -8,7 +8,7 @@
     }
   },
   "profiles": {
-    "json-everything.net": {
+    "learn.json-everything.net": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,

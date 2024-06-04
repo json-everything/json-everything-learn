@@ -41,16 +41,8 @@ article {
 	bottom: 0;
 }
 
-.col-8-stretch {
-	flex: 1 0 66.66667%;
-}
-
 .scroll {
 	overflow-y: auto;
-}
-
-.mw-content {
-	min-width: fit-content;
 }
 
 h1:focus {
@@ -346,50 +338,5 @@ blockquote {
 
 .feature{
   margin: 120px auto;
-}
-
-/*--- SPONSOR CLOUD ---*/
-
-.bubble-field {
-  width: 60%;
-  height: 40%;
-  position: relative;
-}
-
-.sponsor-bubble {
-  position: absolute;
-  background: white;
-  transition: transform .3s ease-in-out;
-
-}
-
-  .sponsor-bubble:hover {
-    transform: scale(1.1);
-  }
-
-.tooltip-icon:hover .sponsor-bubble {
-  transform: scale(1.1);
-}
-
-.bubble-Small {
-  height: 50px;
-  width: 50px;
-  border-radius: 25px;
-}
-
-.bubble-Medium {
-  height: 100px;
-  width: 100px;
-  border-radius: 50px;
-}
-
-.bubble-Large {
-  height: 200px;
-  width: 200px;
-  border-radius: 100px;
-}
-
-.cover {
-  object-fit: cover;
 }
 

@@ -1,0 +1,10 @@
+[
+  {
+    "id": "26b6ebca-58e6-4814-86ea-4946d844c9a6",
+    "title": "Boolean Schemas",
+    "instructions": "Schemas can be booleans, too!",
+    "inputTemplate": true,
+    "inputSchema": {},
+    "instance": {}
+  }
+]

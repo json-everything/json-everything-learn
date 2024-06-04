@@ -1,0 +1,23 @@
+#layout {
+  padding: 5px;
+}
+
+#workspace, #output {
+  height: calc(50% - 45px/2);
+}
+
+#controls {
+  height: 45px !important;
+}
+
+.grid-panel {
+  border: solid 1px #CCBCD9;
+  border-radius: 5px;
+  padding: 10px !important;
+  margin: 5px;
+}
+
+.row-margin-reset {
+  margin-left: auto;
+  margin-right: auto;
+}
