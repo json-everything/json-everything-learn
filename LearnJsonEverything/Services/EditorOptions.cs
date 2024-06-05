@@ -4,11 +4,11 @@ namespace LearnJsonEverything.Services
 {
 	public static class EditorOptions
 	{
-		public static StandaloneEditorConstructionOptions Basic() =>
+		public static StandaloneEditorConstructionOptions Basic(string lang, int tab) =>
 			new()
 			{
 				AutomaticLayout = true,
-				Language = "csharp",
+				Language = lang,
 				Theme = "vs-dark",
 				SelectOnLineNumbers = true,
 				Scrollbar = new EditorScrollbarOptions
@@ -16,12 +16,12 @@ namespace LearnJsonEverything.Services
 					AlwaysConsumeMouseWheel = false
 				},
 				ScrollBeyondLastLine = false,
-				TabSize = 4
+				TabSize = tab
 			};
 
-		public static StandaloneEditorConstructionOptions Readonly()
+		public static StandaloneEditorConstructionOptions Readonly(string lang, int tab)
 		{
-			var options = Basic();
+			var options = Basic(lang, tab);
 			options.ReadOnly = true;
 
 			return options;

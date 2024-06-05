@@ -286,6 +286,7 @@ a.navbar-brand {
 pre {
 	padding: 9.5px;
 	font-size: 13px;
+  tab-size: 4;
 	word-break: break-all;
 	word-wrap: break-word;
 	background-color: rgb(27, 27, 30);

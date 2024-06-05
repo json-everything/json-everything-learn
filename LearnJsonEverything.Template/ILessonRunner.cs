@@ -1,6 +1,10 @@
-﻿namespace LearnJsonEverything.Template;
+﻿// ReSharper disable CheckNamespace
+
+using System.Text.Json.Nodes;
+
+namespace LearnJsonEverything;
 
 public interface ILessonRunner<out T>
 {
-	T Run();
+	T Run(JsonObject context);
 }

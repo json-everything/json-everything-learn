@@ -4,8 +4,11 @@
 @using Microsoft.CodeAnalysis
 @using Microsoft.CodeAnalysis.CSharp
 @using System.Reflection
+@using System.Text.Encodings.Web
 @using System.Text.Json
+@using Json.More
 @using LearnJsonEverything.Services.Runners
+@using Yaml2JsonNode
 @using EditorOptions = LearnJsonEverything.Services.EditorOptions
 
 @inject DataManager DataManager;
@@ -23,7 +26,7 @@
 		<div id="right-panel" class="row row-margin-reset flex-grow-1">
 			<div id="workspace" class="col-12 d-flex flex-grow-1">
 				<div class="grid-panel flex-grow-1">
-					<StandaloneCodeEditor @ref="_codeEditor" Id="editor-schema" ConstructionOptions="BasicOptions"
+					<StandaloneCodeEditor @ref="_codeEditor" Id="editor-schema" ConstructionOptions="OptionsForEditor"
 					                      CssClass="h-100"></StandaloneCodeEditor>
 				</div>
 			</div>
@@ -36,7 +39,7 @@
 			</div>
 			<div id="output" class="col-12 d-flex">
 				<div class="grid-panel flex-grow-1">
-					<StandaloneCodeEditor @ref="_outputEditor" Id="editor-output" ConstructionOptions="ReadOnlyOptions"
+					<StandaloneCodeEditor @ref="_outputEditor" Id="editor-output" ConstructionOptions="OptionsForOutput"
 					                      CssClass="h-100"></StandaloneCodeEditor>
 				</div>
 			</div>
@@ -57,8 +60,8 @@
 
 	private string Instructions { get; set; }
 
-	private static StandaloneEditorConstructionOptions BasicOptions(StandaloneCodeEditor _) => EditorOptions.Basic();
-	private static StandaloneEditorConstructionOptions ReadOnlyOptions(StandaloneCodeEditor _) => EditorOptions.Readonly();
+	private static StandaloneEditorConstructionOptions OptionsForEditor(StandaloneCodeEditor _) => EditorOptions.Basic("csharp", 4);
+	private static StandaloneEditorConstructionOptions OptionsForOutput(StandaloneCodeEditor _) => EditorOptions.Readonly("json", 2);
 #pragma warning restore CS8618
 
 	private async Task Run()
@@ -67,11 +70,9 @@
 		{
 			var userCode = await _codeEditor.GetValue();
 
-			_outputEditor.SetValue("");
-			var output = SchemaRunner.Run(userCode, _currentLesson!, _references);
-
-			await _outputEditor.SetValue(output);
-
+			await _outputEditor.SetValue("");
+			var results = SchemaRunner.Run(userCode, _currentLesson!, _references);
+			await _outputEditor.SetValue(string.Join(Environment.NewLine, results!));
 		}
 		catch (Exception e)
 		{
@@ -127,7 +128,7 @@
 		int i = 0;
 		foreach (var reference in refs.Where(x => !x.IsDynamic))
 		{
-			var source = $"/_framework/{reference.FullName!.Split(',')[0]}.wasm";
+			var source = $"/_framework/{reference.FullName!.Split(',')[0]}.dll";
 			try
 			{
 				var stream = await Client.GetStreamAsync(source);
@@ -146,6 +147,10 @@
 
 	private async Task DownloadLessonPlan()
 	{
-		_lessons = (await Client.GetFromJsonAsync<LessonPlan>(LessonSource))!;
+		var yamlText = await Client.GetStringAsync(LessonSource);
+		var yaml = YamlSerializer.Parse(yamlText);
+		var json = yaml.ToJsonNode().FirstOrDefault();
+		Console.WriteLine(json.AsJsonString());
+		_lessons = json.Deserialize<LessonPlan>(SerializerOptions)!;
 	}
 }

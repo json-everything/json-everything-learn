@@ -1,35 +1,22 @@
 ﻿using System.Reflection;
 using System.Text.Json;
+using System.Text.Json.Nodes;
+using Json.More;
 using Json.Schema;
-using LearnJsonEverything.Template;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+
+using static LearnJsonEverything.Services.SerializationHelpers;
 
 namespace LearnJsonEverything.Services.Runners;
 
 public static class SchemaRunner
 {
-	private const string ContextCode =
-		"""
-		using System;
-		using System.Collections.Generic;
-		using System.Text.Json;
-		using System.Text.Json.Nodes;
-		using System.Text.Json.Serialization;
-		using Json.Schema;
-		
-		namespace JsonEverythingTemp;
-		
-		public class Lesson : ILessonRunner<EvaluationResults>
-		{
-			public EvaluationResults Run()
-			{
-				var instance = JsonNode.Parse("/* INSTANCE */");
-				
-				/* USER CODE */
-			}
-		}
-		""";
+	private class SchemaTest
+	{
+		public JsonNode? Instance { get; set; }
+		public bool IsValid { get; set; }
+	}
 
 	private const string Instructions =
 		$"""
@@ -40,20 +27,50 @@ public static class SchemaRunner
 		 ### Code template
 
 		 ```csharp
-		 {ContextCode}
+		 /* CONTEXT CODE */
 		 ```
+
+		 ### Tests
+		 /* TESTS */
+		 
 		 """;
+
+	private const string SuccessIcon = "✔";
+	private const string ErrorIcon = "❌";
+	private const string WarnIcon = "⚠";
+	private const string MessageIcon = "ⓘ";
+
+	//public static string ErrorIcon = "<span style=\"foreground:red;\">❌</span>";
+	//public static string WarnIcon = "<span style=\"foreground:amber;\">⚠</span>";
+	//public static string MessageIcon = "<span style=\"foreground:lightblue;\">ⓘ</span>";
 
 	public static string BuildInstructions(LessonData lesson) => Instructions
 		.Replace("/* TITLE */", lesson.Title)
 		.Replace("/* INSTRUCTIONS */", lesson.Instructions)
-		.Replace("/* INSTANCE */", JsonSerializer.Serialize(lesson.Data?["instance"]));
+		.Replace("/* CONTEXT CODE */", lesson.ContextCode)
+		.Replace("/* TESTS */", BuildTestList(lesson.Tests));
 
-	public static string Run(string userCode, LessonData lesson, MetadataReference[] references)
+	private static string BuildTestList(JsonArray testData)
 	{
-		var fullSource = ContextCode
-			.Replace("/* USER CODE */", userCode)
-			.Replace("/* INSTANCE */", JsonSerializer.Serialize(lesson.Data?["instance"]));
+		var tests = testData.Deserialize<SchemaTest[]>(SerializerOptions);
+		var lines = new List<string>
+		{
+			"| Instance | Is Valid |",
+			"|:-|:-:|"
+		};
+
+		foreach (var test in tests)
+		{
+			lines.Add($"|`{test.Instance.AsJsonString()}`|{test.IsValid}|");
+		}
+
+		return string.Join(Environment.NewLine, lines);
+	}
+
+	public static string[] Run(string userCode, LessonData lesson, MetadataReference[] references)
+	{
+		var fullSource = lesson.ContextCode
+			.Replace("/* USER CODE */", userCode);
 
 		var syntaxTree = CSharpSyntaxTree.ParseText(fullSource);
 		var assemblyPath = Path.ChangeExtension(Path.GetTempFileName(), "dll");
@@ -69,14 +86,19 @@ public static class SchemaRunner
 		var emitResult = compilation.Emit(dllStream, pdbStream, xmlStream);
 		if (!emitResult.Success)
 		{
-			Console.WriteLine("You may expect a list of what compilation errors there are, but unfortunately " +
-			                  "Roslyn doesn't seem to be giving that information out (or I don't know how to " +
-			                  "interpret it).  So instead, here are the errors in raw form.  Good luck.  If you " +
-			                  "know what these mean, please drop a line in a GitHub issue.");
-			//var errors = string.Join("\n", emitResult.Diagnostics.Where(x => x.Severity == DiagnosticSeverity.Error)
-			//	.Select(x => GetErrorDetails(source, x)));
-			//await _outputEditor.SetValue(errors);
-			return "Compilation error";
+			var diagnostics = new List<string>();
+			foreach (var diagnostic in emitResult.Diagnostics)
+			{
+				var icon = diagnostic.Severity switch
+				{
+					DiagnosticSeverity.Info => MessageIcon,
+					DiagnosticSeverity.Warning => WarnIcon,
+					DiagnosticSeverity.Error => ErrorIcon,
+					_ => string.Empty
+				};
+				diagnostics.Add($"{icon} {diagnostic.GetMessage()}");
+			}
+			return [.. diagnostics];
 		}
 
 		var assembly = Assembly.Load(dllStream.ToArray());
@@ -84,9 +106,23 @@ public static class SchemaRunner
 		var type = assembly.DefinedTypes.Single(x => !x.IsInterface && x.ImplementedInterfaces.Contains(typeof(ILessonRunner<EvaluationResults>)));
 		var runner = (ILessonRunner<EvaluationResults>) Activator.CreateInstance(type)!;
 
-		var results = runner.Run();
+		var tests = lesson.Tests.Deserialize<SchemaTest[]>(SerializerOptions);
+		var results = new List<string>();
+
+		foreach (var test in tests)
+		{
+			var result = runner.Run(new JsonObject { ["instance"] = test.Instance });
+			results.Add($"{(test.IsValid == result.IsValid ? SuccessIcon : ErrorIcon)} {test.Instance.AsJsonString()}");
+		}
+
 		// run the code
 
-		return JsonSerializer.Serialize(results);
+		return results.ToArray();
+	}
+
+	private static string ToLiteral(this string valueTextForCompiler)
+	{
+		var formatted = SymbolDisplay.FormatLiteral(valueTextForCompiler, true);
+		return formatted;
 	}
 }
