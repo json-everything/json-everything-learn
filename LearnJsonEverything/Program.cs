@@ -8,11 +8,11 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+builder.Services.AddScoped(_ => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 builder.Services.AddBlazoredLocalStorageAsSingleton();
 builder.Services.AddSingleton<DataManager>();
 
 var host = builder.Build();
-var client = host.Services.GetService<HttpClient>();
+_ = host.Services.GetService<HttpClient>();
 
 await host.RunAsync();

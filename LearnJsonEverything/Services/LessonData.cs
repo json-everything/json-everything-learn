@@ -1,4 +1,6 @@
-﻿namespace LearnJsonEverything.Services;
+﻿using System.Text.Json.Nodes;
+
+namespace LearnJsonEverything.Services;
 
 public class LessonData
 {
@@ -6,5 +8,5 @@ public class LessonData
 	public Guid Id { get; set; }
 	public string Title { get; set; }
 	public string Instructions { get; set; }
-	public string CodeTemplate { get; set; }
+	public JsonObject? Data { get; set; }
 }

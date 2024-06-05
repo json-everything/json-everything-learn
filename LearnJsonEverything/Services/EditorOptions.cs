@@ -8,7 +8,7 @@ namespace LearnJsonEverything.Services
 			new()
 			{
 				AutomaticLayout = true,
-				Language = "json",
+				Language = "csharp",
 				Theme = "vs-dark",
 				SelectOnLineNumbers = true,
 				Scrollbar = new EditorScrollbarOptions
@@ -16,7 +16,7 @@ namespace LearnJsonEverything.Services
 					AlwaysConsumeMouseWheel = false
 				},
 				ScrollBeyondLastLine = false,
-				TabSize = 2
+				TabSize = 4
 			};
 
 		public static StandaloneEditorConstructionOptions Readonly()

@@ -8,6 +8,8 @@ public class LessonPlan
 	private readonly LessonData[] _lessonData;
 	private readonly Dictionary<Guid, int> _indexLookup;
 
+	public LessonData this[int i] => _lessonData[i];
+
 	public LessonPlan(LessonData[] lessonData)
 	{
 		_lessonData = lessonData;

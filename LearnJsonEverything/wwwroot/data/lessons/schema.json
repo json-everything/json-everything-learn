@@ -1,10 +1,11 @@
 [
   {
     "id": "26b6ebca-58e6-4814-86ea-4946d844c9a6",
-    "title": "Boolean Schemas",
-    "instructions": "Schemas can be booleans, too!",
-    "inputTemplate": true,
-    "inputSchema": {},
-    "instance": {}
+    "title": "Validate a string",
+    "instructions": "Create a _JsonSchema_ object and validate the string instance.  Return the evaluation results.",
+    "inputTemplate": "",
+    "data": {
+      "instance": "a string value"
+    }
   }
 ]

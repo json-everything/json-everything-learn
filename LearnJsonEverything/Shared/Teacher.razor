@@ -5,6 +5,8 @@
 @using Microsoft.CodeAnalysis.CSharp
 @using System.Reflection
 @using System.Text.Json
+@using LearnJsonEverything.Services.Runners
+@using EditorOptions = LearnJsonEverything.Services.EditorOptions
 
 @inject DataManager DataManager;
 @inject NavigationManager NavigationManager;
@@ -14,32 +16,28 @@
 <div id="layout" class="row fill-remaining row-margin-reset">
 	<div class="col-4 d-flex">
 		<div class="grid-panel flex-grow-1">
-			content
+			<MarkdownSpan Content="@Instructions"></MarkdownSpan>
 		</div>
 	</div>
 	<div class="col-8 d-flex">
 		<div id="right-panel" class="row row-margin-reset flex-grow-1">
 			<div id="workspace" class="col-12 d-flex flex-grow-1">
 				<div class="grid-panel flex-grow-1">
-					content
+					<StandaloneCodeEditor @ref="_codeEditor" Id="editor-schema" ConstructionOptions="BasicOptions"
+					                      CssClass="h-100"></StandaloneCodeEditor>
 				</div>
 			</div>
 			<div id="controls" class="col-12">
 				<div class="d-flex">
-					<div class="btn btn-primary m-1">
-						content
-					</div>
-					<div class="btn btn-primary m-1">
-						content
-					</div>
-					<div class="btn btn-primary m-1">
-						content
-					</div>
+					<button class="btn btn-primary m-1" @onclick="Run">Run</button>
+					<button class="btn btn-primary m-1">content</button>
+					<button class="btn btn-primary m-1">content</button>
 				</div>
 			</div>
 			<div id="output" class="col-12 d-flex">
 				<div class="grid-panel flex-grow-1">
-					content
+					<StandaloneCodeEditor @ref="_outputEditor" Id="editor-output" ConstructionOptions="ReadOnlyOptions"
+					                      CssClass="h-100"></StandaloneCodeEditor>
 				</div>
 			</div>
 		</div>
@@ -47,67 +45,33 @@
 </div>
 
 @code {
+#pragma warning disable CS8618
 	private StandaloneCodeEditor _codeEditor;
 	private StandaloneCodeEditor _outputEditor;
-	private List<MetadataReference> _references;
+	private MetadataReference[] _references;
 	private LessonPlan _lessons;
 	private LessonData? _currentLesson;
 
 	[Parameter]
 	public string LessonSource { get; set; }
 
-	private string Output { get; set; }
-	private bool Success { get; set; }
+	private string Instructions { get; set; }
 
-	private async Task TryRun()
+	private static StandaloneEditorConstructionOptions BasicOptions(StandaloneCodeEditor _) => EditorOptions.Basic();
+	private static StandaloneEditorConstructionOptions ReadOnlyOptions(StandaloneCodeEditor _) => EditorOptions.Readonly();
+#pragma warning restore CS8618
+
+	private async Task Run()
 	{
-		Assembly? assembly = null;
 		try
 		{
-			var source = await _codeEditor.GetValue();
+			var userCode = await _codeEditor.GetValue();
 
-			var fullSource = $@"
-using System;
-using System.Collections.Generic;
-using System.Text.Json;
-using System.Text.Json.Nodes;
-using System.Text.Json.Serialization;
-using Json.Schema;
-using Json.Schema.Generation;
+			_outputEditor.SetValue("");
+			var output = SchemaRunner.Run(userCode, _currentLesson!, _references);
 
-namespace JsonEverythingTemp;
+			await _outputEditor.SetValue(output);
 
-{source}
-";
-
-			var syntaxTree = CSharpSyntaxTree.ParseText(fullSource);
-			var assemblyPath = Path.ChangeExtension(Path.GetTempFileName(), "dll");
-
-			var compilation = CSharpCompilation.Create(Path.GetFileName(assemblyPath))
-				.WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
-				.AddReferences(_references)
-				.AddSyntaxTrees(syntaxTree);
-
-			using var dllStream = new MemoryStream();
-			using var pdbStream = new MemoryStream();
-			using var xmlStream = new MemoryStream();
-			var emitResult = compilation.Emit(dllStream, pdbStream, xmlStream);
-			if (!emitResult.Success)
-			{
-				Console.WriteLine("You may expect a list of what compilation errors there are, but unfortunately " +
-										"Roslyn doesn't seem to be giving that information out (or I don't know how to " +
-										"interpret it).  So instead, here are the errors in raw form.  Good luck.  If you " +
-										"know what these mean, please drop a line in a GitHub issue.");
-				await _outputEditor.SetValue("Compilation error");
-				//var errors = string.Join("\n", emitResult.Diagnostics.Where(x => x.Severity == DiagnosticSeverity.Error)
-				//	.Select(x => GetErrorDetails(source, x)));
-				//await _outputEditor.SetValue(errors);
-				return;
-			}
-
-			assembly = Assembly.Load(dllStream.ToArray());
-
-			// run the code
 		}
 		catch (Exception e)
 		{
@@ -116,13 +80,13 @@ namespace JsonEverythingTemp;
 		}
 	}
 
-	private Task NextLesson()
+	private Task PreviousLesson()
 	{
-		_currentLesson = _lessons.GetNext(_currentLesson?.Id);
+		_currentLesson = _lessons.GetPrevious(_currentLesson?.Id);
 		return LoadLesson();
 	}
 
-	private Task PreviousLesson()
+	private Task NextLesson()
 	{
 		_currentLesson = _lessons.GetNext(_currentLesson?.Id);
 		return LoadLesson();
@@ -135,13 +99,13 @@ namespace JsonEverythingTemp;
 
 	private async Task LoadLesson()
 	{
-		
+		_currentLesson ??= _lessons[0];
+		Instructions = SchemaRunner.BuildInstructions(_currentLesson);
 	}
 
 	protected override async Task OnInitializedAsync()
 	{
-		// await Configure();
-		// await LoadAssemblyReferences();
+		await LoadAssemblyReferences();
 		await DownloadLessonPlan();
 		
 		await LoadLesson();
@@ -149,35 +113,39 @@ namespace JsonEverythingTemp;
 		await base.OnInitializedAsync();
 	}
 
-	private async Task Configure()
-	{
-		await _codeEditor.SetLanguageAsync("csharp", JsRuntime);
-		await _codeEditor.UpdateOptions(new EditorUpdateOptions { TabSize = 4 });
-		await DataManager.Set("schema-input-language", "csharp");
-	}
-
 	private async Task LoadAssemblyReferences()
 	{
 		var refs = AppDomain.CurrentDomain.GetAssemblies();
 
-		var references = new List<MetadataReference>();
+		var references = new MetadataReference[refs.Length];
 
 		foreach (var reference in refs.Where(x => !x.IsDynamic))
 		{
 			Console.WriteLine($"{reference.FullName}\n  Location - {reference.Location}\n");
 		}
 
+		int i = 0;
 		foreach (var reference in refs.Where(x => !x.IsDynamic))
 		{
-			var stream = await Client.GetStreamAsync($"_framework/{reference.FullName!.Split(',')[0]}.dll");
-			references.Add(MetadataReference.CreateFromStream(stream));
+			var source = $"/_framework/{reference.FullName!.Split(',')[0]}.wasm";
+			try
+			{
+				var stream = await Client.GetStreamAsync(source);
+				references[i] = MetadataReference.CreateFromStream(stream);
+				i++;
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e);
+				Console.WriteLine(source);
+			}
 		}
 
-		_references = references;
+		_references = references.ToArray();
 	}
 
 	private async Task DownloadLessonPlan()
 	{
-		_lessons = await Client.GetFromJsonAsync<LessonPlan>(LessonSource);
+		_lessons = (await Client.GetFromJsonAsync<LessonPlan>(LessonSource))!;
 	}
 }
