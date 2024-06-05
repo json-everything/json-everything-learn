@@ -1,0 +1,36 @@
+name: Publish learn.json-everything.net
+on:
+  push:
+    branches:
+      - main # Default release branch
+  workflow_dispatch:
+
+jobs:
+  publish:
+    name: build, pack & publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: restore submodules
+        run: git submodule update --init
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: 8.0.x
+      - name: Install dependencies
+        run: dotnet restore
+      - name: Pre-build solution
+        run: dotnet build LearnJsonEverything.sln -c Release --no-restore
+      - name: Build
+        run: dotnet publish LearnJsonEverything/LearnJsonEverything.csproj -c Release --no-restore -o bin
+      - name: Add .nojekyll file
+        run: touch bin/wwwroot/.nojekyll
+      - name: Copy index.html files
+        run: |
+          mkdir bin/wwwroot/json-schema/ && cp bin/wwwroot/index.html bin/wwwroot/json-schema/
+      - name: Publish
+        uses: JamesIves/github-pages-deploy-action@v4.2.5
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: gh-pages
+          FOLDER: bin/wwwroot
