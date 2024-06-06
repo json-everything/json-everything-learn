@@ -64,13 +64,15 @@ public static class SchemaRunner
 		var tests = lesson.Tests.Deserialize(SerializerContext.Default.SchemaTestArray)!;
 		var results = new List<string>();
 
+		var correct = true;
 		foreach (var test in tests)
 		{
 			var result = runner.Run(new JsonObject { ["instance"] = test.Instance });
-			results.Add($"{(test.IsValid == result?.IsValid ? Iconography.SuccessIcon : Iconography.ErrorIcon)} {test.Instance.AsJsonString()}");
+			correct &= test.IsValid == result.IsValid;
+			results.Add($"{(test.IsValid == result.IsValid ? Iconography.SuccessIcon : Iconography.ErrorIcon)} {test.Instance.AsJsonString()}");
 		}
 
-		// run the code
+		lesson.Achieved |= correct;
 
 		return [.. results];
 	}

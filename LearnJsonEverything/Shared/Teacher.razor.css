@@ -11,6 +11,7 @@
 }
 
 .grid-panel {
+  flex: 1 1 auto;
   border: solid 1px #CCBCD9;
   border-radius: 5px;
   padding: 10px !important;
@@ -20,4 +21,30 @@
 .row-margin-reset {
   margin-left: auto;
   margin-right: auto;
+}
+
+[role="option"] {
+  position: relative;
+  display: block;
+  align-content: center;
+  text-align: left;
+  margin: 2px;
+  line-height: 1.8em;
+  cursor: pointer;
+}
+
+[role="listbox"]:focus [role="option"].focused,
+[role="option"]:hover {
+  color: white;
+}
+
+.btn-list-option {
+  border: none;
+  background: none;
+  height: 100%;
+  width: 100%;
+}
+
+ol, ul {
+  padding-left: .5rem;
 }

@@ -1,8 +1,8 @@
 ﻿---
 - id: 26b6ebca-58e6-4814-86ea-4946d844c9a6
-  title: Validate a string
-  instructions: Create a `JsonSchema` object and validate the string instance.  Return
-    the evaluation results.
+  title: Any string
+  instructions: |-
+    Configure the provided `JsonSchemaBuilder` to produce a schema that validates a string instance.
   inputTemplate: ''
   contextCode: |-
     using System;
@@ -19,8 +19,12 @@
         public EvaluationResults Run(JsonObject context)
         {
             var instance = context["instance"];
+            var builder = new JsonSchemaBuilder();
 
             /* USER CODE */
+
+            var schema = builder.Build();
+            return schema.Evaluate(instance);
         }
     }
   tests:
@@ -29,6 +33,54 @@
   - instance: []
     isValid: false
   - instance: 42
+    isValid: false
+  - instance: false
+    isValid: false
+- id: 26b6ebca-58e6-4814-86ea-4946d844c9a7
+  title: Number with limits
+  instructions: |-
+    Configure the provided `JsonSchemaBuilder` to produce a schema that validates a number instance
+    that is less than or equal to 10 but greater than 0.
+  inputTemplate: ''
+  contextCode: |-
+    using System;
+    using System.Collections.Generic;
+    using System.Text.Json;
+    using System.Text.Json.Nodes;
+    using System.Text.Json.Serialization;
+    using Json.Schema;
+    
+    namespace LearnJsonEverything;
+    
+    public class Lesson : ILessonRunner<EvaluationResults>
+    {
+        public EvaluationResults Run(JsonObject context)
+        {
+            var instance = context["instance"];
+            var builder = new JsonSchemaBuilder();
+
+            /* USER CODE */
+
+            var schema = builder.Build();
+            return schema.Evaluate(instance);
+        }
+    }
+  tests:
+  - instance: 6.8
+    isValid: true
+  - instance: 10
+    isValid: true
+  - instance: 42e-6
+    isValid: true
+  - instance: -5.1
+    isValid: false
+  - instance: 0
+    isValid: false
+  - instance: a string value
+    isValid: false
+  - instance: []
+    isValid: false
+  - instance: {}
     isValid: false
   - instance: false
     isValid: false

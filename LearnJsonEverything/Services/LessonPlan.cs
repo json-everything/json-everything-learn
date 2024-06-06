@@ -1,20 +1,28 @@
-﻿using System.Text.Json;
+﻿using System.Collections;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace LearnJsonEverything.Services;
 
 [JsonConverter(typeof(LessonPlanJsonConverter))]
-public class LessonPlan
+public class LessonPlan : IReadOnlyList<LessonData>
 {
 	private readonly LessonData[] _lessonData;
 	private readonly Dictionary<Guid, int> _indexLookup;
 
 	public LessonData this[int i] => _lessonData[i];
+	public LessonData this[Guid id] => _lessonData[_indexLookup[id]];
+
+	public int Count => _lessonData.Length;
 
 	public LessonPlan(LessonData[] lessonData)
 	{
 		_lessonData = lessonData;
-		_indexLookup = lessonData.Select((d, i) => (d.Id, i)).ToDictionary(x => x.Id, x => x.i);
+		_indexLookup = lessonData.Select((d, i) =>
+		{
+			d.Index = i;
+			return (d.Id, i);
+		}).ToDictionary(x => x.Id, x => x.i);
 	}
 
 	public LessonData? GetPrevious(Guid? id)
@@ -38,6 +46,10 @@ public class LessonPlan
 
 		return _lessonData[index];
 	}
+
+	public IEnumerator<LessonData> GetEnumerator() => ((IEnumerable<LessonData>)_lessonData).GetEnumerator();
+
+	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
 public class LessonPlanJsonConverter : JsonConverter<LessonPlan>

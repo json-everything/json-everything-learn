@@ -27,6 +27,7 @@ public static class CompilationHelpers
 				.Where(x => !x.IsDynamic)
 				.Select(x => x.FullName!.Split(',')[0])
 				.Concat(EnsuredAssemblies)
+				.Distinct()
 				.OrderBy(x => x)
 				.ToArray();
 			

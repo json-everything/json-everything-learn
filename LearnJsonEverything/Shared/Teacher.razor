@@ -12,17 +12,29 @@
 @using EditorOptions = LearnJsonEverything.Services.EditorOptions
 
 @inject DataManager DataManager;
-@inject NavigationManager NavigationManager;
 @inject IJSRuntime JsRuntime;
 @inject HttpClient Client;
 
 <div id="layout" class="row fill-remaining row-margin-reset">
-	<div class="col-4 d-flex">
-		<div class="grid-panel flex-grow-1">
+	<div class="col-2 d-flex h-100">
+		<div class="grid-panel flex-grow-1 scroll">
+			<ul role="listbox">
+				@foreach (var lesson in _lessons)
+				{
+					<li id="@lesson.Id" role="option" @onclick="() => SelectLesson(lesson.Id)">
+						<span class="@(lesson.Achieved ? "" : "invisible")">@Iconography.SuccessIcon</span>
+						@lesson.Title
+					</li>
+				}
+			</ul>
+		</div>
+	</div>
+	<div class="col-4 d-flex h-100">
+		<div class="grid-panel flex-grow-1 scroll">
 			<MarkdownSpan Content="@Instructions"></MarkdownSpan>
 		</div>
 	</div>
-	<div class="col-8 d-flex">
+	<div class="col-6 d-flex">
 		<div id="right-panel" class="row row-margin-reset flex-grow-1">
 			<div id="workspace" class="col-12 d-flex flex-grow-1">
 				<div class="grid-panel flex-grow-1">
@@ -32,9 +44,9 @@
 			</div>
 			<div id="controls" class="col-12">
 				<div class="d-flex">
+					<button class="btn btn-primary m-1" @onclick="PreviousLesson">&lt; Previous</button>
 					<button class="btn btn-primary m-1" @onclick="Run">Run</button>
-					<button class="btn btn-primary m-1">content</button>
-					<button class="btn btn-primary m-1">content</button>
+					<button class="btn btn-primary m-1" disabled="@_nextButtonDisabled" @onclick="NextLesson">Next &gt;</button>
 				</div>
 			</div>
 			<div id="output" class="col-12 d-flex">
@@ -48,11 +60,12 @@
 </div>
 
 @code {
-#pragma warning disable CS8618
+	#pragma warning disable CS8618
 	private StandaloneCodeEditor _codeEditor;
 	private StandaloneCodeEditor _outputEditor;
-	private LessonPlan _lessons;
+	private LessonPlan _lessons = new([]);
 	private LessonData? _currentLesson;
+	private bool _nextButtonDisabled = true;
 
 	[Parameter]
 	public string LessonSource { get; set; }
@@ -69,9 +82,12 @@
 		{
 			var userCode = await _codeEditor.GetValue();
 
-			await _outputEditor.SetValue("");
+			await _outputEditor.SetValue(string.Empty);
+
 			var results = SchemaRunner.Run(userCode, _currentLesson!);
+
 			await _outputEditor.SetValue(string.Join(Environment.NewLine, results!));
+			_nextButtonDisabled = !CanMoveToNextLesson();
 		}
 		catch (Exception e)
 		{
@@ -80,35 +96,43 @@
 		}
 	}
 
-	private void PreviousLesson()
+	private Task PreviousLesson()
 	{
 		_currentLesson = _lessons.GetPrevious(_currentLesson?.Id);
-		LoadLesson();
+		return LoadLesson();
 	}
 
-	private void NextLesson()
+	private Task NextLesson()
 	{
 		_currentLesson = _lessons.GetNext(_currentLesson?.Id);
-		LoadLesson();
+		return LoadLesson();
 	}
 
-	private void Reset()
+	private Task Reset()
 	{
-		LoadLesson();
+		return LoadLesson();
 	}
 
-	private void LoadLesson()
+	private Task LoadLesson()
 	{
 		_currentLesson ??= _lessons[0];
 		Instructions = SchemaRunner.BuildInstructions(_currentLesson);
+		_nextButtonDisabled = !CanMoveToNextLesson();
+		return _outputEditor.SetValue(string.Empty);
+	}
+
+	private bool CanMoveToNextLesson()
+	{
+		if (_currentLesson is null) return false;
+		if (_currentLesson.Index == _lessons.Count - 1) return false;
+		return _currentLesson.Achieved;
 	}
 
 	protected override async Task OnInitializedAsync()
 	{
-		_ = await CompilationHelpers.LoadAssemblyReferences(Client);
 		await DownloadLessonPlan();
 		
-		LoadLesson();
+		await LoadLesson();
 
 		await base.OnInitializedAsync();
 	}
@@ -120,5 +144,15 @@
 		var json = yaml.ToJsonNode().FirstOrDefault();
 		Console.WriteLine(json.AsJsonString());
 		_lessons = json.Deserialize(SerializerContext.Default.LessonPlan)!;
+	}
+
+	private async Task SelectLesson(Guid lessonId)
+	{
+		var index = _currentLesson?.Index ?? 0;
+		if (index == 0 || _lessons[index - 1].Achieved)
+		{
+			_currentLesson = _lessons[lessonId];
+			await LoadLesson();
+		}
 	}
 }

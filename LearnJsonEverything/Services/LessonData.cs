@@ -12,4 +12,5 @@ public class LessonData
 	public string Instructions { get; set; }
 	public string ContextCode { get; set; }
 	public JsonArray Tests { get; set; }
+	public bool Achieved { get; set; }
 }
