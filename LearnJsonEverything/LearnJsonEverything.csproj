@@ -5,9 +5,9 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
 	  <NoWarn>NU1701</NoWarn>
-	  <PublishTrimmed>false</PublishTrimmed>
 	  <LangVersion>latest</LangVersion>
     <WasmEnableWebcil>false</WasmEnableWebcil>
+    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
   </PropertyGroup>
 
   <ItemGroup>

@@ -51,7 +51,6 @@
 #pragma warning disable CS8618
 	private StandaloneCodeEditor _codeEditor;
 	private StandaloneCodeEditor _outputEditor;
-	private MetadataReference[] _references;
 	private LessonPlan _lessons;
 	private LessonData? _currentLesson;
 
@@ -71,7 +70,7 @@
 			var userCode = await _codeEditor.GetValue();
 
 			await _outputEditor.SetValue("");
-			var results = SchemaRunner.Run(userCode, _currentLesson!, _references);
+			var results = SchemaRunner.Run(userCode, _currentLesson!, await CompilationHelpers.LoadAssemblyReferences(Client));
 			await _outputEditor.SetValue(string.Join(Environment.NewLine, results!));
 		}
 		catch (Exception e)
@@ -81,24 +80,24 @@
 		}
 	}
 
-	private Task PreviousLesson()
+	private void PreviousLesson()
 	{
 		_currentLesson = _lessons.GetPrevious(_currentLesson?.Id);
-		return LoadLesson();
+		LoadLesson();
 	}
 
-	private Task NextLesson()
+	private void NextLesson()
 	{
 		_currentLesson = _lessons.GetNext(_currentLesson?.Id);
-		return LoadLesson();
+		LoadLesson();
 	}
 
-	private Task Reset()
+	private void Reset()
 	{
-		return LoadLesson();
+		LoadLesson();
 	}
 
-	private async Task LoadLesson()
+	private void LoadLesson()
 	{
 		_currentLesson ??= _lessons[0];
 		Instructions = SchemaRunner.BuildInstructions(_currentLesson);
@@ -106,43 +105,12 @@
 
 	protected override async Task OnInitializedAsync()
 	{
-		await LoadAssemblyReferences();
+		_ = await CompilationHelpers.LoadAssemblyReferences(Client);
 		await DownloadLessonPlan();
 		
-		await LoadLesson();
+		LoadLesson();
 
 		await base.OnInitializedAsync();
-	}
-
-	private async Task LoadAssemblyReferences()
-	{
-		var refs = AppDomain.CurrentDomain.GetAssemblies();
-
-		var references = new MetadataReference[refs.Length];
-
-		foreach (var reference in refs.Where(x => !x.IsDynamic))
-		{
-			Console.WriteLine($"{reference.FullName}\n  Location - {reference.Location}\n");
-		}
-
-		int i = 0;
-		foreach (var reference in refs.Where(x => !x.IsDynamic))
-		{
-			var source = $"/_framework/{reference.FullName!.Split(',')[0]}.dll";
-			try
-			{
-				var stream = await Client.GetStreamAsync(source);
-				references[i] = MetadataReference.CreateFromStream(stream);
-				i++;
-			}
-			catch (Exception e)
-			{
-				Console.WriteLine(e);
-				Console.WriteLine(source);
-			}
-		}
-
-		_references = references.ToArray();
 	}
 
 	private async Task DownloadLessonPlan()
@@ -151,6 +119,6 @@
 		var yaml = YamlSerializer.Parse(yamlText);
 		var json = yaml.ToJsonNode().FirstOrDefault();
 		Console.WriteLine(json.AsJsonString());
-		_lessons = json.Deserialize<LessonPlan>(SerializerOptions)!;
+		_lessons = json.Deserialize(SerializerContext.Default.LessonPlan)!;
 	}
 }

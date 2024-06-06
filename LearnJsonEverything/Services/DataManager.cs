@@ -10,7 +10,7 @@ public class DataManager
 	public DataManager(ILocalStorageService localStorage)
 	{
 		_localStorage = localStorage;
-		_cache = new Dictionary<string, string>();
+		_cache = [];
 	}
 
 	public async Task Set(string key, string value)
@@ -26,7 +26,10 @@ public class DataManager
 
 		value = await _localStorage.GetItemAsync<string>(key);
 
-		_cache[key] = value;
+		if (value is null)
+			_cache.Remove(key);
+		else
+			_cache[key] = value;
 
 		return value;
 	}

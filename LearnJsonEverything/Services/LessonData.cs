@@ -1,5 +1,7 @@
 ﻿using System.Text.Json.Nodes;
 
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+
 namespace LearnJsonEverything.Services;
 
 public class LessonData
@@ -9,5 +11,5 @@ public class LessonData
 	public string Title { get; set; }
 	public string Instructions { get; set; }
 	public string ContextCode { get; set; }
-	public JsonArray? Tests { get; set; }
+	public JsonArray Tests { get; set; }
 }

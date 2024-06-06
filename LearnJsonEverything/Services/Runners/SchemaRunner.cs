@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Json.More;
@@ -12,7 +13,7 @@ namespace LearnJsonEverything.Services.Runners;
 
 public static class SchemaRunner
 {
-	private class SchemaTest
+	public class SchemaTest
 	{
 		public JsonNode? Instance { get; set; }
 		public bool IsValid { get; set; }
@@ -40,10 +41,6 @@ public static class SchemaRunner
 	private const string WarnIcon = "⚠";
 	private const string MessageIcon = "ⓘ";
 
-	//public static string ErrorIcon = "<span style=\"foreground:red;\">❌</span>";
-	//public static string WarnIcon = "<span style=\"foreground:amber;\">⚠</span>";
-	//public static string MessageIcon = "<span style=\"foreground:lightblue;\">ⓘ</span>";
-
 	public static string BuildInstructions(LessonData lesson) => Instructions
 		.Replace("/* TITLE */", lesson.Title)
 		.Replace("/* INSTRUCTIONS */", lesson.Instructions)
@@ -52,21 +49,18 @@ public static class SchemaRunner
 
 	private static string BuildTestList(JsonArray testData)
 	{
-		var tests = testData.Deserialize<SchemaTest[]>(SerializerOptions);
-		var lines = new List<string>
-		{
+		var tests = testData.Deserialize(SerializerContext.Default.SchemaTestArray)!;
+		string[] lines =
+		[
 			"| Instance | Is Valid |",
-			"|:-|:-:|"
-		};
-
-		foreach (var test in tests)
-		{
-			lines.Add($"|`{test.Instance.AsJsonString()}`|{test.IsValid}|");
-		}
+			"|:-|:-:|",
+			.. tests.Select(test => $"|`{test.Instance.AsJsonString()}`|{test.IsValid}|")
+		];
 
 		return string.Join(Environment.NewLine, lines);
 	}
 
+	[RequiresUnreferencedCode("")]
 	public static string[] Run(string userCode, LessonData lesson, MetadataReference[] references)
 	{
 		var fullSource = lesson.ContextCode
@@ -106,7 +100,7 @@ public static class SchemaRunner
 		var type = assembly.DefinedTypes.Single(x => !x.IsInterface && x.ImplementedInterfaces.Contains(typeof(ILessonRunner<EvaluationResults>)));
 		var runner = (ILessonRunner<EvaluationResults>) Activator.CreateInstance(type)!;
 
-		var tests = lesson.Tests.Deserialize<SchemaTest[]>(SerializerOptions);
+		var tests = lesson.Tests.Deserialize(SerializerContext.Default.SchemaTestArray)!;
 		var results = new List<string>();
 
 		foreach (var test in tests)
@@ -117,12 +111,6 @@ public static class SchemaRunner
 
 		// run the code
 
-		return results.ToArray();
-	}
-
-	private static string ToLiteral(this string valueTextForCompiler)
-	{
-		var formatted = SymbolDisplay.FormatLiteral(valueTextForCompiler, true);
-		return formatted;
+		return [.. results];
 	}
 }

@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace LearnJsonEverything.Services;
 
@@ -36,5 +37,22 @@ public class LessonPlan
 		index = Math.Min(_lessonData.Length - 1, index + 1);
 
 		return _lessonData[index];
+	}
+}
+
+public class LessonPlanJsonConverter : JsonConverter<LessonPlan>
+{
+	public override LessonPlan? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+	{
+#pragma warning disable IL2026 // Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code
+		var lessonData = JsonSerializer.Deserialize<LessonData[]>(ref reader, options)!;
+#pragma warning restore IL2026 // Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code
+
+		return new LessonPlan(lessonData);
+	}
+
+	public override void Write(Utf8JsonWriter writer, LessonPlan value, JsonSerializerOptions options)
+	{
+		throw new NotImplementedException();
 	}
 }
