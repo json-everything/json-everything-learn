@@ -13,4 +13,5 @@ public class LessonData
 	public string ContextCode { get; set; }
 	public JsonArray Tests { get; set; }
 	public bool Achieved { get; set; }
+	public string? UserCode { get; set; }
 }

@@ -20,9 +20,10 @@ public static class SerializationHelpers
 [JsonSerializable(typeof(JsonObject))]
 [JsonSerializable(typeof(JsonArray))]
 [JsonSerializable(typeof(LessonPlan))]
-[JsonSerializable(typeof(LessonData))]
 [JsonSerializable(typeof(LessonData[]))]
-[JsonSerializable(typeof(SchemaRunner.SchemaTest))]
+[JsonSerializable(typeof(SchemaSaveData[]))]
 [JsonSerializable(typeof(SchemaRunner.SchemaTest[]))]
 [JsonSourceGenerationOptions(WriteIndented = true, PropertyNameCaseInsensitive = true)]
 internal partial class SerializerContext : JsonSerializerContext;
+
+public record SchemaSaveData(Guid id, bool completed, string? userCode);

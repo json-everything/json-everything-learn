@@ -84,10 +84,12 @@
 
 			await _outputEditor.SetValue(string.Empty);
 
-			var results = SchemaRunner.Run(userCode, _currentLesson!);
+			_currentLesson!.UserCode = userCode;
+			var results = SchemaRunner.Run(_currentLesson);
 
 			await _outputEditor.SetValue(string.Join(Environment.NewLine, results!));
 			_nextButtonDisabled = !CanMoveToNextLesson();
+			await SaveLessonPlanCompletion();
 		}
 		catch (Exception e)
 		{
@@ -113,12 +115,14 @@
 		return LoadLesson();
 	}
 
-	private Task LoadLesson()
+	private async Task LoadLesson()
 	{
 		_currentLesson ??= _lessons[0];
 		Instructions = SchemaRunner.BuildInstructions(_currentLesson);
 		_nextButtonDisabled = !CanMoveToNextLesson();
-		return _outputEditor.SetValue(string.Empty);
+		if (_currentLesson.UserCode is not null)
+			await _codeEditor.SetValue(_currentLesson.UserCode);
+		await _outputEditor.SetValue(string.Empty);
 	}
 
 	private bool CanMoveToNextLesson()
@@ -131,7 +135,6 @@
 	protected override async Task OnInitializedAsync()
 	{
 		await DownloadLessonPlan();
-		
 		await LoadLesson();
 
 		await base.OnInitializedAsync();
@@ -144,6 +147,34 @@
 		var json = yaml.ToJsonNode().FirstOrDefault();
 		Console.WriteLine(json.AsJsonString());
 		_lessons = json.Deserialize(SerializerContext.Default.LessonPlan)!;
+
+		var completed = await LoadLessonPlanCompletion();
+		foreach (var saveData in completed)
+		{
+			var lesson = _lessons[saveData.id];
+			lesson.Achieved = saveData.completed;
+			lesson.UserCode = saveData.userCode;
+		}
+
+		_currentLesson = _lessons.SkipWhile(x => x.Achieved).FirstOrDefault() ?? _lessons.Last();
+	}
+
+	private async Task SaveLessonPlanCompletion()
+	{
+		var completionData = _lessons.Where(x => x.UserCode is not null)
+			.Select(x => new SchemaSaveData(x.Id, x.Achieved, x.UserCode))
+			.ToArray();
+		var json = JsonSerializer.Serialize(completionData, SerializerContext.Default.SchemaSaveDataArray);
+
+		await DataManager.Set(LessonSource, json);
+	}
+
+	private async Task<SchemaSaveData[]> LoadLessonPlanCompletion()
+	{
+		var json = await DataManager.Get(LessonSource);
+		if (json is null) return [];
+
+		return JsonSerializer.Deserialize(json, SerializerContext.Default.SchemaSaveDataArray)!;
 	}
 
 	private async Task SelectLesson(Guid lessonId)

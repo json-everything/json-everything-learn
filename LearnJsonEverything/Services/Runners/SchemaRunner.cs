@@ -1,13 +1,7 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Nodes;
 using Json.More;
 using Json.Schema;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-
-using static LearnJsonEverything.Services.SerializationHelpers;
 
 namespace LearnJsonEverything.Services.Runners;
 
@@ -55,9 +49,9 @@ public static class SchemaRunner
 		return string.Join(Environment.NewLine, lines);
 	}
 
-	public static string[] Run(string userCode, LessonData lesson)
+	public static string[] Run(LessonData lesson)
 	{
-		var (runner, errors) = CompilationHelpers.GetRunner<EvaluationResults>(lesson, userCode);
+		var (runner, errors) = CompilationHelpers.GetRunner<EvaluationResults>(lesson);
 
 		if (runner is null) return errors;
 

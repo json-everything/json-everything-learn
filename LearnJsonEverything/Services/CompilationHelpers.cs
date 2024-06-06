@@ -61,13 +61,13 @@ public static class CompilationHelpers
 		return _references;
 	}
 
-	public static (ILessonRunner<T>?, string[]) GetRunner<T>(LessonData lesson, string userCode)
+	public static (ILessonRunner<T>?, string[]) GetRunner<T>(LessonData lesson)
 	{
 		if (_references is null)
 			return (null, ["Compilation assemblies still loading.  Please wait until complete and try again."]);
 
 		var fullSource = lesson.ContextCode
-			.Replace("/* USER CODE */", userCode);
+			.Replace("/* USER CODE */", lesson.UserCode ?? string.Empty);
 
 		Console.WriteLine($"Compiling...\n\n{fullSource}");
 
