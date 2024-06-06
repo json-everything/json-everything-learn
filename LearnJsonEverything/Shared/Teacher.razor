@@ -70,7 +70,7 @@
 			var userCode = await _codeEditor.GetValue();
 
 			await _outputEditor.SetValue("");
-			var results = SchemaRunner.Run(userCode, _currentLesson!, await CompilationHelpers.LoadAssemblyReferences(Client));
+			var results = SchemaRunner.Run(userCode, _currentLesson!);
 			await _outputEditor.SetValue(string.Join(Environment.NewLine, results!));
 		}
 		catch (Exception e)

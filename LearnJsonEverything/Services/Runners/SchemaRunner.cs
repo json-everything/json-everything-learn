@@ -36,11 +36,6 @@ public static class SchemaRunner
 		 
 		 """;
 
-	private const string SuccessIcon = "✔";
-	private const string ErrorIcon = "❌";
-	private const string WarnIcon = "⚠";
-	private const string MessageIcon = "ⓘ";
-
 	public static string BuildInstructions(LessonData lesson) => Instructions
 		.Replace("/* TITLE */", lesson.Title)
 		.Replace("/* INSTRUCTIONS */", lesson.Instructions)
@@ -61,44 +56,11 @@ public static class SchemaRunner
 	}
 
 	[RequiresUnreferencedCode("")]
-	public static string[] Run(string userCode, LessonData lesson, MetadataReference[] references)
+	public static string[] Run(string userCode, LessonData lesson)
 	{
-		var fullSource = lesson.ContextCode
-			.Replace("/* USER CODE */", userCode);
+		var (runner, errors) = CompilationHelpers.GetRunner<EvaluationResults>(lesson, userCode);
 
-		var syntaxTree = CSharpSyntaxTree.ParseText(fullSource);
-		var assemblyPath = Path.ChangeExtension(Path.GetTempFileName(), "dll");
-
-		var compilation = CSharpCompilation.Create(Path.GetFileName(assemblyPath))
-			.WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
-			.AddReferences(references)
-			.AddSyntaxTrees(syntaxTree);
-
-		using var dllStream = new MemoryStream();
-		using var pdbStream = new MemoryStream();
-		using var xmlStream = new MemoryStream();
-		var emitResult = compilation.Emit(dllStream, pdbStream, xmlStream);
-		if (!emitResult.Success)
-		{
-			var diagnostics = new List<string>();
-			foreach (var diagnostic in emitResult.Diagnostics)
-			{
-				var icon = diagnostic.Severity switch
-				{
-					DiagnosticSeverity.Info => MessageIcon,
-					DiagnosticSeverity.Warning => WarnIcon,
-					DiagnosticSeverity.Error => ErrorIcon,
-					_ => string.Empty
-				};
-				diagnostics.Add($"{icon} {diagnostic.GetMessage()}");
-			}
-			return [.. diagnostics];
-		}
-
-		var assembly = Assembly.Load(dllStream.ToArray());
-
-		var type = assembly.DefinedTypes.Single(x => !x.IsInterface && x.ImplementedInterfaces.Contains(typeof(ILessonRunner<EvaluationResults>)));
-		var runner = (ILessonRunner<EvaluationResults>) Activator.CreateInstance(type)!;
+		if (runner is null) return errors;
 
 		var tests = lesson.Tests.Deserialize(SerializerContext.Default.SchemaTestArray)!;
 		var results = new List<string>();
@@ -106,7 +68,7 @@ public static class SchemaRunner
 		foreach (var test in tests)
 		{
 			var result = runner.Run(new JsonObject { ["instance"] = test.Instance });
-			results.Add($"{(test.IsValid == result.IsValid ? SuccessIcon : ErrorIcon)} {test.Instance.AsJsonString()}");
+			results.Add($"{(test.IsValid == result.IsValid ? Iconography.SuccessIcon : Iconography.ErrorIcon)} {test.Instance.AsJsonString()}");
 		}
 
 		// run the code
