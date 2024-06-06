@@ -15,6 +15,7 @@ public static class CompilationHelpers
 		"JsonPointer.Net",
 		"JsonSchema.Net",
 		"LearnJsonEverything.Template",
+		"Yaml2JsonNode",
 	];
 
 	public static async Task<MetadataReference[]> LoadAssemblyReferences(HttpClient client)

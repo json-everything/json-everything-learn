@@ -8,6 +8,7 @@
 	  <LangVersion>latest</LangVersion>
     <WasmEnableWebcil>false</WasmEnableWebcil>
     <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+    <PublishTrimmed>false</PublishTrimmed>
   </PropertyGroup>
 
   <ItemGroup>

@@ -55,7 +55,6 @@ public static class SchemaRunner
 		return string.Join(Environment.NewLine, lines);
 	}
 
-	[RequiresUnreferencedCode("")]
 	public static string[] Run(string userCode, LessonData lesson)
 	{
 		var (runner, errors) = CompilationHelpers.GetRunner<EvaluationResults>(lesson, userCode);
@@ -68,7 +67,7 @@ public static class SchemaRunner
 		foreach (var test in tests)
 		{
 			var result = runner.Run(new JsonObject { ["instance"] = test.Instance });
-			results.Add($"{(test.IsValid == result.IsValid ? Iconography.SuccessIcon : Iconography.ErrorIcon)} {test.Instance.AsJsonString()}");
+			results.Add($"{(test.IsValid == result?.IsValid ? Iconography.SuccessIcon : Iconography.ErrorIcon)} {test.Instance.AsJsonString()}");
 		}
 
 		// run the code
