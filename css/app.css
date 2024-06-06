@@ -42,7 +42,7 @@ article {
 }
 
 .scroll {
-	overflow-y: auto;
+  overflow: auto;
 }
 
 h1:focus {
