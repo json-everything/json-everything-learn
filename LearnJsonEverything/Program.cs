@@ -15,6 +15,6 @@ builder.Services.AddSingleton<DataManager>();
 var host = builder.Build();
 _ = host.Services.GetService<HttpClient>();
 
-_ = await CompilationHelpers.LoadAssemblyReferences(host.Services.GetService<HttpClient>()!);
+_ = CompilationHelpers.LoadAssemblyReferences(host.Services.GetService<HttpClient>()!);
 
 await host.RunAsync();

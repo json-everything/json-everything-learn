@@ -8,6 +8,7 @@ namespace LearnJsonEverything.Services;
 public static class CompilationHelpers
 {
 	private static MetadataReference[]? _references;
+	private static bool _isLoading;
 
 	private static readonly string[] EnsuredAssemblies =
 	[
@@ -18,10 +19,13 @@ public static class CompilationHelpers
 		"Yaml2JsonNode",
 	];
 
-	public static async Task<MetadataReference[]> LoadAssemblyReferences(HttpClient client)
+	public static async Task<MetadataReference[]?> LoadAssemblyReferences(HttpClient client)
 	{
 		if (_references is null)
 		{
+			if (_isLoading) return null;
+			_isLoading = true;
+
 			var refs = AppDomain.CurrentDomain.GetAssemblies();
 			var names = refs
 				.Where(x => !x.IsDynamic)
@@ -51,6 +55,7 @@ public static class CompilationHelpers
 			}
 
 			_references = references;
+			_isLoading = false;
 		}
 
 		return _references;
@@ -59,7 +64,7 @@ public static class CompilationHelpers
 	public static (ILessonRunner<T>?, string[]) GetRunner<T>(LessonData lesson, string userCode)
 	{
 		if (_references is null)
-			throw new Exception("Compilation assemblies not loaded.");
+			return (null, ["Compilation assemblies still loading.  Please wait until complete and try again."]);
 
 		var fullSource = lesson.ContextCode
 			.Replace("/* USER CODE */", userCode);

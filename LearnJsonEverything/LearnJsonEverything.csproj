@@ -4,7 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-	  <NoWarn>NU1701</NoWarn>
+	  <NoWarn>NU1701;BL0007</NoWarn>
 	  <LangVersion>latest</LangVersion>
     <WasmEnableWebcil>false</WasmEnableWebcil>
     <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
