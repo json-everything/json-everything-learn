@@ -211,6 +211,23 @@ a.navbar-brand {
 	background-color: transparent;
 }
 
+.stamp {
+  border: 4px groove rgba(220, 0, 0, 0.8);
+  border-radius: 10px;
+  color: rgba(220, 0, 0, 0.8);
+  font-weight: 800;
+  padding: 0 6px 0 6px;
+  position: absolute;
+  transform: translate(40%, 50%) rotate(-10deg);
+  z-index: 10;
+}
+
+.disabled {
+  pointer-events: none;
+  background-color: transparent !important;
+  border-color: transparent !important;
+}
+
 /*--- LIBRARY ---*/
 
 .version-callout {

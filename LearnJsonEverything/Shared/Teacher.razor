@@ -44,7 +44,7 @@
 			</div>
 			<div id="controls" class="col-12">
 				<div class="d-flex">
-					<button class="btn btn-primary m-1" @onclick="PreviousLesson">&lt; Previous</button>
+					<button class="btn btn-primary m-1" disabled="@_previousButtonDisabled" @onclick="PreviousLesson">&lt; Previous</button>
 					<button class="btn btn-primary m-1" @onclick="Run">Run</button>
 					<button class="btn btn-primary m-1" disabled="@_nextButtonDisabled" @onclick="NextLesson">Next &gt;</button>
 				</div>
@@ -65,6 +65,7 @@
 	private StandaloneCodeEditor _outputEditor;
 	private LessonPlan _lessons = new([]);
 	private LessonData? _currentLesson;
+	private bool _previousButtonDisabled = true;
 	private bool _nextButtonDisabled = true;
 
 	[Parameter]
@@ -88,7 +89,7 @@
 			var results = SchemaRunner.Run(_currentLesson);
 
 			await _outputEditor.SetValue(string.Join(Environment.NewLine, results!));
-			_nextButtonDisabled = !CanMoveToNextLesson();
+			UpdateNavigation();
 			await SaveLessonPlanCompletion();
 		}
 		catch (Exception e)
@@ -118,11 +119,23 @@
 	private async Task LoadLesson()
 	{
 		_currentLesson ??= _lessons[0];
-		Instructions = SchemaRunner.BuildInstructions(_currentLesson);
+		Instructions = InstructionsBuilder.BuildInstructions(_currentLesson);
 		_nextButtonDisabled = !CanMoveToNextLesson();
-		if (_currentLesson.UserCode is not null)
-			await _codeEditor.SetValue(_currentLesson.UserCode);
+		await _codeEditor.SetValue(_currentLesson.UserCode ?? string.Empty);
 		await _outputEditor.SetValue(string.Empty);
+		UpdateNavigation();
+	}
+
+	private void UpdateNavigation()
+	{
+		_previousButtonDisabled = !CanMoveToPreviousLesson();
+		_nextButtonDisabled = !CanMoveToNextLesson();
+	}
+
+	private bool CanMoveToPreviousLesson()
+	{
+		if (_currentLesson is null) return false;
+		return _currentLesson.Index != 0;
 	}
 
 	private bool CanMoveToNextLesson()
@@ -145,7 +158,6 @@
 		var yamlText = await Client.GetStringAsync(LessonSource);
 		var yaml = YamlSerializer.Parse(yamlText);
 		var json = yaml.ToJsonNode().FirstOrDefault();
-		Console.WriteLine(json.AsJsonString());
 		_lessons = json.Deserialize(SerializerContext.Default.LessonPlan)!;
 
 		var completed = await LoadLessonPlanCompletion();
@@ -179,11 +191,7 @@
 
 	private async Task SelectLesson(Guid lessonId)
 	{
-		var index = _currentLesson?.Index ?? 0;
-		if (index == 0 || _lessons[index - 1].Achieved)
-		{
-			_currentLesson = _lessons[lessonId];
-			await LoadLesson();
-		}
+		_currentLesson = _lessons[lessonId];
+		await LoadLesson();
 	}
 }

@@ -25,5 +25,3 @@ public static class SerializationHelpers
 [JsonSerializable(typeof(SchemaRunner.SchemaTest[]))]
 [JsonSourceGenerationOptions(WriteIndented = true, PropertyNameCaseInsensitive = true)]
 internal partial class SerializerContext : JsonSerializerContext;
-
-public record SchemaSaveData(Guid id, bool completed, string? userCode);

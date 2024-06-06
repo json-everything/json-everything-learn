@@ -9,6 +9,10 @@ public class LessonData
 	public int Index { get; set; }
 	public Guid Id { get; set; }
 	public string Title { get; set; }
+	public string Background { get; set; }
+	public string Docs { get; set; }
+	public string Api { get; set; }
+	public string SchemaDocs { get; set; }
 	public string Instructions { get; set; }
 	public string ContextCode { get; set; }
 	public JsonArray Tests { get; set; }

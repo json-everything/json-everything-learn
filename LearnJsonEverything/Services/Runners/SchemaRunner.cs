@@ -13,42 +13,6 @@ public static class SchemaRunner
 		public bool IsValid { get; set; }
 	}
 
-	private const string Instructions =
-		$"""
-		 ### /* TITLE */
-
-		 /* INSTRUCTIONS */
-
-		 ### Code template
-
-		 ```csharp
-		 /* CONTEXT CODE */
-		 ```
-
-		 ### Tests
-		 /* TESTS */
-		 
-		 """;
-
-	public static string BuildInstructions(LessonData lesson) => Instructions
-		.Replace("/* TITLE */", lesson.Title)
-		.Replace("/* INSTRUCTIONS */", lesson.Instructions)
-		.Replace("/* CONTEXT CODE */", lesson.ContextCode)
-		.Replace("/* TESTS */", BuildTestList(lesson.Tests));
-
-	private static string BuildTestList(JsonArray testData)
-	{
-		var tests = testData.Deserialize(SerializerContext.Default.SchemaTestArray)!;
-		string[] lines =
-		[
-			"| Instance | Is Valid |",
-			"|:-|:-:|",
-			.. tests.Select(test => $"|`{test.Instance.AsJsonString()}`|{test.IsValid}|")
-		];
-
-		return string.Join(Environment.NewLine, lines);
-	}
-
 	public static string[] Run(LessonData lesson)
 	{
 		var (runner, errors) = CompilationHelpers.GetRunner<EvaluationResults>(lesson);

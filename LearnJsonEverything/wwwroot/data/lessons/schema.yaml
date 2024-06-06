@@ -1,7 +1,12 @@
 ﻿---
 - id: 26b6ebca-58e6-4814-86ea-4946d844c9a6
-  title: Any string
-  instructions: |-
+  title: 'Schema Builder: Any string'
+  background: |
+    The `JsonSchemaBuilder` class provides a type-safe fluent interface for building schemas in code.
+    Adding a keyword is accomplished by calling the same-name (usually) extension method.
+  docs: 'schema/basics/#schema-inlining'
+  api: api/JsonSchema.Net/JsonSchemaBuilderExtensions
+  instructions: |
     Configure the provided `JsonSchemaBuilder` to produce a schema that validates a string instance.
   inputTemplate: ''
   contextCode: |-
@@ -37,8 +42,13 @@
   - instance: false
     isValid: false
 - id: 26b6ebca-58e6-4814-86ea-4946d844c9a7
-  title: Number with limits
-  instructions: |-
+  title: 'Schema Builder: Number with limits'
+  background: |
+    The `JsonSchemaBuilder` class provides a type-safe fluent interface for building schemas in code.
+    Adding a keyword is accomplished by calling the same-name (usually) extension method.
+  docs: 'schema/basics/#schema-inlining'
+  api: api/JsonSchema.Net/JsonSchemaBuilderExtensions
+  instructions: |
     Configure the provided `JsonSchemaBuilder` to produce a schema that validates a number instance
     that is less than or equal to 10 but greater than 0.
   inputTemplate: ''
@@ -83,4 +93,115 @@
   - instance: {}
     isValid: false
   - instance: false
+    isValid: false
+- id: 36b6ebca-58e6-4814-86ea-4946d844c9a7
+  background: |
+    The `JsonSchemaBuilder` class provides a type-safe fluent interface for building schemas in code.
+    Adding a keyword is accomplished by calling the same-name (usually) extension method.
+
+    Some keywords take schemas.  To do this with _JsonSchema.Net_, you'll want to pass a nested
+    `JsonSchemaBuilder`.
+
+    To help make your code prettier, there is an implicit cast from `JsonSchemaBuilder` to `JsonSchema`
+    that automatically calls the `.Build()` method so you don't have to.
+  docs: 'schema/basics/#schema-inlining'
+  api: api/JsonSchema.Net/JsonSchemaBuilderExtensions
+  title: 'Schema Builder: Homogenous arrays'
+  instructions: |
+    Configure the provided `JsonSchemaBuilder` to produce a schema that validates a array instance
+    filled with integers.  Ensure that the array has no more than 5 items.
+  inputTemplate: ''
+  contextCode: |-
+    using System;
+    using System.Collections.Generic;
+    using System.Text.Json;
+    using System.Text.Json.Nodes;
+    using System.Text.Json.Serialization;
+    using Json.Schema;
+    
+    namespace LearnJsonEverything;
+    
+    public class Lesson : ILessonRunner<EvaluationResults>
+    {
+        public EvaluationResults Run(JsonObject context)
+        {
+            var instance = context["instance"];
+            var builder = new JsonSchemaBuilder();
+
+            /* USER CODE */
+
+            var schema = builder.Build();
+            return schema.Evaluate(instance);
+        }
+    }
+  tests:
+  - instance: 6.8
+    isValid: false
+  - instance: [1,2,3]
+    isValid: true
+  - instance: ["string",1,2]
+    isValid: false
+  - instance: [1,2,3,4,5,6]
+    isValid: false
+  - instance: a string value
+    isValid: false
+  - instance: []
+    isValid: true
+  - instance: {}
+    isValid: false
+  - instance: false
+    isValid: false
+- id: 26b6ebca-58e6-4814-86ea-4946d844c9a8
+  background: |
+    The `JsonSchemaBuilder` class provides a type-safe fluent interface.  Adding a keyword is
+    accomplished by calling the same-name (usually) extension method.
+  docs: 'schema/basics/#schema-deserialization'
+  title: Deserializing a schema
+  instructions: |
+    Deserialize the text in `schemaText` into a `JsonSchema` variable called `schema`.
+  inputTemplate: ''
+  contextCode: |-
+    using System;
+    using System.Collections.Generic;
+    using System.Text.Json;
+    using System.Text.Json.Nodes;
+    using System.Text.Json.Serialization;
+    using Json.Schema;
+    
+    namespace LearnJsonEverything;
+    
+    public class Lesson : ILessonRunner<EvaluationResults>
+    {
+        public EvaluationResults Run(JsonObject context)
+        {
+            var instance = context["instance"];
+            var schemaText =
+                """
+                {
+                  "type": "object",
+                  "properties": {
+                    "foo": { "type": "number", "minimum": 0 },
+                    "bar": { "type": "string" }
+                  },
+                  "required": ["foo", "bar"]
+                }
+                """;
+
+            /* USER CODE */
+
+            return schema.Evaluate(instance);
+        }
+    }
+  tests:
+  - instance: { "foo": 13, "bar": "a string" }
+    isValid: true
+  - instance: { "foo": false, "bar": "a string" }
+    isValid: false
+  - instance: { "foo": 13 }
+    isValid: false
+  - instance: { "bar": "a string" }
+    isValid: false
+  - instance: [1,2,3]
+    isValid: false
+  - instance: 6.8
     isValid: false
