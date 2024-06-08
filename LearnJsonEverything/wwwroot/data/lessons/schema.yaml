@@ -360,7 +360,7 @@
   title: 'Options: JSON Schema Version'
   instructions: |
     Create and configure an evaluation options object, and set the JSON Schema version
-    found in the `schemaVersion` variable.
+    found in the `specVersion` variable.
   inputTemplate: ''
   contextCode: |-
     using System;
