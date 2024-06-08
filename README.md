@@ -1,6 +1,4 @@
-Repo for learning content
+This repo controls the _Learn `json-everything`_ website and all of its content.
 
 - Main site (playground): https://json-everything.net
 - Learning sandbox: https://learn.json-everything.net
-
-Please create any issues in the [main repository](https://github.com/gregsdennis/json-everything/issues?q=is%3Aopen+is%3Aissue+label%3Alearn-site).
