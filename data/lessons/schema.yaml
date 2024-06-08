@@ -40,6 +40,8 @@
             return schema.Evaluate(instance);
         }
     }
+  solution: |-
+    var schema = JsonSerializer.Deserialize<JsonSchema>(schemaText);
   tests:
   - instance: { "foo": 13, "bar": "a string" }
     isValid: true
@@ -54,7 +56,7 @@
   - instance: 6.8
     isValid: false
 - id: 26b6ebca-58e6-4824-86ea-4946d844c9a8
-  skip: true
+  skip: true  # source gen is not available in dynamic compilation
   background: |
     JSON Schema is typically itself represented in JSON.  To support this, the `JsonSchema`
     type is completely compatible with the _System.Text.Json_ serializer.
@@ -102,6 +104,10 @@
     }
 
     /* USER CODE */
+  solution: |-
+    [JsonSerializable(typeof(JsonSchema))]
+    [JsonSerializable(typeof(EvaluationResults))]
+    internal partial class MySerializerContext : JsonSerializerContext;
   tests:
   - instance: { "foo": 13, "bar": "a string" }
     isValid: true
@@ -148,6 +154,8 @@
             return schema.Evaluate(instance);
         }
     }
+  solution: |-
+    builder.Type(SchemaValueType.String);
   tests:
   - instance: a string value
     isValid: true
@@ -191,6 +199,10 @@
             return schema.Evaluate(instance);
         }
     }
+  solution: |-
+    builder.Type(SchemaValueType.String)
+        .ExclusiveMinimum(0)
+        .Maximum(10);
   tests:
   - instance: 6.8
     isValid: true
@@ -250,6 +262,10 @@
             return schema.Evaluate(instance);
         }
     }
+  solution: |-
+    builder.Type(SchemaValueType.Array)
+        .Items(new JsonSchemaBuilder().Type(SchemaValueType.Integer))
+        .MaxItems(5);
   tests:
   - instance: 6.8
     isValid: false
@@ -305,6 +321,8 @@
             return schema.Evaluate(instance, options);
         }
     }
+  solution: |-
+    options.RequireFormatValidation = true;
   tests:
   - instance: 2015-06-13T10:31:16+04:00
     format: date-time
@@ -409,6 +427,8 @@
             return schema.Evaluate(instance, options);
         }
     }
+  solution: |-
+    var options = new EvaluationOptions { EvaluateAs = specVersion };
   tests:
   - instance: [{},4]
     version: Draft6
