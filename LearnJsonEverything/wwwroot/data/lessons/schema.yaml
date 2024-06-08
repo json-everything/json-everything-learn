@@ -216,13 +216,13 @@
     Adding a keyword is accomplished by calling the same-name (usually) extension method.
 
     Some keywords take schemas.  To do this with _JsonSchema.Net_, you'll want to pass a nested
-    `JsonSchemaBuilder`.
+    `JsonSchemaBuilder` into the `.Items()` extension method.
 
     To help make your code prettier, there is an implicit cast from `JsonSchemaBuilder` to `JsonSchema`
     that automatically calls the `.Build()` method so you don't have to.
   docs: 'schema/basics/#schema-inlining'
   api: api/JsonSchema.Net/JsonSchemaBuilderExtensions
-  title: 'Schema Builder: Homogenous arrays'
+  title: 'Schema Builder: Nesting schemas'
   instructions: |
     Configure the provided `JsonSchemaBuilder` to produce a schema that validates a array instance
     filled with integers.  Ensure that the array has no more than 5 items.
