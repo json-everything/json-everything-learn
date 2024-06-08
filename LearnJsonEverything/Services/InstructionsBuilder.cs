@@ -1,5 +1,6 @@
-﻿using System.Text.Json;
+﻿using System.Text;
 using System.Text.Json.Nodes;
+using Humanizer;
 using Json.More;
 
 namespace LearnJsonEverything.Services;
@@ -66,14 +67,46 @@ public static class InstructionsBuilder
 
     private static string BuildTestList(JsonArray testData)
     {
-        var tests = testData.Deserialize(SerializerContext.Default.SchemaTestArray)!;
-        string[] lines =
-        [
-            "| Instance | Is Valid |",
-            "|:-|:-:|",
-            .. tests.Select(test => $"|`{test.Instance.AsJsonString()}`|{test.IsValid}|")
-        ];
+		var lines = new List<string>();
 
-        return string.Join(Environment.NewLine, lines);
+		var sample = testData[0]!.AsObject();
+		lines.Add($"|{string.Join("|", sample.Select(x => x.Key.Pascalize().Humanize()))}|");
+		lines.Add($"|{string.Join("|", sample.Select(_ => ":-"))}|");
+
+		foreach (var test in testData)
+		{
+			var lineContent = new StringBuilder("|");
+			foreach (var kvp in sample)
+			{
+				lineContent.Append(MaybeCode(test![kvp.Key], kvp.Key));
+				lineContent.Append('|');
+			}
+
+			lines.Add(lineContent.ToString());
+		}
+
+		return string.Join(Environment.NewLine, lines);
+
+		//string[] lines =
+  //      [
+  //          "| Instance | Is Valid |",
+  //          "|:-|:-:|",
+  //          .. testData.Select(test => $"|`{test!["instance"]!.Print()}`|{test["isValid"]!.Print()}|")
+  //      ];
+
+  //      return string.Join(Environment.NewLine, lines);
     }
+
+    private static readonly string[] KeysToFormat =
+    [
+	    "instance",
+	    "format"
+    ];
+
+	private static string MaybeCode(JsonNode? node, string key)
+	{
+		if (KeysToFormat.Contains(key)) return $"`{node.Print()}`";
+
+		return node?.Print();
+	}
 }

@@ -30,7 +30,7 @@
 		</div>
 	</div>
 	<div class="col-4 d-flex h-100">
-		<div class="grid-panel flex-grow-1 scroll">
+		<div id="instructions-panel" class="grid-panel flex-grow-1 scroll">
 			<MarkdownSpan Content="@Instructions"></MarkdownSpan>
 		</div>
 	</div>
@@ -84,6 +84,7 @@
 			var userCode = await _codeEditor.GetValue();
 
 			await _outputEditor.SetValue(string.Empty);
+			await _outputEditor.SetLanguageAsync("json", JsRuntime);
 
 			_currentLesson!.UserCode = userCode;
 			var results = SchemaRunner.Run(_currentLesson);
@@ -95,7 +96,7 @@
 		catch (Exception e)
 		{
 			await _outputEditor.SetLanguageAsync("text", JsRuntime);
-			await _outputEditor.SetValue(e.Message);
+			await _outputEditor.SetValue($"An exception occurred while executing user code:\n\n{e.GetType().Name}: {e.Message}\n{e.StackTrace}");
 		}
 	}
 
@@ -124,6 +125,7 @@
 		await _codeEditor.SetValue(_currentLesson.UserCode ?? string.Empty);
 		await _outputEditor.SetValue(string.Empty);
 		UpdateNavigation();
+		await JsRuntime.InvokeVoidAsync("BlazorScrollToTopOfElement", "instructions-panel");
 	}
 
 	private void UpdateNavigation()

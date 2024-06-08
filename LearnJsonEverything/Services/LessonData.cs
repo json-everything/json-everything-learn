@@ -8,6 +8,7 @@ public class LessonData
 {
 	public int Index { get; set; }
 	public Guid Id { get; set; }
+	public bool Skip { get; set; }
 	public string Title { get; set; }
 	public string Background { get; set; }
 	public string Docs { get; set; }

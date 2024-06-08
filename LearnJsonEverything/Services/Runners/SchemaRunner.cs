@@ -1,33 +1,24 @@
-﻿using System.Text.Json;
-using System.Text.Json.Nodes;
-using Json.More;
-using Json.Schema;
+﻿using Json.Schema;
 
 namespace LearnJsonEverything.Services.Runners;
 
 public static class SchemaRunner
 {
-	public class SchemaTest
-	{
-		public JsonNode? Instance { get; set; }
-		public bool IsValid { get; set; }
-	}
-
 	public static string[] Run(LessonData lesson)
 	{
 		var (runner, errors) = CompilationHelpers.GetRunner<EvaluationResults>(lesson);
 
 		if (runner is null) return errors;
 
-		var tests = lesson.Tests.Deserialize(SerializerContext.Default.SchemaTestArray)!;
 		var results = new List<string>();
 
 		var correct = true;
-		foreach (var test in tests)
+		foreach (var test in lesson.Tests)
 		{
-			var result = runner.Run(new JsonObject { ["instance"] = test.Instance });
-			correct &= test.IsValid == result.IsValid;
-			results.Add($"{(test.IsValid == result.IsValid ? Iconography.SuccessIcon : Iconography.ErrorIcon)} {test.Instance.AsJsonString()}");
+			var expectedValidity = test!["isValid"]!.GetValue<bool>();
+			var result = runner.Run(test.AsObject());
+			correct &= expectedValidity == result.IsValid;
+			results.Add($"{(expectedValidity == result.IsValid ? Iconography.SuccessIcon : Iconography.ErrorIcon)} {test["instance"]!.Print()}");
 		}
 
 		lesson.Achieved |= correct;
