@@ -46,6 +46,7 @@
 				<div class="d-flex">
 					<button class="btn btn-primary m-1" disabled="@_previousButtonDisabled" @onclick="PreviousLesson">&lt; Previous</button>
 					<button class="btn btn-primary m-1" @onclick="Run">Run</button>
+					<button class="btn btn-primary m-1" @onclick="RevealSolution">Reveal Solution</button>
 					<button class="btn btn-primary m-1" disabled="@_nextButtonDisabled" @onclick="NextLesson">Next &gt;</button>
 				</div>
 			</div>
@@ -98,6 +99,11 @@
 			await _outputEditor.SetLanguageAsync("text", JsRuntime);
 			await _outputEditor.SetValue($"An exception occurred while executing user code:\n\n{e.GetType().Name}: {e.Message}\n{e.StackTrace}");
 		}
+	}
+
+	private Task RevealSolution()
+	{
+		return _codeEditor.SetValue(_currentLesson?.Solution ?? string.Empty);
 	}
 
 	private Task PreviousLesson()
