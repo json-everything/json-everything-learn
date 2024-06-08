@@ -336,3 +336,101 @@
   - instance: 6.8
     format: date-time
     isValid: false
+- id: 26b6ebca-58e6-4814-8dea-4946d444c9a8
+  background: |
+    _JsonSchema.Net_ supports every version of JSON Schema from Draft 6 forward.
+
+    Version selection can be key to figuring out how to evaluate a schema.  Generally,
+    the version will be determined by the meta-schema, as declared by the `$schema`
+    keyword.  However, when `$schema` is absent, it's up to the tool and user to
+    decide.
+
+    To set the JSON Schema version to use, you'll need to set the `EvaluateAs` property
+    on the evaluation options.
+
+    This setting will have no effect if the schema _does_ have `$schema`.
+
+    Lastly, this property is init-only, so you'll need to set it when creating the 
+    options object.
+
+    \* _This lesson works by taking advantage of the fact that JSON Schema ignores unknown
+    keywords.  So when it evaluates a schema as Draft 6 that contains keywords from
+    Draft 7, the Draft 7 keywords aren't processed._
+  docs: 'schema/basics/#schema-options'
+  title: 'Options: JSON Schema Version'
+  instructions: |
+    Create and configure an evaluation options object, and set the JSON Schema version
+    found in the `schemaVersion` variable.
+  inputTemplate: ''
+  contextCode: |-
+    using System;
+    using System.Collections.Generic;
+    using System.Text.Json;
+    using System.Text.Json.Nodes;
+    using System.Text.Json.Serialization;
+    using Json.Schema;
+    using Json.More;
+    
+    namespace LearnJsonEverything;
+    
+    public class Lesson : ILessonRunner<EvaluationResults>
+    {
+        public EvaluationResults Run(JsonObject test)
+        {
+            var instance = test["instance"];
+            var specVersion = test["version"].Deserialize<SpecVersion>(
+                new JsonSerializerOptions
+                {
+                    Converters = { new EnumStringConverter<SpecVersion>() }
+                }
+            );
+
+            JsonSchema schema = new JsonSchemaBuilder()
+                .Type(SchemaValueType.Array)
+                .Items(new JsonSchemaBuilder()
+                    .Type(SchemaValueType.Integer)
+                )
+                .Contains(new JsonSchemaBuilder().Const(4))
+                // Introduced with Draft 7
+                .If(new JsonSchemaBuilder().MinItems(3))
+                .Then(new JsonSchemaBuilder()
+                    .Items(new JsonSchemaBuilder().MultipleOf(2))
+                )
+                // Introduced with Draft 2019-09
+                .MinContains(2)
+                // Introduced with Draft 2020-12
+                .PrefixItems(
+                    new JsonSchemaBuilder().Type(SchemaValueType.String),
+                    new JsonSchemaBuilder().Type(SchemaValueType.Boolean)
+                );
+
+            /* USER CODE */
+
+            return schema.Evaluate(instance, options);
+        }
+    }
+  tests:
+  - instance: [{},4]
+    version: Draft6
+    isValid: false
+  - instance: [2,3,4,5]
+    version: Draft6
+    isValid: true
+  - instance: [2,3,4,5]
+    version: Draft7
+    isValid: false
+  - instance: [2,4,6,8]
+    version: Draft7
+    isValid: true
+  - instance: [2,4,6,8]
+    version: Draft201909
+    isValid: false
+  - instance: [2,4,6,8,4]
+    version: Draft201909
+    isValid: true
+  - instance: [2,4,6,8,4]
+    version: Draft202012
+    isValid: false
+  - instance: ["a string",true,2,4,6,8,4]
+    version: Draft202012
+    isValid: true
