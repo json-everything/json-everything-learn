@@ -1,4 +1,120 @@
 ﻿---
+- id: 26b6ebca-58e6-4814-86ea-4946d844c9a8
+  background: |
+    JSON Schema is typically itself represented in JSON.  To support this, the `JsonSchema`
+    type is completely compatible with the _System.Text.Json_ serializer.
+  docs: 'schema/basics/#schema-deserialization'
+  title: Deserializing a schema
+  instructions: |
+    Deserialize the text in `schemaText` into a `JsonSchema` variable called `schema`.
+  inputTemplate: ''
+  contextCode: |-
+    using System;
+    using System.Collections.Generic;
+    using System.Text.Json;
+    using System.Text.Json.Nodes;
+    using System.Text.Json.Serialization;
+    using Json.Schema;
+    
+    namespace LearnJsonEverything;
+    
+    public class Lesson : ILessonRunner<EvaluationResults>
+    {
+        public EvaluationResults Run(JsonObject test)
+        {
+            var instance = test["instance"];
+            var schemaText =
+                """
+                {
+                  "type": "object",
+                  "properties": {
+                    "foo": { "type": "number", "minimum": 0 },
+                    "bar": { "type": "string" }
+                  },
+                  "required": ["foo", "bar"]
+                }
+                """;
+
+            /* USER CODE */
+
+            return schema.Evaluate(instance);
+        }
+    }
+  tests:
+  - instance: { "foo": 13, "bar": "a string" }
+    isValid: true
+  - instance: { "foo": false, "bar": "a string" }
+    isValid: false
+  - instance: { "foo": 13 }
+    isValid: false
+  - instance: { "bar": "a string" }
+    isValid: false
+  - instance: [1,2,3]
+    isValid: false
+  - instance: 6.8
+    isValid: false
+- id: 26b6ebca-58e6-4824-86ea-4946d844c9a8
+  skip: true
+  background: |
+    JSON Schema is typically itself represented in JSON.  To support this, the `JsonSchema`
+    type is completely compatible with the _System.Text.Json_ serializer.
+
+    When compiling a Native AOT application or when trimming assemblies, you'll need to add
+    `JsonSchema` and `EvaluationOptions` to your serializer context in order to support
+    source generation.
+  docs: 'schema/basics/#aot'
+  title: Deserializing a schema (AOT)
+  instructions: |
+    Create a serializer context class called `MySerializerContext` and add the appropriate
+    attributes.
+  inputTemplate: ''
+  contextCode: |-
+    using System;
+    using System.Collections.Generic;
+    using System.Text.Json;
+    using System.Text.Json.Nodes;
+    using System.Text.Json.Serialization;
+    using Json.Schema;
+    
+    namespace LearnJsonEverything;
+    
+    public class Lesson : ILessonRunner<EvaluationResults>
+    {
+        public EvaluationResults Run(JsonObject test)
+        {
+            var instance = test["instance"];
+            var schemaText =
+                """
+                {
+                  "type": "object",
+                  "properties": {
+                    "foo": { "type": "number", "minimum": 0 },
+                    "bar": { "type": "string" }
+                  },
+                  "required": ["foo", "bar"]
+                }
+                """;
+
+            JsonSerializer.Deserialize(schemaText, MySerializerContext.Default.JsonSchema);
+
+            return schema.Evaluate(instance);
+        }
+    }
+
+    /* USER CODE */
+  tests:
+  - instance: { "foo": 13, "bar": "a string" }
+    isValid: true
+  - instance: { "foo": false, "bar": "a string" }
+    isValid: false
+  - instance: { "foo": 13 }
+    isValid: false
+  - instance: { "bar": "a string" }
+    isValid: false
+  - instance: [1,2,3]
+    isValid: false
+  - instance: 6.8
+    isValid: false
 - id: 26b6ebca-58e6-4814-86ea-4946d844c9a6
   title: 'Schema Builder: Any string'
   background: |
@@ -21,9 +137,9 @@
     
     public class Lesson : ILessonRunner<EvaluationResults>
     {
-        public EvaluationResults Run(JsonObject context)
+        public EvaluationResults Run(JsonObject test)
         {
-            var instance = context["instance"];
+            var instance = test["instance"];
             var builder = new JsonSchemaBuilder();
 
             /* USER CODE */
@@ -64,9 +180,9 @@
     
     public class Lesson : ILessonRunner<EvaluationResults>
     {
-        public EvaluationResults Run(JsonObject context)
+        public EvaluationResults Run(JsonObject test)
         {
-            var instance = context["instance"];
+            var instance = test["instance"];
             var builder = new JsonSchemaBuilder();
 
             /* USER CODE */
@@ -123,9 +239,9 @@
     
     public class Lesson : ILessonRunner<EvaluationResults>
     {
-        public EvaluationResults Run(JsonObject context)
+        public EvaluationResults Run(JsonObject test)
         {
-            var instance = context["instance"];
+            var instance = test["instance"];
             var builder = new JsonSchemaBuilder();
 
             /* USER CODE */
@@ -151,14 +267,16 @@
     isValid: false
   - instance: false
     isValid: false
-- id: 26b6ebca-58e6-4814-86ea-4946d844c9a8
+- id: 26b6ebca-58e6-4814-86ea-4946d444c9a8
   background: |
-    The `JsonSchemaBuilder` class provides a type-safe fluent interface.  Adding a keyword is
-    accomplished by calling the same-name (usually) extension method.
-  docs: 'schema/basics/#schema-deserialization'
-  title: Deserializing a schema
+    By default, JSON Schema doesn't validate the `format` keyword.  Instead, tools
+    are generally encouraged to provide a configuration option to enforce `format` validation.
+
+    In _JsonSchema.Net_ that option is called `RequiredFormatValidation`.
+  docs: 'schema/basics/#schema-format'
+  title: 'Options: Validating Formats'
   instructions: |
-    Deserialize the text in `schemaText` into a `JsonSchema` variable called `schema`.
+    Configure the evaluation options to enable `format` validation.
   inputTemplate: ''
   contextCode: |-
     using System;
@@ -172,36 +290,49 @@
     
     public class Lesson : ILessonRunner<EvaluationResults>
     {
-        public EvaluationResults Run(JsonObject context)
+        public EvaluationResults Run(JsonObject test)
         {
-            var instance = context["instance"];
-            var schemaText =
-                """
-                {
-                  "type": "object",
-                  "properties": {
-                    "foo": { "type": "number", "minimum": 0 },
-                    "bar": { "type": "string" }
-                  },
-                  "required": ["foo", "bar"]
-                }
-                """;
+            var instance = test["instance"];
+            var format = test["format"].GetValue<string>();
+            JsonSchema schema = new JsonSchemaBuilder()
+                .Type(SchemaValueType.String)
+                .Format(format); 
+
+            var options = new EvaluationOptions();
 
             /* USER CODE */
 
-            return schema.Evaluate(instance);
+            return schema.Evaluate(instance, options);
         }
     }
   tests:
-  - instance: { "foo": 13, "bar": "a string" }
+  - instance: 2015-06-13T10:31:16+04:00
+    format: date-time
     isValid: true
-  - instance: { "foo": false, "bar": "a string" }
+  - instance: 2015-06-13
+    format: date-time
     isValid: false
-  - instance: { "foo": 13 }
+  - instance: 1.1.1.1
+    format: ipv4
+    isValid: true
+  - instance: www.google.com
+    format: ipv4
     isValid: false
-  - instance: { "bar": "a string" }
+  - instance: '/json/pointer'
+    format: json-pointer
+    isValid: true
+  - instance: '/inva~lid/pointer'
+    format: json-pointer
     isValid: false
-  - instance: [1,2,3]
+  # - instance: '0/json/pointer'
+  #   format: relative-json-pointer
+  #   isValid: true
+  - instance: {}
+    format: date-time
+    isValid: false
+  - instance: []
+    format: date-time
     isValid: false
   - instance: 6.8
+    format: date-time
     isValid: false

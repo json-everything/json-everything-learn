@@ -95,6 +95,10 @@ a,
 	border-style: solid;
 }
 
+.monaco-editor {
+  position: absolute !important;
+}
+
 #blazor-error-ui {
 	background-color: #1e1e1e;
 	bottom: 0;

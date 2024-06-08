@@ -4,7 +4,7 @@
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-	<meta name="description" content="Extended JSON support in .Net built on top of the System.Text.Json namespace">
+	<meta name="description" content="An interactive guide to utilizing JSON in .Net">
 	<title>Learn json-everything.net</title>
 	<base href="/" />
 	<script type="text/javascript">
@@ -64,7 +64,7 @@
 
 <body>
 	<div id="app">
-		<p class="slogan">Extended JSON support in .Net built on top of the System.Text.Json namespace</p>
+		<p class="slogan">An interactive guide to utilizing JSON in .Net</p>
 		<div class="loading-message-container">
 			<div class="loading-message-child">
 				<img src="img/json-animated.webp" class="loading-image" /><br />
@@ -91,6 +91,10 @@
 					inline: "nearest"
 				});
 			}
+		}
+		function BlazorScrollToTopOfElement(elementId) {
+			var element = document.getElementById(elementId);
+			element.scrollTop = 0;
 		}
 	</script>
 	<script src="_framework/blazor.webassembly.js"></script>
