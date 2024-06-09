@@ -1,5 +1,7 @@
+using System.Reflection;
 using System.Text.Json.Nodes;
 using Json.Schema;
+using Json.Schema.Generation;
 using Microsoft.CodeAnalysis;
 using Yaml2JsonNode;
 
@@ -18,6 +20,7 @@ public static class ReferenceLoader
 		SchemaRegistry.Global.Fetch = null!;
 		_ = YamlSerializer.Parse(string.Empty);
 		_ = new NullRunner();
+		_ = typeof(NullRunner).GetCustomAttributes<MinimumAttribute>();
 	}
 
 	public static MetadataReference[] Load()

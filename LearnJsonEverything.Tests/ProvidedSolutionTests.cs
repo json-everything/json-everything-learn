@@ -48,6 +48,10 @@ public class ProvidedSolutionTests
 		foreach (var result in results)
 		{
 			Console.WriteLine(result);
+		}
+
+		foreach (var result in results)
+		{
 			Assert.That(result, Does.StartWith(Iconography.SuccessIcon));
 		}
 	}

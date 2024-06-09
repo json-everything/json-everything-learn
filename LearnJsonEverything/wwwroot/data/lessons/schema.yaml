@@ -4,16 +4,13 @@
     JSON Schema is typically itself represented in JSON.  To support this, the `JsonSchema`
     type is completely compatible with the _System.Text.Json_ serializer.
   docs: 'schema/basics/#schema-deserialization'
-  title: Deserializing a schema
+  title: Deserializing a Schema
   instructions: |
     Deserialize the text in `schemaText` into a `JsonSchema` variable called `schema`.
   inputTemplate: ''
   contextCode: |-
-    using System;
-    using System.Collections.Generic;
     using System.Text.Json;
     using System.Text.Json.Nodes;
-    using System.Text.Json.Serialization;
     using Json.Schema;
     
     namespace LearnJsonEverything;
@@ -65,14 +62,12 @@
     `JsonSchema` and `EvaluationOptions` to your serializer context in order to support
     source generation.
   docs: 'schema/basics/#aot'
-  title: Deserializing a schema (AOT)
+  title: Deserializing a Schema (AOT)
   instructions: |
     Create a serializer context class called `MySerializerContext` and add the appropriate
     attributes.
   inputTemplate: ''
   contextCode: |-
-    using System;
-    using System.Collections.Generic;
     using System.Text.Json;
     using System.Text.Json.Nodes;
     using System.Text.Json.Serialization;
@@ -122,7 +117,7 @@
   - instance: 6.8
     isValid: false
 - id: 26b6ebca-58e6-4814-86ea-4946d844c9a6
-  title: 'Schema Builder: Any string'
+  title: 'Schema Builder: Any String'
   background: |
     The `JsonSchemaBuilder` class provides a type-safe fluent interface for building schemas in code.
     Adding a keyword is accomplished by calling the same-name (usually) extension method.
@@ -132,11 +127,7 @@
     Configure the provided `JsonSchemaBuilder` to produce a schema that validates a string instance.
   inputTemplate: ''
   contextCode: |-
-    using System;
-    using System.Collections.Generic;
-    using System.Text.Json;
     using System.Text.Json.Nodes;
-    using System.Text.Json.Serialization;
     using Json.Schema;
     
     namespace LearnJsonEverything;
@@ -166,7 +157,7 @@
   - instance: false
     isValid: false
 - id: 26b6ebca-58e6-4814-86ea-4946d844c9a7
-  title: 'Schema Builder: Number with limits'
+  title: 'Schema Builder: Number with Limits'
   background: |
     The `JsonSchemaBuilder` class provides a type-safe fluent interface for building schemas in code.
     Adding a keyword is accomplished by calling the same-name (usually) extension method.
@@ -177,11 +168,8 @@
     that is less than or equal to 10 but greater than 0.
   inputTemplate: ''
   contextCode: |-
-    using System;
     using System.Collections.Generic;
-    using System.Text.Json;
     using System.Text.Json.Nodes;
-    using System.Text.Json.Serialization;
     using Json.Schema;
     
     namespace LearnJsonEverything;
@@ -234,17 +222,13 @@
     that automatically calls the `.Build()` method so you don't have to.
   docs: 'schema/basics/#schema-inlining'
   api: api/JsonSchema.Net/JsonSchemaBuilderExtensions
-  title: 'Schema Builder: Nesting schemas'
+  title: 'Schema Builder: Nesting Schemas'
   instructions: |
     Configure the provided `JsonSchemaBuilder` to produce a schema that validates a array instance
     filled with integers.  Ensure that the array has no more than 5 items.
   inputTemplate: ''
   contextCode: |-
-    using System;
-    using System.Collections.Generic;
-    using System.Text.Json;
     using System.Text.Json.Nodes;
-    using System.Text.Json.Serialization;
     using Json.Schema;
     
     namespace LearnJsonEverything;
@@ -295,11 +279,7 @@
     Configure the evaluation options to enable `format` validation.
   inputTemplate: ''
   contextCode: |-
-    using System;
-    using System.Collections.Generic;
-    using System.Text.Json;
     using System.Text.Json.Nodes;
-    using System.Text.Json.Serialization;
     using Json.Schema;
     
     namespace LearnJsonEverything;
@@ -381,11 +361,8 @@
     found in the `specVersion` variable.
   inputTemplate: ''
   contextCode: |-
-    using System;
-    using System.Collections.Generic;
     using System.Text.Json;
     using System.Text.Json.Nodes;
-    using System.Text.Json.Serialization;
     using Json.Schema;
     using Json.More;
     
@@ -453,4 +430,250 @@
     isValid: false
   - instance: ["a string",true,2,4,6,8,4]
     version: Draft202012
+    isValid: true
+- id: 26b6ebca-58e6-4824-8dea-4946d444c9a8
+  background: |
+    Most often you need to ensure that incoming JSON data properly represents the models
+    you've created for your application.  Often the best way to ensure this is to
+    generate schemas directly from those models.
+
+    _JsonSchema.Net.Generation_ provides an additional extension on `JsonSchemaBuilder`
+    called `.FromType<T>()`.
+  docs: 'schema/schemagen/schema-generation'
+  title: 'Generation: Essentials'
+  instructions: |
+    Configure the builder to generate a schema for the `Person` type.
+  inputTemplate: ''
+  contextCode: |-
+    using System.Text.Json.Nodes;
+    using Json.Schema;
+    using Json.Schema.Generation;
+    
+    namespace LearnJsonEverything;
+    
+    public class Person
+    {
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public int Age { get; set; }
+    }
+
+    public class Lesson : ILessonRunner<EvaluationResults>
+    {
+        public EvaluationResults Run(JsonObject test)
+        {
+            var instance = test["instance"];
+            var builder = new JsonSchemaBuilder();
+
+            /* USER CODE */
+
+            var schema = builder.Build();
+            return schema.Evaluate(instance);
+        }
+    }
+  solution: |-
+    builder.FromType<Person>();
+  tests:
+  - instance: { FirstName: Jane, LastName: Doe, Age: 24 }
+    isValid: true
+  - instance: { FirstName: Jane }
+    isValid: true
+  - instance: { FirstName: 24 }
+    isValid: false
+- id: 26b6ebca-5de6-4824-8dea-4946d444c9a8
+  background: |
+    Most often you need to ensure that incoming JSON data properly represents the models
+    you've created for your application.  Often the best way to ensure this is to
+    generate schemas directly from those models.
+
+    _JsonSchema.Net.Generation_ provides an additional extension on `JsonSchemaBuilder`
+    called `.FromType<T>()`.  It also provides numerous attributes that can be applied
+    to your models in order to create additional constraints in the generated schema.
+  docs: 'schema/schemagen/schema-generation#schema-schemagen-best-practices'
+  title: 'Generation: More Constraints'
+  instructions: |
+    Add `FirstName`, `LastName`, and `Age` properties to the `Person` class, and add
+    attributes that provide the following constraints:
+
+    - all properties are required
+    - `FirstName` and `LastName` must be at least two characters long
+    - `Age` must be greater than 0
+  inputTemplate: ''
+  contextCode: |-
+    using System.Text.Json.Nodes;
+    using Json.Schema;
+    using Json.Schema.Generation;
+    
+    namespace LearnJsonEverything;
+    
+    public class Person
+    {
+        /* USER CODE */
+    }
+
+    public class Lesson : ILessonRunner<EvaluationResults>
+    {
+        public EvaluationResults Run(JsonObject test)
+        {
+            var instance = test["instance"];
+            var builder = new JsonSchemaBuilder().FromType<Person>();
+            var schema = builder.Build();
+            return schema.Evaluate(instance);
+        }
+    }
+  solution: |-
+    [Required]
+    [MinLength(2)]
+    public string FirstName { get; set; }
+    [Required]
+    [MinLength(2)]
+    public string LastName { get; set; }
+    [Required]
+    [ExclusiveMinimum(0)]
+    public int Age { get; set; }
+  tests:
+  - instance: { FirstName: Jane, LastName: Doe, Age: 24 }
+    isValid: true
+  - instance: { FirstName: Jane, LastName: Doe }
+    isValid: false
+  - instance: { FirstName: Jane, Age: 24 }
+    isValid: false
+  - instance: { LastName: Doe, Age: 24 }
+    isValid: false
+  - instance: { FirstName: 24 }
+    isValid: false
+  - instance: { FirstName: J, LastName: Doe, Age: 24 }
+    isValid: false
+  - instance: { FirstName: Jane, LastName: D, Age: 24 }
+    isValid: false
+  - instance: { FirstName: Jane, LastName: Doe, Age: -6 }
+    isValid: false
+- id: 26b6ebca-5de6-4824-8dea-4a46d444c9a8
+  background: |
+    Most often you need to ensure that incoming JSON data properly represents the models
+    you've created for your application.  Often the best way to ensure this is to
+    generate schemas directly from those models.
+
+    _JsonSchema.Net.Generation_ provides an additional extension on `JsonSchemaBuilder`
+    called `.FromType<T>()`.  It also provides numerous attributes that can be applied
+    to your models in order to create additional constraints in the generated schema.
+
+    Nullability works differently in JSON and JSON Schema than it does in .Net.  Use
+    the `[Nullable()]` attribute to support null values the JSON / JSON Schema way.
+  docs: 'schema/schemagen/schema-generation#schema-schemagen-nullability'
+  title: 'Generation: Nullability'
+  instructions: |
+    Add a `DateTime` property called `BirthDate` and mark it as nullable.
+  inputTemplate: ''
+  contextCode: |-
+    using System;
+    using System.Text.Json.Nodes;
+    using Json.Schema;
+    using Json.Schema.Generation;
+    
+    namespace LearnJsonEverything;
+    
+    public class Person
+    {
+        [Required]
+        [MinLength(2)]
+        public string FirstName { get; set; }
+        [Required]
+        [MinLength(2)]
+        public string LastName { get; set; }
+        [Required]
+        [ExclusiveMinimum(0)]
+        public int Age { get; set; }
+
+        /* USER CODE */
+    }
+
+    public class Lesson : ILessonRunner<EvaluationResults>
+    {
+        public EvaluationResults Run(JsonObject test)
+        {
+            var instance = test["instance"];
+            var builder = new JsonSchemaBuilder().FromType<Person>();
+            var schema = builder.Build();
+            // DateTime will generate a `format: date-time` constraint,
+            // so we need to be sure to validate the `format` keyword.
+            var options = new EvaluationOptions { RequireFormatValidation = true };
+            return schema.Evaluate(instance, options);
+        }
+    }
+  solution: |-
+    [Nullable(true)]
+    public DateTime? BirthDate { get; set; }
+  tests:
+  - instance: { FirstName: Jane, LastName: Doe, Age: 24 }
+    isValid: true
+  - instance: { FirstName: Jane, LastName: Doe, Age: 24, BirthDate: null }
+    isValid: true
+  - instance: { FirstName: Jane, LastName: Doe, Age: 24, BirthDate: '2000-06-13T00:00:00-06:00' }
+    isValid: true
+  - instance: { FirstName: Jane, LastName: Doe, Age: 24, BirthDate: '13 June 2000' }
+    isValid: false
+  - instance: { FirstName: Jane, LastName: Doe, Age: 24, BirthDate: 24 }
+    isValid: false
+- id: 26b6ebca-5de6-4824-8dea-4a46d414c9a8
+  background: |
+    Most often you need to ensure that incoming JSON data properly represents the models
+    you've created for your application.  Often the best way to ensure this is to
+    generate schemas directly from those models.
+
+    _JsonSchema.Net.Generation_ provides an additional extension on `JsonSchemaBuilder`
+    called `.FromType<T>()`.
+
+    Generation will also look for the `<summary>` tag in XML comments to add a `description`
+    keyword to your schemas.  This is supported on properties and types.
+  docs: 'schema/schemagen/schema-generation#schema-schemagen-nullability'
+  title: 'Generation: XML Comments'
+  instructions: |
+    Add some XML comments to the `Person` type to generate a `description` keyword.
+  inputTemplate: ''
+  contextCode: |-
+    using System;
+    using System.Text.Json;
+    using System.Text.Json.Nodes;
+    using Json.Schema;
+    using Json.Schema.Generation;
+    using Json.More;
+    
+    namespace LearnJsonEverything;
+    
+    /* USER CODE */
+    public class Person
+    {
+        [Required]
+        [MinLength(2)]
+        public string FirstName { get; set; }
+        [Required]
+        [MinLength(2)]
+        public string LastName { get; set; }
+        [Required]
+        [ExclusiveMinimum(0)]
+        public int Age { get; set; }
+    }
+
+    public class Lesson : ILessonRunner<EvaluationResults>
+    {
+        public EvaluationResults Run(JsonObject test)
+        {
+            var builder = new JsonSchemaBuilder().FromType<Person>();
+            var schema = builder.Build();
+            var schemaAsNode = JsonSerializer.SerializeToNode(schema);
+            
+            var metaSchema = new JsonSchemaBuilder()
+              .Type(SchemaValueType.Object)
+              .Required("description");
+
+            return metaSchema.Evaluate(schemaAsNode);
+        }
+    }
+  solution: |-
+    /// <summary>
+    /// This is my summary.  It'll end up in a `description` keyword.
+    /// </summary>
+  tests:
+  - instance: null
     isValid: true
