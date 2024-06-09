@@ -1,14 +1,14 @@
 ﻿using Json.Schema.Generation.XmlComments;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using System.Reflection;
-using Json.Schema.Generation;
+using System.Runtime.Loader;
 using static LearnJsonEverything.Services.Iconography;
 
 namespace LearnJsonEverything.Services;
 
 public static class CompilationHelpers
 {
+	private static AssemblyLoadContext? _assemblyLoadContext;
 	private static MetadataReference[]? _references;
 	private static bool _isLoading;
 
@@ -106,21 +106,26 @@ public static class CompilationHelpers
 			return (null, [.. diagnostics]);
 		}
 
+		dllStream.Position = 0;
+		pdbStream.Position = 0;
+		xmlStream.Position = 0;
+
 #pragma warning disable IL2026
 #pragma warning disable IL2072
 #pragma warning disable IL2070
-#pragma warning disable CS0618
-		var assembly = Assembly.Load(dllStream.ToArray());
+		_assemblyLoadContext?.Unload();
+		_assemblyLoadContext = new AssemblyLoadContext(nameof(CompilationHelpers), true);
+		var assembly = _assemblyLoadContext.LoadFromStream(dllStream, pdbStream);
 
-		xmlStream.Position = 0;
 		using var reader = new StreamReader(xmlStream);
 		var xmlContent = reader.ReadToEnd();
+#pragma warning disable CS0618
 		DocXmlReader.ExplicitlyAddAssemblyXml(assembly, xmlContent);
+#pragma warning restore CS0618
 
 
 		var type = assembly.DefinedTypes.Single(x => !x.IsInterface && x.ImplementedInterfaces.Contains(typeof(ILessonRunner<T>)));
 		var runner = (ILessonRunner<T>)Activator.CreateInstance(type)!;
-#pragma warning restore CS0618
 #pragma warning restore IL2070
 #pragma warning restore IL2072
 #pragma warning restore IL2026
