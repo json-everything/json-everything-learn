@@ -19,6 +19,8 @@ public static class CompilationHelpers
 		"Yaml2JsonNode",
 	];
 
+	public static void TestOnly_SetReferences(MetadataReference[] references) => _references = references;
+
 	public static async Task<MetadataReference[]?> LoadAssemblyReferences(HttpClient client)
 	{
 		if (_references is null)

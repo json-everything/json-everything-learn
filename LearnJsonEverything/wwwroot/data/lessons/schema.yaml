@@ -200,8 +200,8 @@
         }
     }
   solution: |-
-    builder.Type(SchemaValueType.String)
-        .ExclusiveMinimum(0)
+    builder.Type(SchemaValueType.Number)
+        .ExclusiveMaximum(0)
         .Maximum(10);
   tests:
   - instance: 6.8
