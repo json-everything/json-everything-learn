@@ -200,7 +200,7 @@
         }
     }
   solution: |-
-    builder.Type(SchemaValueType.String)
+    builder.Type(SchemaValueType.Number)
         .ExclusiveMinimum(0)
         .Maximum(10);
   tests:
