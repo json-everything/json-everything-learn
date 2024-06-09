@@ -1,0 +1,8 @@
+﻿@page "/json-path"
+@using LearnJsonEverything.Services.Runners
+
+<Teacher LessonSource="/data/lessons/path.yaml" Host="@_host"></Teacher>
+
+@code {
+	private readonly ILessonHost _host = new PathHost();
+}

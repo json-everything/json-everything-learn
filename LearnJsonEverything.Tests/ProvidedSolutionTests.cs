@@ -7,7 +7,7 @@ namespace LearnJsonEverything.Tests;
 
 public class ProvidedSolutionTests
 {
-	private static JsonSerializerOptions SerializerOptions =
+	private static readonly JsonSerializerOptions SerializerOptions =
 		new()
 		{
 			PropertyNameCaseInsensitive = true
@@ -43,7 +43,36 @@ public class ProvidedSolutionTests
 	[TestCaseSource(nameof(SchemaLessons))]
 	public void Schema(LessonData lesson)
 	{
-		var results = SchemaRunner.Run(lesson);
+		var results = new SchemaHost().Run(lesson);
+
+		foreach (var result in results)
+		{
+			Console.WriteLine(result);
+		}
+
+		foreach (var result in results)
+		{
+			Assert.That(result, Does.StartWith(Iconography.SuccessIcon));
+		}
+	}
+
+	public static IEnumerable<TestCaseData> PathLessons
+	{
+		get
+		{
+			var lessonPlan = LoadLessonPlan("path.yaml");
+			return lessonPlan.Select(x =>
+			{
+				x.UserCode = x.Solution;
+				return new TestCaseData(x) { TestName = x.Title };
+			});
+		}
+	}
+
+	[TestCaseSource(nameof(PathLessons))]
+	public void Path(LessonData lesson)
+	{
+		var results = new PathHost().Run(lesson);
 
 		foreach (var result in results)
 		{

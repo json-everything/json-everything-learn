@@ -71,6 +71,8 @@
 
 	[Parameter]
 	public string LessonSource { get; set; }
+	[Parameter]
+	public ILessonHost Host { get; set; }
 
 	private string Instructions { get; set; }
 
@@ -88,7 +90,7 @@
 			await _outputEditor.SetLanguageAsync("json", JsRuntime);
 
 			_currentLesson!.UserCode = userCode;
-			var results = SchemaRunner.Run(_currentLesson);
+			var results = Host.Run(_currentLesson);
 
 			await _outputEditor.SetValue(string.Join(Environment.NewLine, results!));
 			UpdateNavigation();

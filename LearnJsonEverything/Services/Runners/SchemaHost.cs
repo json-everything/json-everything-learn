@@ -2,9 +2,9 @@
 
 namespace LearnJsonEverything.Services.Runners;
 
-public static class SchemaRunner
+public class SchemaHost : ILessonHost
 {
-	public static string[] Run(LessonData lesson)
+	public string[] Run(LessonData lesson)
 	{
 		var (runner, errors) = CompilationHelpers.GetRunner<EvaluationResults>(lesson);
 

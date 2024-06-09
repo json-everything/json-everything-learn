@@ -1,5 +1,5 @@
-using System.Reflection;
-using System.Text.Json.Nodes;
+using Json.More;
+using Json.Path;
 using Json.Schema;
 using Json.Schema.Generation;
 using Microsoft.CodeAnalysis;
@@ -9,19 +9,18 @@ namespace LearnJsonEverything.Tests;
 
 public static class ReferenceLoader
 {
-	private class NullRunner : ILessonRunner<int>
-	{
-		public int Run(JsonObject context) => 0;
-	}
-
 	static ReferenceLoader()
 	{
 		// force some assemblies to load
-		SchemaRegistry.Global.Fetch = null!;
+		Load<ILessonRunner<int>>();
+		Load<EnumStringConverter<DayOfWeek>>();
+		Load<JsonSchema>();
+		Load<MinimumAttribute>();
+		Load<JsonPath>();
 		_ = YamlSerializer.Parse(string.Empty);
-		_ = new NullRunner();
-		_ = typeof(NullRunner).GetCustomAttributes<MinimumAttribute>();
 	}
+
+	private static void Load<T>(){}
 
 	public static MetadataReference[] Load()
 	{

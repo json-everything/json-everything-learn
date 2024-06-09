@@ -15,6 +15,7 @@ public static class CompilationHelpers
 	private static readonly string[] EnsuredAssemblies =
 	[
 		"Json.More",
+		"JsonPath.Net",
 		"JsonPointer.Net",
 		"JsonSchema.Net",
 		"JsonSchema.Net.Generation",
