@@ -31,7 +31,7 @@ public static class HelpContent
 		
 		|||
 		|:-|:-|
-		|JSON Schema|[https://json-schema-org.github.io/tour/](https://json-schema-org.github.io/tour/)|
+		|JSON Schema|[https://www.learnjsonschema.com/](https://www.learnjsonschema.com/)|
 		|JSON-e|[https://json-e.js.org/](https://json-e.js.org/)|
 		|JSON Logic|[https://jsonlogic.com/](https://jsonlogic.com/)|
 		|JSON Patch|[https://jsonpatch.com/](https://jsonpatch.com/)|
