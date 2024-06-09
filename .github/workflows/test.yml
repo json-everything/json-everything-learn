@@ -1,10 +1,6 @@
 name: Verify solutions
 on:
-  push:
-    branches:
-      - main # Default release branch
   pull_request:
-  workflow_dispatch:
 
 jobs:
   test:
