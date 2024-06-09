@@ -1,0 +1,24 @@
+name: Verify solutions
+on:
+  push:
+    branches:
+      - main # Default release branch
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Verify provided solutions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: restore submodules
+        run: git submodule update --init
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: 8.0.x
+      - name: Install dependencies
+        run: dotnet restore
+      - name: Test
+        run: dotnet test LearnJsonEverything.sln -c Release --no-restore
