@@ -10,7 +10,7 @@ public static class HelpContent
 		Inside, you'll find a collection of lessons, each of which highlight a specific feature
 		provided by one of the libraries. For each lesson, you'll be given some background information,
 		possibly some links to various documentation, and a coding challenge along with some test
-		cases.  To move on to the next lesson, your code will need to make all test cases pass.
+		cases.  Make all the tests pass to move on to the next lesson.
 		
 		Want to skip ahead and work on a particular lesson? No problem: simply select the lesson
 		you'd like to work on from the pane on the left.  The navigation buttons will activate as
@@ -20,9 +20,13 @@ public static class HelpContent
 		To assist you on your journey, the site will keep track of the lessons you've completed
 		as well as your solutions to them so that you can take a break and come back at any time
 		either to continue learning or to review the work you've done.
+
+		You can click <kbd>Reveal Solution</kbd> at any time to see the recommended solution, or
+		<kbd>Reset</kbd> to get the template back and clear the lesson state.
+
+		---
 		
-		**This site is 100% client-side. All operations are performed in your browser. There
-		is no server to send any of your data to.**
+		**This site is 100% client-side. All operations are performed in your browser.**
 		
 		---
 		
