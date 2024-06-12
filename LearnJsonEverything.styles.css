@@ -169,8 +169,11 @@ pre[b-vt8qwrn6xe] {
   padding: 5px;
 }
 
-#workspace[b-ehorqxe7rc], #output[b-ehorqxe7rc] {
-  height: calc(50% - 45px/2);
+#workspace[b-ehorqxe7rc] {
+  height: calc(70% - 45px/2);
+}
+#output[b-ehorqxe7rc] {
+  height: calc(30% - 45px/2);
 }
 
 #controls[b-ehorqxe7rc] {
