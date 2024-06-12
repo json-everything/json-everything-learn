@@ -2,8 +2,11 @@
   padding: 5px;
 }
 
-#workspace, #output {
-  height: calc(50% - 45px/2);
+#workspace {
+  height: calc(70% - 45px/2);
+}
+#output {
+  height: calc(30% - 45px/2);
 }
 
 #controls {

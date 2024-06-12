@@ -47,6 +47,7 @@
 					<button class="btn btn-primary m-1" disabled="@_previousButtonDisabled" @onclick="PreviousLesson">&lt; Previous</button>
 					<button class="btn btn-primary m-1" @onclick="Run">Run</button>
 					<button class="btn btn-primary m-1" @onclick="RevealSolution">Reveal Solution</button>
+					<button class="btn btn-primary m-1" @onclick="ResetLesson">Reset</button>
 					<button class="btn btn-primary m-1" disabled="@_nextButtonDisabled" @onclick="NextLesson">Next &gt;</button>
 				</div>
 			</div>
@@ -108,6 +109,14 @@
 		return _codeEditor.SetValue(_currentLesson?.Solution ?? string.Empty);
 	}
 
+	private async Task ResetLesson()
+	{
+		_currentLesson!.UserCode = null;
+		_currentLesson.Achieved = false;
+		await LoadLesson();
+		await SaveLessonPlanCompletion();
+	}
+
 	private Task PreviousLesson()
 	{
 		_currentLesson = _lessons.GetPrevious(_currentLesson?.Id);
@@ -130,7 +139,7 @@
 		_currentLesson ??= _lessons[0];
 		Instructions = InstructionsBuilder.BuildInstructions(_currentLesson);
 		_nextButtonDisabled = !CanMoveToNextLesson();
-		await _codeEditor.SetValue(_currentLesson.UserCode ?? string.Empty);
+		await _codeEditor.SetValue(_currentLesson.UserCode ?? _currentLesson.ContextCode);
 		await _outputEditor.SetValue(string.Empty);
 		UpdateNavigation();
 		await JsRuntime.InvokeVoidAsync("BlazorScrollToTopOfElement", "instructions-panel");

@@ -1,4 +1,5 @@
-﻿using Json.Schema;
+﻿using System.Text.Json;
+using Json.Schema;
 
 namespace LearnJsonEverything.Services.Runners;
 
@@ -16,9 +17,11 @@ public class SchemaHost : ILessonHost
 		foreach (var test in lesson.Tests)
 		{
 			var expectedValidity = test!["isValid"]!.GetValue<bool>();
+			Console.WriteLine($"Running `{test["instance"].Print()}`");
 			var result = runner.Run(test.AsObject());
+			Console.WriteLine($"Result: {JsonSerializer.Serialize(result, SerializerContext.Default.EvaluationResults)}");
 			correct &= expectedValidity == result.IsValid;
-			results.Add($"{(expectedValidity == result.IsValid ? Iconography.SuccessIcon : Iconography.ErrorIcon)} {test["instance"]!.Print()}");
+			results.Add($"{(expectedValidity == result.IsValid ? Iconography.SuccessIcon : Iconography.ErrorIcon)} {test["instance"].Print()}");
 		}
 
 		lesson.Achieved |= correct;

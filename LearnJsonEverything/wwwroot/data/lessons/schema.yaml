@@ -7,7 +7,6 @@
   title: Deserializing a Schema
   instructions: |
     Deserialize the text in `schemaText` into a `JsonSchema` variable called `schema`.
-  inputTemplate: ''
   contextCode: |-
     using System.Text.Json;
     using System.Text.Json.Nodes;
@@ -38,7 +37,34 @@
         }
     }
   solution: |-
-    var schema = JsonSerializer.Deserialize<JsonSchema>(schemaText);
+    using System.Text.Json;
+    using System.Text.Json.Nodes;
+    using Json.Schema;
+    
+    namespace LearnJsonEverything;
+    
+    public class Lesson : ILessonRunner<EvaluationResults>
+    {
+        public EvaluationResults Run(JsonObject test)
+        {
+            var instance = test["instance"];
+            var schemaText =
+                """
+                {
+                  "type": "object",
+                  "properties": {
+                    "foo": { "type": "number", "minimum": 0 },
+                    "bar": { "type": "string" }
+                  },
+                  "required": ["foo", "bar"]
+                }
+                """;
+
+            var schema = JsonSerializer.Deserialize<JsonSchema>(schemaText);
+
+            return schema.Evaluate(instance);
+        }
+    }
   tests:
   - instance: { "foo": 13, "bar": "a string" }
     isValid: true
@@ -66,7 +92,6 @@
   instructions: |
     Create a serializer context class called `MySerializerContext` and add the appropriate
     attributes.
-  inputTemplate: ''
   contextCode: |-
     using System.Text.Json;
     using System.Text.Json.Nodes;
@@ -100,6 +125,36 @@
 
     /* USER CODE */
   solution: |-
+    using System.Text.Json;
+    using System.Text.Json.Nodes;
+    using System.Text.Json.Serialization;
+    using Json.Schema;
+    
+    namespace LearnJsonEverything;
+    
+    public class Lesson : ILessonRunner<EvaluationResults>
+    {
+        public EvaluationResults Run(JsonObject test)
+        {
+            var instance = test["instance"];
+            var schemaText =
+                """
+                {
+                  "type": "object",
+                  "properties": {
+                    "foo": { "type": "number", "minimum": 0 },
+                    "bar": { "type": "string" }
+                  },
+                  "required": ["foo", "bar"]
+                }
+                """;
+
+            JsonSerializer.Deserialize(schemaText, MySerializerContext.Default.JsonSchema);
+
+            return schema.Evaluate(instance);
+        }
+    }
+
     [JsonSerializable(typeof(JsonSchema))]
     [JsonSerializable(typeof(EvaluationResults))]
     internal partial class MySerializerContext : JsonSerializerContext;
@@ -125,7 +180,6 @@
   api: api/JsonSchema.Net/JsonSchemaBuilderExtensions
   instructions: |
     Configure the provided `JsonSchemaBuilder` to produce a schema that validates a string instance.
-  inputTemplate: ''
   contextCode: |-
     using System.Text.Json.Nodes;
     using Json.Schema;
@@ -146,7 +200,24 @@
         }
     }
   solution: |-
-    builder.Type(SchemaValueType.String);
+    using System.Text.Json.Nodes;
+    using Json.Schema;
+    
+    namespace LearnJsonEverything;
+    
+    public class Lesson : ILessonRunner<EvaluationResults>
+    {
+        public EvaluationResults Run(JsonObject test)
+        {
+            var instance = test["instance"];
+            var builder = new JsonSchemaBuilder();
+
+            builder.Type(SchemaValueType.String);
+
+            var schema = builder.Build();
+            return schema.Evaluate(instance);
+        }
+    }
   tests:
   - instance: a string value
     isValid: true
@@ -166,7 +237,6 @@
   instructions: |
     Configure the provided `JsonSchemaBuilder` to produce a schema that validates a number instance
     that is less than or equal to 10 but greater than 0.
-  inputTemplate: ''
   contextCode: |-
     using System.Collections.Generic;
     using System.Text.Json.Nodes;
@@ -188,9 +258,27 @@
         }
     }
   solution: |-
-    builder.Type(SchemaValueType.Number)
-        .ExclusiveMinimum(0)
-        .Maximum(10);
+    using System.Collections.Generic;
+    using System.Text.Json.Nodes;
+    using Json.Schema;
+    
+    namespace LearnJsonEverything;
+    
+    public class Lesson : ILessonRunner<EvaluationResults>
+    {
+        public EvaluationResults Run(JsonObject test)
+        {
+            var instance = test["instance"];
+            var builder = new JsonSchemaBuilder();
+
+            builder.Type(SchemaValueType.Number)
+                .ExclusiveMinimum(0)
+                .Maximum(10);
+
+            var schema = builder.Build();
+            return schema.Evaluate(instance);
+        }
+    }
   tests:
   - instance: 6.8
     isValid: true
@@ -226,7 +314,6 @@
   instructions: |
     Configure the provided `JsonSchemaBuilder` to produce a schema that validates a array instance
     filled with integers.  Ensure that the array has no more than 5 items.
-  inputTemplate: ''
   contextCode: |-
     using System.Text.Json.Nodes;
     using Json.Schema;
@@ -247,9 +334,26 @@
         }
     }
   solution: |-
-    builder.Type(SchemaValueType.Array)
-        .Items(new JsonSchemaBuilder().Type(SchemaValueType.Integer))
-        .MaxItems(5);
+    using System.Text.Json.Nodes;
+    using Json.Schema;
+    
+    namespace LearnJsonEverything;
+    
+    public class Lesson : ILessonRunner<EvaluationResults>
+    {
+        public EvaluationResults Run(JsonObject test)
+        {
+            var instance = test["instance"];
+            var builder = new JsonSchemaBuilder();
+
+            builder.Type(SchemaValueType.Array)
+                .Items(new JsonSchemaBuilder().Type(SchemaValueType.Integer))
+                .MaxItems(5);
+
+            var schema = builder.Build();
+            return schema.Evaluate(instance);
+        }
+    }
   tests:
   - instance: 6.8
     isValid: false
@@ -277,7 +381,6 @@
   title: 'Options: Validating Formats'
   instructions: |
     Configure the evaluation options to enable `format` validation.
-  inputTemplate: ''
   contextCode: |-
     using System.Text.Json.Nodes;
     using Json.Schema;
@@ -302,7 +405,28 @@
         }
     }
   solution: |-
-    options.RequireFormatValidation = true;
+    using System.Text.Json.Nodes;
+    using Json.Schema;
+    
+    namespace LearnJsonEverything;
+    
+    public class Lesson : ILessonRunner<EvaluationResults>
+    {
+        public EvaluationResults Run(JsonObject test)
+        {
+            var instance = test["instance"];
+            var format = test["format"].GetValue<string>();
+            JsonSchema schema = new JsonSchemaBuilder()
+                .Type(SchemaValueType.String)
+                .Format(format); 
+
+            var options = new EvaluationOptions();
+
+            options.RequireFormatValidation = true;
+
+            return schema.Evaluate(instance, options);
+        }
+    }
   tests:
   - instance: 2015-06-13T10:31:16+04:00
     format: date-time
@@ -359,7 +483,6 @@
   instructions: |
     Create and configure an evaluation options object, and set the JSON Schema version
     found in the `specVersion` variable.
-  inputTemplate: ''
   contextCode: |-
     using System.Text.Json;
     using System.Text.Json.Nodes;
@@ -405,7 +528,49 @@
         }
     }
   solution: |-
-    var options = new EvaluationOptions { EvaluateAs = specVersion };
+    using System.Text.Json;
+    using System.Text.Json.Nodes;
+    using Json.Schema;
+    using Json.More;
+    
+    namespace LearnJsonEverything;
+    
+    public class Lesson : ILessonRunner<EvaluationResults>
+    {
+        public EvaluationResults Run(JsonObject test)
+        {
+            var instance = test["instance"];
+            var specVersion = test["version"].Deserialize<SpecVersion>(
+                new JsonSerializerOptions
+                {
+                    Converters = { new EnumStringConverter<SpecVersion>() }
+                }
+            );
+
+            JsonSchema schema = new JsonSchemaBuilder()
+                .Type(SchemaValueType.Array)
+                .Items(new JsonSchemaBuilder()
+                    .Type(SchemaValueType.Integer)
+                )
+                .Contains(new JsonSchemaBuilder().Const(4))
+                // Introduced with Draft 7
+                .If(new JsonSchemaBuilder().MinItems(3))
+                .Then(new JsonSchemaBuilder()
+                    .Items(new JsonSchemaBuilder().MultipleOf(2))
+                )
+                // Introduced with Draft 2019-09
+                .MinContains(2)
+                // Introduced with Draft 2020-12
+                .PrefixItems(
+                    new JsonSchemaBuilder().Type(SchemaValueType.String),
+                    new JsonSchemaBuilder().Type(SchemaValueType.Boolean)
+                );
+
+            var options = new EvaluationOptions { EvaluateAs = specVersion };
+
+            return schema.Evaluate(instance, options);
+        }
+    }
   tests:
   - instance: [{},4]
     version: Draft6
@@ -443,7 +608,6 @@
   title: 'Generation: Essentials'
   instructions: |
     Configure the builder to generate a schema for the `Person` type.
-  inputTemplate: ''
   contextCode: |-
     using System.Text.Json.Nodes;
     using Json.Schema;
@@ -472,7 +636,32 @@
         }
     }
   solution: |-
-    builder.FromType<Person>();
+    using System.Text.Json.Nodes;
+    using Json.Schema;
+    using Json.Schema.Generation;
+    
+    namespace LearnJsonEverything;
+    
+    public class Person
+    {
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public int Age { get; set; }
+    }
+
+    public class Lesson : ILessonRunner<EvaluationResults>
+    {
+        public EvaluationResults Run(JsonObject test)
+        {
+            var instance = test["instance"];
+            var builder = new JsonSchemaBuilder();
+
+            builder.FromType<Person>();
+
+            var schema = builder.Build();
+            return schema.Evaluate(instance);
+        }
+    }
   tests:
   - instance: { FirstName: Jane, LastName: Doe, Age: 24 }
     isValid: true
@@ -498,7 +687,6 @@
     - all properties are required
     - `FirstName` and `LastName` must be at least two characters long
     - `Age` must be greater than 0
-  inputTemplate: ''
   contextCode: |-
     using System.Text.Json.Nodes;
     using Json.Schema;
@@ -522,15 +710,35 @@
         }
     }
   solution: |-
-    [Required]
-    [MinLength(2)]
-    public string FirstName { get; set; }
-    [Required]
-    [MinLength(2)]
-    public string LastName { get; set; }
-    [Required]
-    [ExclusiveMinimum(0)]
-    public int Age { get; set; }
+    using System.Text.Json.Nodes;
+    using Json.Schema;
+    using Json.Schema.Generation;
+    
+    namespace LearnJsonEverything;
+    
+    public class Person
+    {
+        [Required]
+        [MinLength(2)]
+        public string FirstName { get; set; }
+        [Required]
+        [MinLength(2)]
+        public string LastName { get; set; }
+        [Required]
+        [ExclusiveMinimum(0)]
+        public int Age { get; set; }
+    }
+
+    public class Lesson : ILessonRunner<EvaluationResults>
+    {
+        public EvaluationResults Run(JsonObject test)
+        {
+            var instance = test["instance"];
+            var builder = new JsonSchemaBuilder().FromType<Person>();
+            var schema = builder.Build();
+            return schema.Evaluate(instance);
+        }
+    }
   tests:
   - instance: { FirstName: Jane, LastName: Doe, Age: 24 }
     isValid: true
@@ -554,8 +762,7 @@
     you've created for your application.  Often the best way to ensure this is to
     generate schemas directly from those models.
 
-    _JsonSchema.Net.Generation_ provides an additional extension on `JsonSchemaBuilder`
-    called `.FromType<T>()`.  It also provides numerous attributes that can be applied
+    _JsonSchema.Net.Generation_ also provides numerous attributes that can be applied
     to your models in order to create additional constraints in the generated schema.
 
     Nullability works differently in JSON and JSON Schema than it does in .Net.  Use
@@ -564,7 +771,6 @@
   title: 'Generation: Nullability'
   instructions: |
     Add a `DateTime` property called `BirthDate` and mark it as nullable.
-  inputTemplate: ''
   contextCode: |-
     using System;
     using System.Text.Json.Nodes;
@@ -602,8 +808,41 @@
         }
     }
   solution: |-
-    [Nullable(true)]
-    public DateTime? BirthDate { get; set; }
+    using System;
+    using System.Text.Json.Nodes;
+    using Json.Schema;
+    using Json.Schema.Generation;
+    
+    namespace LearnJsonEverything;
+    
+    public class Person
+    {
+        [Required]
+        [MinLength(2)]
+        public string FirstName { get; set; }
+        [Required]
+        [MinLength(2)]
+        public string LastName { get; set; }
+        [Required]
+        [ExclusiveMinimum(0)]
+        public int Age { get; set; }
+        [Nullable(true)]
+        public DateTime? BirthDate { get; set; }
+    }
+
+    public class Lesson : ILessonRunner<EvaluationResults>
+    {
+        public EvaluationResults Run(JsonObject test)
+        {
+            var instance = test["instance"];
+            var builder = new JsonSchemaBuilder().FromType<Person>();
+            var schema = builder.Build();
+            // DateTime will generate a `format: date-time` constraint,
+            // so we need to be sure to validate the `format` keyword.
+            var options = new EvaluationOptions { RequireFormatValidation = true };
+            return schema.Evaluate(instance, options);
+        }
+    }
   tests:
   - instance: { FirstName: Jane, LastName: Doe, Age: 24 }
     isValid: true
@@ -621,16 +860,12 @@
     you've created for your application.  Often the best way to ensure this is to
     generate schemas directly from those models.
 
-    _JsonSchema.Net.Generation_ provides an additional extension on `JsonSchemaBuilder`
-    called `.FromType<T>()`.
-
     Generation will also look for the `<summary>` tag in XML comments to add a `description`
     keyword to your schemas.  This is supported on properties and types.
   docs: 'schema/schemagen/schema-generation#schema-schemagen-nullability'
   title: 'Generation: XML Comments'
   instructions: |
     Add some XML comments to the `Person` type to generate a `description` keyword.
-  inputTemplate: ''
   contextCode: |-
     using System;
     using System.Text.Json;
@@ -671,9 +906,123 @@
         }
     }
   solution: |-
+    using System;
+    using System.Text.Json;
+    using System.Text.Json.Nodes;
+    using Json.Schema;
+    using Json.Schema.Generation;
+    using Json.More;
+    
+    namespace LearnJsonEverything;
+    
     /// <summary>
     /// This is my summary.  It'll end up in a `description` keyword.
     /// </summary>
+    public class Person
+    {
+        [Required]
+        [MinLength(2)]
+        public string FirstName { get; set; }
+        [Required]
+        [MinLength(2)]
+        public string LastName { get; set; }
+        [Required]
+        [ExclusiveMinimum(0)]
+        public int Age { get; set; }
+    }
+
+    public class Lesson : ILessonRunner<EvaluationResults>
+    {
+        public EvaluationResults Run(JsonObject test)
+        {
+            var builder = new JsonSchemaBuilder().FromType<Person>();
+            var schema = builder.Build();
+            var schemaAsNode = JsonSerializer.SerializeToNode(schema);
+            
+            var metaSchema = new JsonSchemaBuilder()
+              .Type(SchemaValueType.Object)
+              .Required("description");
+
+            return metaSchema.Evaluate(schemaAsNode);
+        }
+    }
   tests:
   - instance: null
+    isValid: true
+- id: 26b6eb5a-5de6-4824-8dea-4a46d414c9a8
+  background: |
+    Most often you need to ensure that incoming JSON data properly represents the models
+    you've created for your application.  Often the best way to ensure this is to
+    generate schemas directly from those models.
+
+    JSON Schema contains several options for conditional validation.  One way to support
+    it is by using the `if`/`then`/`else` keywords.
+
+    _JsonSchema.Net_ defines several attributes that allow you to generate conditional
+    schemas.  The first attribute we'll cover is the `[If]` attribute.
+  docs: 'schema/schemagen/conditional-generation'
+  title: 'Generation: Conditionals (Simple)'
+  instructions: |
+    Add an `[If]` attribute to `PropulsionInfo` at the class level and a `[Required]`
+    attribute onto the `Cylinders` property so that `Cylinders` is only required when
+    `Type` is "petrol".
+  contextCode: |-
+    using System.Text.Json.Nodes;
+    using Json.Schema;
+    using Json.Schema.Generation;
+    
+    namespace LearnJsonEverything;
+    
+    public class PropulsionInfo
+    {
+        [Required]
+        public string Type { get; set; }
+
+        public int Cylinders { get; set; }
+    }
+
+    public class Lesson : ILessonRunner<EvaluationResults>
+    {
+        public EvaluationResults Run(JsonObject test)
+        {
+            var instance = test["instance"];
+            JsonSchema schema = new JsonSchemaBuilder().FromType<PropulsionInfo>();
+
+            return schema.Evaluate(instance);
+        }
+    }
+  solution: |-
+    using System.Text.Json.Nodes;
+    using Json.Schema;
+    using Json.Schema.Generation;
+
+    namespace LearnJsonEverything;
+
+    [If(nameof(Type), "petrol", "petrol-motor")]
+    public class PropulsionInfo
+    {
+        [Required]
+        public string Type { get; set; }
+        [Required(ConditionGroup = "petrol-motor")]
+        public int Cylinders { get; set; }
+    }
+
+    public class Lesson : ILessonRunner<EvaluationResults>
+    {
+        public EvaluationResults Run(JsonObject test)
+        {
+            var instance = test["instance"];
+            JsonSchema schema = new JsonSchemaBuilder().FromType<PropulsionInfo>();
+
+            var options = new EvaluationOptions {OutputFormat = OutputFormat.Hierarchical};
+
+            return schema.Evaluate(instance, options);
+        }
+    }
+  tests:
+  - instance: {Type: petrol}
+    isValid: false
+  - instance: {Type: electric}
+    isValid: true
+  - instance: {Type: petrol, Cylinders: 4}
     isValid: true

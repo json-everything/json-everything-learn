@@ -21,7 +21,6 @@
   title: Parsing
   instructions: |
     Parse the given JSON Path text into a `path` variable.
-  inputTemplate: ''
   contextCode: |-
     using System.Text.Json;
     using System.Text.Json.Nodes;
@@ -42,7 +41,24 @@
         }
     }
   solution: |-
-    var path = JsonPath.Parse(pathText);
+    using System.Text.Json;
+    using System.Text.Json.Nodes;
+    using Json.Path;
+    
+    namespace LearnJsonEverything;
+    
+    public class Lesson : ILessonRunner<PathResult>
+    {
+        public PathResult Run(JsonObject test)
+        {
+            var data = test["data"];
+            var pathText = "$.foo.bar";
+
+            var path = JsonPath.Parse(pathText);
+
+            return path.Evaluate(data);
+        }
+    }
   tests:
   - data: { "foo": { "bar": "a string" } }
     result: ['a string']

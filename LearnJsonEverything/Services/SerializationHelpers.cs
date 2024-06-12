@@ -28,6 +28,7 @@ public static class SerializationHelpers
 }
 
 [JsonSerializable(typeof(JsonSchema))]
+[JsonSerializable(typeof(EvaluationResults))]
 [JsonSerializable(typeof(JsonNode))]
 [JsonSerializable(typeof(JsonObject))]
 [JsonSerializable(typeof(JsonArray))]

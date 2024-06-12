@@ -1,7 +1,6 @@
 ﻿using System.Text;
 using System.Text.Json.Nodes;
 using Humanizer;
-using Json.More;
 
 namespace LearnJsonEverything.Services;
 
@@ -18,12 +17,6 @@ public static class InstructionsBuilder
 		 #### Task
 
 		 /* INSTRUCTIONS */
-
-		 #### Code template
-
-		 ```csharp
-		 /* CONTEXT CODE */
-		 ```
 
 		 #### Tests
 		 /* TESTS */
