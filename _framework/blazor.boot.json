@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "LearnJsonEverything",
   "resources": {
-    "hash": "sha256-pJXY2o4qK5nNkU6EZSfgpt6+6bwQFBW20SPFM9txgzk=",
+    "hash": "sha256-w7ITSZhTnHV/wOlD2w4FuHrTIY3V+jcsRyO0pZ+6m7E=",
     "jsModuleNative": {
       "dotnet.native.8.0.6.suuomc2hr0.js": "sha256-YU6M9+jtDVnB8/wtrgIndOstzNh778Ls8g9XnbjorSk="
     },
@@ -26,8 +26,8 @@
       "JsonPointer.Net.dll": "sha256-DzV9BEIGNC1mcOpb+JYI2gGXuDG5qg157LjFTnJ6pAE=",
       "JsonSchema.Net.dll": "sha256-fMEcBvXYh4ic/8yueXWxpfstkwPxuvnMxBURilBRSGs=",
       "JsonSchema.Net.Generation.dll": "sha256-aDlPhUJpakh/shP07s4bku0qAYIWxEhynuIe8ihu3Bs=",
-      "LearnJsonEverything.dll": "sha256-H3moQ7kiHZSe1upLH6+kg0JrY/0lXs7X3BTclidRtWY=",
-      "LearnJsonEverything.Template.dll": "sha256-wwdLS7qmsl6YYLQ1EboYpiJR131CeZNj1Z6hrGQHnxs=",
+      "LearnJsonEverything.dll": "sha256-AZB1ioiSFsTEQwDUtxdcx1m3D/HifI+qEPsH2kBF294=",
+      "LearnJsonEverything.Template.dll": "sha256-y6KYKmuqI+U7u3b4i+G20pc8kcWERcOjgdDuS737UsY=",
       "Markdig.dll": "sha256-34Ry04hh+o21Q3VDOJoD0lmCasZYDBsC9CvOeWz3BjI=",
       "Markdig.SyntaxHighlighting.dll": "sha256-YEfO9OsS0T4kDjPXOW2pJF8qg62omn4UYMy/C2tcmC4=",
       "Microsoft.AspNetCore.Authorization.dll": "sha256-IsV1p8+7qyVgHgqn8Yon3RZfqKDNjdC/kTwzUwtaAlY=",
