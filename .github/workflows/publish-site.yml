@@ -19,9 +19,9 @@ jobs:
       - name: Install dependencies
         run: dotnet restore
       - name: Pre-build solution
-        run: dotnet build LearnJsonEverything.sln -c Release --no-restore
+        run: dotnet build LearnJsonEverything/LearnJsonEverything.csproj -c Release --no-restore
       - name: Test
-        run: dotnet test LearnJsonEverything.sln -c Release --no-restore
+        run: dotnet test LearnJsonEverything/LearnJsonEverything.csproj -c Release --no-restore
       - name: Publish
         run: dotnet publish LearnJsonEverything/LearnJsonEverything.csproj -c Release --no-restore -o bin
       - name: Add .nojekyll file
