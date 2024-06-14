@@ -19,7 +19,7 @@ jobs:
       - name: Install dependencies
         run: |
           dotnet restore LearnJsonEverything/LearnJsonEverything.csproj
-          dotnet restore LearnJsonEverything.Test/LearnJsonEverything.Test.csproj
+          dotnet restore LearnJsonEverything.Tests/LearnJsonEverything.Tests.csproj
       - name: Pre-build solution
         run: dotnet build LearnJsonEverything.sln -c Release --no-restore
       - name: Test
