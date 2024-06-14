@@ -27,11 +27,6 @@ public class TestModel : DependencyObject
 	public static readonly DependencyProperty FormattedProperty =
 		DependencyProperty.Register(nameof(Formatted), typeof(string), typeof(TestModel), new PropertyMetadata(null, FormattedChanged));
 
-	public TestModel(JsonObject test)
-	{
-		Formatted = test.AsJsonString(SerializerSettings.SerializerOptions);
-	}
-
 	private static void FormattedChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
 	{
 		var model = (TestModel)d;
@@ -44,5 +39,10 @@ public class TestModel : DependencyObject
 		{
 			// ignored
 		}
+	}
+
+	public TestModel(JsonObject test)
+	{
+		Formatted = test.AsJsonString(SerializerSettings.SerializerOptions);
 	}
 }

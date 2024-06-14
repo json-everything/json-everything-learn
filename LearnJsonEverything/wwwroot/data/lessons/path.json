@@ -1,6 +1,5 @@
 [
   {
-    "index": 0,
     "id": "26b6ebca-58e6-4814-86ea-494ed844c9a8",
     "skip": false,
     "title": "Parsing",
@@ -22,8 +21,40 @@
         ]
       }
     ],
-    "achieved": true,
-    "userCode": "using System.Text.Json;\nusing System.Text.Json.Nodes;\nusing Json.Path;\n\nnamespace LearnJsonEverything;\n\npublic class Lesson : ILessonRunner<PathResult>\n{\n    public PathResult Run(JsonObject test)\n    {\n        var data = test[\"data\"];\n        var pathText = \"$.foo.bar\";\n\n        var path = JsonPath.Parse(pathText);\n\n        return path.Evaluate(data);\n    }\n}",
     "solution": "using System.Text.Json;\nusing System.Text.Json.Nodes;\nusing Json.Path;\n\nnamespace LearnJsonEverything;\n\npublic class Lesson : ILessonRunner<PathResult>\n{\n    public PathResult Run(JsonObject test)\n    {\n        var data = test[\"data\"];\n        var pathText = \"$.foo.bar\";\n\n        var path = JsonPath.Parse(pathText);\n\n        return path.Evaluate(data);\n    }\n}"
+  },
+  {
+    "id": "bee48c06-4b02-4e2a-9dd7-97eb1c25e7d1",
+    "skip": false,
+    "title": "Parsing Safely",
+    "background": "Unlike JSON Schema, JSON Logic, or other technologies that are actually represented in\r\nJSON, JSON Path is its own syntax, so it must usually be parsed.  The primary way to\r\nparse a path is using the static `JsonPath.Parse()` method, but this can throw exceptions when the path string is not valid.\r\n\r\nIf you want to avoid an exception, `JsonPath.TryParse()` exists to parse a path string in a way that does not throw an exception.",
+    "docs": "path/basics/#path-in-code",
+    "api": null,
+    "schemaDocs": null,
+    "instructions": "Change the code to safely parse the text.  Return null if parsing fails.",
+    "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = test[\"pathText\"].GetValue<string>();\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}",
+    "tests": [
+      {
+        "data": {
+          "foo": {
+            "bar": "a string"
+          }
+        },
+        "pathText": "$['foo'].bar",
+        "result": [
+          "a string"
+        ]
+      },
+      {
+        "data": {
+          "foo": {
+            "bar": "a string"
+          }
+        },
+        "pathText": "$.['foo'].bar",
+        "result": null
+      }
+    ],
+    "solution": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = test[\"pathText\"].GetValue<string>();\r\n\r\n        if (!JsonPath.TryParse(pathText, out var path))\r\n        {\r\n            return null;\r\n        }\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}"
   }
 ]

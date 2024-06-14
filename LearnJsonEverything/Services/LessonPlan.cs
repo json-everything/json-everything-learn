@@ -56,6 +56,6 @@ public class LessonPlanJsonConverter : JsonConverter<LessonPlan>
 
 	public override void Write(Utf8JsonWriter writer, LessonPlan value, JsonSerializerOptions options)
 	{
-		throw new NotImplementedException();
+		JsonSerializer.Serialize(value.ToArray(), options);
 	}
 }

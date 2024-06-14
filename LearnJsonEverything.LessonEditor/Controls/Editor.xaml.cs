@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using Json.More;
 using LearnJsonEverything.Services;
 using LearnJsonEverything.Services.Runners;
@@ -15,8 +16,6 @@ namespace LearnJsonEverything.LessonEditor.Controls;
 /// </summary>
 public partial class Editor : UserControl
 {
-	// I understand that much of this doesn't follow the standard MVVM practice, but this is a quick'n'dirty tool.  I don't care.
-
 	private const string DataFileFolder = @"..\..\..\..\LearnJsonEverything\wwwroot\data\lessons\";
 
 	public Editor()
@@ -41,97 +40,32 @@ public partial class Editor : UserControl
 		var contents = File.ReadAllText(fileName);
 		var lessonPlan = JsonSerializer.Deserialize<LessonPlan>(contents, SerializerSettings.SerializerOptions) ?? new LessonPlan([]);
 
-		if (lessonPlan.Count == 0)
-		{
-			editor.SelectedLesson = new LessonData();
-			lessonPlan.Add(editor.SelectedLesson);
-		}
-		else
-			editor.SelectedLesson = lessonPlan.First();
-
-		editor.Lessons = new ObservableCollection<LessonData>(lessonPlan);
-			
-		editor.LoadLesson();
+		editor.Lessons = new ObservableCollection<LessonModel>(lessonPlan.Select(x => new LessonModel(x)));
+		editor.SelectedLesson = editor.Lessons.FirstOrDefault();
 	}
 
-	public ObservableCollection<LessonData> Lessons
+	public ObservableCollection<LessonModel> Lessons
 	{
-		get => (ObservableCollection<LessonData>)GetValue(LessonsProperty);
+		get => (ObservableCollection<LessonModel>)GetValue(LessonsProperty);
 		set => SetValue(LessonsProperty, value);
 	}
 
 	public static readonly DependencyProperty LessonsProperty =
-		DependencyProperty.Register(nameof(Lessons), typeof(ObservableCollection<LessonData>), typeof(Editor), new PropertyMetadata(null));
+		DependencyProperty.Register(nameof(Lessons), typeof(ObservableCollection<LessonModel>), typeof(Editor), new PropertyMetadata(null));
 
-	public LessonData? SelectedLesson
+	public LessonModel? SelectedLesson
 	{
-		get => (LessonData?)GetValue(SelectedLessonProperty);
+		get => (LessonModel?)GetValue(SelectedLessonProperty);
 		set => SetValue(SelectedLessonProperty, value);
 	}
 
 	public static readonly DependencyProperty SelectedLessonProperty =
-		DependencyProperty.Register(nameof(SelectedLesson), typeof(LessonData), typeof(Editor), new PropertyMetadata(null, SelectedLessonChanged));
+		DependencyProperty.Register(nameof(SelectedLesson), typeof(LessonModel), typeof(Editor), new PropertyMetadata(null, SelectedLessonChanged));
 
 	private static void SelectedLessonChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
 	{
-		var editor = (Editor)d;
-		editor.StageLesson((LessonData)e.OldValue);
-		editor.LoadLesson();
+		((LessonModel?)e.OldValue)?.Save();
 	}
-
-	public string LessonTitle
-	{
-		get => (string)GetValue(LessonTitleProperty);
-		set => SetValue(LessonTitleProperty, value);
-	}
-
-	public static readonly DependencyProperty LessonTitleProperty =
-		DependencyProperty.Register(nameof(LessonTitle), typeof(string), typeof(Editor), new PropertyMetadata(string.Empty));
-
-	public string LessonBackground
-	{
-		get => (string)GetValue(LessonBackgroundProperty);
-		set => SetValue(LessonBackgroundProperty, value);
-	}
-
-	public static readonly DependencyProperty LessonBackgroundProperty =
-		DependencyProperty.Register(nameof(LessonBackground), typeof(string), typeof(Editor), new PropertyMetadata(string.Empty));
-
-	public string DocsPath
-	{
-		get => (string)GetValue(DocsPathProperty);
-		set => SetValue(DocsPathProperty, value);
-	}
-
-	public static readonly DependencyProperty DocsPathProperty =
-		DependencyProperty.Register(nameof(DocsPath), typeof(string), typeof(Editor), new PropertyMetadata(string.Empty));
-
-	public string Instructions
-	{
-		get => (string)GetValue(InstructionsProperty);
-		set => SetValue(InstructionsProperty, value);
-	}
-
-	public static readonly DependencyProperty InstructionsProperty =
-		DependencyProperty.Register(nameof(Instructions), typeof(string), typeof(Editor), new PropertyMetadata(string.Empty));
-
-	public string InitialCode
-	{
-		get => (string)GetValue(InitialCodeProperty);
-		set => SetValue(InitialCodeProperty, value);
-	}
-
-	public static readonly DependencyProperty InitialCodeProperty =
-		DependencyProperty.Register(nameof(InitialCode), typeof(string), typeof(Editor), new PropertyMetadata(string.Empty));
-
-	public string Solution
-	{
-		get => (string)GetValue(SolutionProperty);
-		set => SetValue(SolutionProperty, value);
-	}
-
-	public static readonly DependencyProperty SolutionProperty =
-		DependencyProperty.Register(nameof(Solution), typeof(string), typeof(Editor), new PropertyMetadata(string.Empty));
 
 	public bool CanSave
 	{
@@ -151,38 +85,32 @@ public partial class Editor : UserControl
 	public static readonly DependencyProperty LessonHostProperty =
 		DependencyProperty.Register(nameof(LessonHost), typeof(ILessonHost), typeof(Editor), new PropertyMetadata(null));
 
-	public ObservableCollection<TestModel> Tests
+	public string ValidationOutput
 	{
-		get => (ObservableCollection<TestModel>)GetValue(TestsProperty);
-		set => SetValue(TestsProperty, value);
+		get => (string)GetValue(ValidationOutputProperty);
+		set => SetValue(ValidationOutputProperty, value);
 	}
 
-	public static readonly DependencyProperty TestsProperty =
-		DependencyProperty.Register(nameof(Tests), typeof(ObservableCollection<TestModel>), typeof(Editor), new PropertyMetadata(null));
-
-	public TestModel? SelectedTest
-	{
-		get => (TestModel?)GetValue(SelectedTestProperty);
-		set => SetValue(SelectedTestProperty, value);
-	}
-
-	public static readonly DependencyProperty SelectedTestProperty =
-		DependencyProperty.Register(nameof(SelectedTest), typeof(TestModel), typeof(Editor), new PropertyMetadata(null));
+	public static readonly DependencyProperty ValidationOutputProperty =
+		DependencyProperty.Register(nameof(ValidationOutput), typeof(string), typeof(Editor), new PropertyMetadata(null, LoadFile));
 
 	private void ValidateSolution(object sender, RoutedEventArgs e)
 	{
 		if (SelectedLesson is null) return;
 
-		SelectedLesson.UserCode = SelectedLesson.Solution;
-		var output = LessonHost.Run(SelectedLesson);
+		SelectedLesson.Save();
+
+		SelectedLesson.Lesson.UserCode = SelectedLesson.Solution;
+		var output = LessonHost.Run(SelectedLesson.Lesson);
+		ValidationOutput = string.Join(Environment.NewLine, output);
 		CanSave = output.All(x => x.StartsWith(Iconography.SuccessIcon));
 	}
 
 	private void SaveChanges(object sender, RoutedEventArgs e)
 	{
-		StageLesson(SelectedLesson);
+		SelectedLesson?.Save();
 
-		var content = JsonSerializer.Serialize(Lessons, SerializerSettings.SerializerOptions);
+		var content = JsonSerializer.Serialize(Lessons.Select(x => x.Lesson).ToArray(), SerializerSettings.SerializerOptions);
 		var fileName = Path.Combine(DataFileFolder, Path.ChangeExtension(FileName, ".json"));
 		File.WriteAllText(fileName, content);
 		CanSave = false;
@@ -190,20 +118,21 @@ public partial class Editor : UserControl
 
 	private void ResetContent(object sender, RoutedEventArgs e)
 	{
-		LoadLesson();
+		SelectedLesson?.Reset();
 	}
 
 	private void CopyInitialToSolution(object sender, RoutedEventArgs e)
 	{
-		Solution = InitialCode;
+		if (SelectedLesson is null) return;
+
+		SelectedLesson.Solution = SelectedLesson.InitialCode;
 	}
 
 	private void AddLesson(object sender, RoutedEventArgs e)
 	{
-		var newLesson = new LessonData { Id = Guid.NewGuid() };
+		var newLesson = new LessonModel(new LessonData { Id = Guid.NewGuid() });
 		Lessons.Add(newLesson);
 		SelectedLesson = newLesson;
-		LoadLesson();
 	}
 
 	private void RemoveLesson(object sender, RoutedEventArgs e)
@@ -219,8 +148,6 @@ public partial class Editor : UserControl
 		}
 		else
 			SelectedLesson = null!;
-	
-		LoadLesson();
 	}
 
 	private void MoveLessonUp(object sender, RoutedEventArgs e)
@@ -253,83 +180,62 @@ public partial class Editor : UserControl
 		SelectedLesson = lesson;
 	}
 
-	private void StageLesson(LessonData? oldLesson)
-	{
-		if (oldLesson is null) return;
-
-		oldLesson.Title = LessonTitle;
-		oldLesson.Background = LessonBackground;
-		oldLesson.Docs = DocsPath;
-		oldLesson.Instructions = Instructions;
-		oldLesson.ContextCode = InitialCode;
-		oldLesson.Solution = Solution;
-		oldLesson.Tests = Tests.Select(x => x.Test).ToJsonArray();
-	}
-
-	private void LoadLesson()
+	private void AddTest(object sender, RoutedEventArgs e)
 	{
 		if (SelectedLesson is null) return;
 
-		LessonTitle = SelectedLesson.Title;
-		LessonBackground = SelectedLesson.Background;
-		DocsPath = SelectedLesson.Docs;
-		Instructions = SelectedLesson.Instructions;
-		InitialCode = SelectedLesson.ContextCode;
-		Solution = SelectedLesson.Solution;
-		CanSave = false;
-		Tests = new ObservableCollection<TestModel>(SelectedLesson.Tests.Select(x => new TestModel(x!.AsObject())));
-		SelectedTest = Tests.FirstOrDefault();
-	}
-
-	private void AddTest(object sender, RoutedEventArgs e)
-	{
 		var newTest = new TestModel(new JsonObject());
-		Tests.Add(newTest);
-		SelectedTest = newTest;
+		SelectedLesson.Tests.Add(newTest);
+		SelectedLesson.SelectedTest = newTest;
 	}
 
 	private void RemoveTest(object sender, RoutedEventArgs e)
 	{
-		if (SelectedTest is null) return;
+		if (SelectedLesson?.SelectedTest is null) return;
 
-		var index = Tests.IndexOf(SelectedTest);
-		Tests.Remove(SelectedTest);
-		if (Tests.Count != 0)
+		var index = SelectedLesson.Tests.IndexOf(SelectedLesson.SelectedTest);
+		SelectedLesson.Tests.Remove(SelectedLesson.SelectedTest);
+		if (SelectedLesson.Tests.Count != 0)
 		{
-			index = Math.Clamp(index, 0, Tests.Count - 1);
-			SelectedTest = Tests[index];
+			index = Math.Clamp(index, 0, SelectedLesson.Tests.Count - 1);
+			SelectedLesson.SelectedTest = SelectedLesson.Tests[index];
 		}
 		else
-			SelectedTest = null!;
+			SelectedLesson.SelectedTest = null!;
 	}
 
 	private void MoveTestUp(object sender, RoutedEventArgs e)
 	{
-		if (SelectedTest is null) return;
+		if (SelectedLesson?.SelectedTest is null) return;
 
-		var test = SelectedTest;
-		var index = Tests.IndexOf(test);
+		var test = SelectedLesson.SelectedTest;
+		var index = SelectedLesson.Tests.IndexOf(test);
 		index--;
-		Tests.Remove(test);  // this clears SelectedIndex somehow
+		SelectedLesson.Tests.Remove(test);  // this clears SelectedIndex somehow
 
-		index = Math.Clamp(index, 0, Tests.Count - 1);
-		Tests.Insert(index, test);
+		index = Math.Clamp(index, 0, SelectedLesson.Tests.Count - 1);
+		SelectedLesson.Tests.Insert(index, test);
 
-		SelectedTest = test;
+		SelectedLesson.SelectedTest = test;
 	}
 
 	private void MoveTestDown(object sender, RoutedEventArgs e)
 	{
-		if (SelectedTest is null) return;
+		if (SelectedLesson?.SelectedTest is null) return;
 
-		var test = SelectedTest;
-		var index = Tests.IndexOf(test);
+		var test = SelectedLesson.SelectedTest;
+		var index = SelectedLesson.Tests.IndexOf(test);
 		index++;
-		Tests.Remove(test);
+		SelectedLesson.Tests.Remove(test);
 
-		index = Math.Clamp(index, 0, Tests.Count);
-		Tests.Insert(index, test);
+		index = Math.Clamp(index, 0, SelectedLesson.Tests.Count);
+		SelectedLesson.Tests.Insert(index, test);
 
-		SelectedTest = test;
+		SelectedLesson.SelectedTest = test;
+	}
+
+	private void SelectedTestChanged(object sender, SelectionChangedEventArgs e)
+	{
+		TestInput.GetBindingExpression(CodeInput.CodeContentProperty)?.UpdateTarget();
 	}
 }

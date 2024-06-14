@@ -18,7 +18,7 @@ public class PathHost : ILessonHost
 		{
 			var expectedResult = test!["result"];
 			var result = runner.Run(test.AsObject());
-			var localResult = expectedResult.IsEquivalentTo(result.Matches?.Select(x => x.Value).ToJsonArray());
+			var localResult = expectedResult.IsEquivalentTo(result?.Matches?.Select(x => x.Value).ToJsonArray());
 			correct &= localResult;
 			results.Add($"{(localResult ? Iconography.SuccessIcon : Iconography.ErrorIcon)} {test["data"]!.Print()}");
 		}
