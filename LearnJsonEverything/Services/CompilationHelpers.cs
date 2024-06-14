@@ -20,7 +20,7 @@ public static class CompilationHelpers
 		"JsonSchema.Net",
 		"JsonSchema.Net.Generation",
 		"LearnJsonEverything.Template",
-		"Yaml2JsonNode",
+		//"Yaml2JsonNode",
 	];
 
 	public static void TestOnly_SetReferences(MetadataReference[] references) => _references = references;

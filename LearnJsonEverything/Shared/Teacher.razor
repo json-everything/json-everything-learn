@@ -8,7 +8,6 @@
 @using System.Text.Json
 @using Json.More
 @using LearnJsonEverything.Services.Runners
-@using Yaml2JsonNode
 @using EditorOptions = LearnJsonEverything.Services.EditorOptions
 
 @inject DataManager DataManager;
@@ -113,8 +112,8 @@
 	{
 		_currentLesson!.UserCode = null;
 		_currentLesson.Achieved = false;
-		await LoadLesson();
 		await SaveLessonPlanCompletion();
+		await LoadLesson();
 	}
 
 	private Task PreviousLesson()
@@ -174,10 +173,8 @@
 
 	private async Task DownloadLessonPlan()
 	{
-		var yamlText = await Client.GetStringAsync(LessonSource);
-		var yaml = YamlSerializer.Parse(yamlText);
-		var json = yaml.ToJsonNode().FirstOrDefault();
-		_lessons = json.Deserialize(SerializerContext.Default.LessonPlan)!;
+		var json = await Client.GetStringAsync(LessonSource);
+		_lessons = JsonSerializer.Deserialize(json, SerializerContext.Default.LessonPlan)!;
 
 		var completed = await LoadLessonPlanCompletion();
 		foreach (var saveData in completed)
@@ -202,7 +199,7 @@
 
 	private async Task<SchemaSaveData[]> LoadLessonPlanCompletion()
 	{
-		var json = await DataManager.Get(LessonSource);
+		var json = await DataManager.Get(LessonSource) ?? await DataManager.Get(Path.ChangeExtension(LessonSource, ".yaml"));
 		if (json is null) return [];
 
 		return JsonSerializer.Deserialize(json, SerializerContext.Default.SchemaSaveDataArray)!;

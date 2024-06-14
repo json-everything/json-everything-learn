@@ -1,7 +1,7 @@
 ﻿@page "/json-schema"
 @using LearnJsonEverything.Services.Runners
 
-<Teacher LessonSource="/data/lessons/schema.yaml" Host="@_host"></Teacher>
+<Teacher LessonSource="/data/lessons/schema.json" Host="@_host"></Teacher>
 
 @code {
 	private readonly ILessonHost _host = new SchemaHost();

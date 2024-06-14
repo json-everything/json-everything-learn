@@ -1,23 +1,18 @@
-﻿using System.Collections;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace LearnJsonEverything.Services;
 
 [JsonConverter(typeof(LessonPlanJsonConverter))]
-public class LessonPlan : IReadOnlyList<LessonData>
+public class LessonPlan : List<LessonData>
 {
-	private readonly LessonData[] _lessonData;
 	private readonly Dictionary<Guid, int> _indexLookup;
 
-	public LessonData this[int i] => _lessonData[i];
-	public LessonData this[Guid id] => _lessonData[_indexLookup[id]];
-
-	public int Count => _lessonData.Length;
+	public LessonData this[Guid id] => this[_indexLookup[id]];
 
 	public LessonPlan(LessonData[] lessonData)
+		: base(lessonData)
 	{
-		_lessonData = lessonData;
 		_indexLookup = lessonData.Select((d, i) =>
 		{
 			d.Index = i;
@@ -27,29 +22,25 @@ public class LessonPlan : IReadOnlyList<LessonData>
 
 	public LessonData? GetPrevious(Guid? id)
 	{
-		if (id is null) return _lessonData[0];
+		if (id is null) return this[0];
 
 		if (!_indexLookup.TryGetValue(id.Value, out var index)) return null;
 
 		index = Math.Max(0, index - 1);
 
-		return _lessonData[index];
+		return this[index];
 	}
 
 	public LessonData? GetNext(Guid? id)
 	{
-		if (id is null) return _lessonData[0];
+		if (id is null) return this[0];
 
 		if (!_indexLookup.TryGetValue(id.Value, out var index)) return null;
 
-		index = Math.Min(_lessonData.Length - 1, index + 1);
+		index = Math.Min(Count - 1, index + 1);
 
-		return _lessonData[index];
+		return this[index];
 	}
-
-	public IEnumerator<LessonData> GetEnumerator() => ((IEnumerable<LessonData>)_lessonData).GetEnumerator();
-
-	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
 public class LessonPlanJsonConverter : JsonConverter<LessonPlan>

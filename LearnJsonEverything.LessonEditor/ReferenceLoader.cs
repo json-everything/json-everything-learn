@@ -4,7 +4,7 @@ using Json.Schema;
 using Json.Schema.Generation;
 using Microsoft.CodeAnalysis;
 
-namespace LearnJsonEverything.Tests;
+namespace LearnJsonEverything.LessonEditor;
 
 public static class ReferenceLoader
 {

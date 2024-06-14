@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\LearnJsonEverything\wwwroot\data\lessons\*.yaml">
+    <None Include="..\LearnJsonEverything\wwwroot\data\lessons\*.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

@@ -1,0 +1,29 @@
+[
+  {
+    "index": 0,
+    "id": "26b6ebca-58e6-4814-86ea-494ed844c9a8",
+    "skip": false,
+    "title": "Parsing",
+    "background": "JSON Path is a syntax for querying JSON data.\n\n_JsonPath.Net_ provides an implementation that conforms to the official IETF\nspecification, [RFC 9535](https://www.rfc-editor.org/rfc/rfc9535.html).  Like the other\nguides on this site, this guide will teach you how to use the library _JsonPath.Net_.\n\nHowever, because there are so few implementations of the RFC, and little to no\ndocumentation of it, this guide will also teach you the features of JSON Path itself,\nas described by the RFC.\n\nWe'll start with the library since there is less to cover, then we'll move on to\nwhat you can do with it.\n\nUnlike JSON Schema, JSON Logic, or other technologies that are actually represented in\nJSON, JSON Path is its own syntax, so it must usually be parsed.  The primary way to\nparse a path is using the static `JsonPath.Parse()` method.\n",
+    "docs": "path/basics",
+    "api": null,
+    "schemaDocs": null,
+    "instructions": "Parse the given JSON Path text into a `path` variable.\n",
+    "contextCode": "using System.Text.Json;\nusing System.Text.Json.Nodes;\nusing Json.Path;\n\nnamespace LearnJsonEverything;\n\npublic class Lesson : ILessonRunner<PathResult>\n{\n    public PathResult Run(JsonObject test)\n    {\n        var data = test[\"data\"];\n        var pathText = \"$.foo.bar\";\n\n        /* USER CODE */\n\n        return path.Evaluate(data);\n    }\n}",
+    "tests": [
+      {
+        "data": {
+          "foo": {
+            "bar": "a string"
+          }
+        },
+        "result": [
+          "a string"
+        ]
+      }
+    ],
+    "achieved": true,
+    "userCode": "using System.Text.Json;\nusing System.Text.Json.Nodes;\nusing Json.Path;\n\nnamespace LearnJsonEverything;\n\npublic class Lesson : ILessonRunner<PathResult>\n{\n    public PathResult Run(JsonObject test)\n    {\n        var data = test[\"data\"];\n        var pathText = \"$.foo.bar\";\n\n        var path = JsonPath.Parse(pathText);\n\n        return path.Evaluate(data);\n    }\n}",
+    "solution": "using System.Text.Json;\nusing System.Text.Json.Nodes;\nusing Json.Path;\n\nnamespace LearnJsonEverything;\n\npublic class Lesson : ILessonRunner<PathResult>\n{\n    public PathResult Run(JsonObject test)\n    {\n        var data = test[\"data\"];\n        var pathText = \"$.foo.bar\";\n\n        var path = JsonPath.Parse(pathText);\n\n        return path.Evaluate(data);\n    }\n}"
+  }
+]

@@ -1,7 +1,6 @@
 using System.Text.Json;
 using LearnJsonEverything.Services;
 using LearnJsonEverything.Services.Runners;
-using Yaml2JsonNode;
 
 namespace LearnJsonEverything.Tests;
 
@@ -21,17 +20,15 @@ public class ProvidedSolutionTests
 
 	private static LessonPlan LoadLessonPlan(string filename)
 	{
-		var yamlText = File.ReadAllText(filename);
-		var yaml = YamlSerializer.Parse(yamlText);
-		var json = yaml.First().ToJsonNode();
-		return json.Deserialize<LessonPlan>(SerializerOptions)!;
+		var json = File.ReadAllText(filename);
+		return JsonSerializer.Deserialize<LessonPlan>(json, SerializerOptions)!;
 	}
 
 	public static IEnumerable<TestCaseData> SchemaLessons
 	{
 		get
 		{
-			var lessonPlan = LoadLessonPlan("schema.yaml");
+			var lessonPlan = LoadLessonPlan("schema.json");
 			return lessonPlan.Select(x =>
 			{
 				x.UserCode = x.Solution;
@@ -60,7 +57,7 @@ public class ProvidedSolutionTests
 	{
 		get
 		{
-			var lessonPlan = LoadLessonPlan("path.yaml");
+			var lessonPlan = LoadLessonPlan("path.json");
 			return lessonPlan.Select(x =>
 			{
 				x.UserCode = x.Solution;
