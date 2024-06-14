@@ -17,11 +17,13 @@ jobs:
         with:
           dotnet-version: 8.0.x
       - name: Install dependencies
-        run: dotnet restore LearnJsonEverything/LearnJsonEverything.csproj
+        run: |
+          dotnet restore LearnJsonEverything/LearnJsonEverything.csproj
+          dotnet restore LearnJsonEverything.Test/LearnJsonEverything.Test.csproj
       - name: Pre-build solution
-        run: dotnet build LearnJsonEverything/LearnJsonEverything.csproj -c Release --no-restore
+        run: dotnet build LearnJsonEverything.sln -c Release --no-restore
       - name: Test
-        run: dotnet test LearnJsonEverything/LearnJsonEverything.csproj -c Release --no-restore
+        run: dotnet test LearnJsonEverything.sln -c Release --no-restore
       - name: Publish
         run: dotnet publish LearnJsonEverything/LearnJsonEverything.csproj -c Release --no-restore -o bin
       - name: Add .nojekyll file
