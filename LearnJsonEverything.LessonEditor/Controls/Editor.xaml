@@ -55,7 +55,7 @@
 		<Grid Grid.Column="1" Margin="5">
 			<Grid.RowDefinitions>
 				<RowDefinition Height="Auto"/>
-				<RowDefinition/>
+				<RowDefinition Height="3*"/>
 				<RowDefinition Height="Auto"/>
 				<RowDefinition/>
 			</Grid.RowDefinitions>
@@ -78,7 +78,7 @@
 			                 CodeContent="{Binding SelectedLesson.InitialCode, ElementName=Self, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 			<local:CodeInput Grid.Row="1" Label="Solution" Margin="0,5,5,5"
 			                 CodeContent="{Binding SelectedLesson.Solution, ElementName=Self, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-			<local:CodeInput Grid.Row="2" Label="Solution" Margin="0,5,5,0"
+			<local:CodeInput Grid.Row="2" Label="Output" Margin="0,5,5,0" IsEnabled="False"
 			                 CodeContent="{Binding ValidationOutput, ElementName=Self}"/>
 			<Button Grid.Row="1" Content="Copy from above" Click="CopyInitialToSolution"
 			        HorizontalAlignment="Right" VerticalAlignment="Top"

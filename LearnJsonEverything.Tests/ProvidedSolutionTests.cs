@@ -1,6 +1,6 @@
 using System.Text.Json;
 using LearnJsonEverything.Services;
-using LearnJsonEverything.Services.Runners;
+using LearnJsonEverything.Services.Hosts;
 
 namespace LearnJsonEverything.Tests;
 

@@ -1,4 +1,4 @@
-﻿namespace LearnJsonEverything.Services.Runners;
+﻿namespace LearnJsonEverything.Services.Hosts;
 
 public interface ILessonHost
 {

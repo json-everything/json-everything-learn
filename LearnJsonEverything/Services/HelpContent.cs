@@ -11,6 +11,10 @@ public static class HelpContent
 		provided by one of the libraries. For each lesson, you'll be given some background information,
 		possibly some links to various documentation, and a coding challenge along with some test
 		cases.  Make all the tests pass to move on to the next lesson.
+
+		The site will let you build whatever solution you want, and many of the lessons can be
+		solved in different ways.  If you get stuck, there is a recommended solution that you can
+		view at any time.
 		
 		Want to skip ahead and work on a particular lesson? No problem: simply select the lesson
 		you'd like to work on from the pane on the left.  The navigation buttons will activate as
@@ -23,7 +27,7 @@ public static class HelpContent
 
 		You can click <kbd>Reveal Solution</kbd> at any time to see the recommended solution, or
 		<kbd>Reset</kbd> to get the template back and clear the lesson state.
-
+		
 		---
 		
 		**This site is 100% client-side. All operations are performed in your browser.**

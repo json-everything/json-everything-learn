@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using Json.Schema;
 
-namespace LearnJsonEverything.Services.Runners;
+namespace LearnJsonEverything.Services.Hosts;
 
 public class SchemaHost : ILessonHost
 {
@@ -21,7 +21,7 @@ public class SchemaHost : ILessonHost
 			var result = runner.Run(test.AsObject());
 			Console.WriteLine($"Result: {JsonSerializer.Serialize(result, SerializerContext.Default.EvaluationResults)}");
 			correct &= expectedValidity == result.IsValid;
-			results.Add($"{(expectedValidity == result.IsValid ? Iconography.SuccessIcon : Iconography.ErrorIcon)} {test["instance"].Print()}");
+			results.Add($"{(expectedValidity == result.IsValid ? Iconography.SuccessIcon : Iconography.ErrorIcon)} {test.Print()}");
 		}
 
 		lesson.Achieved |= correct;

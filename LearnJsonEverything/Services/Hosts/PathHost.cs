@@ -1,7 +1,7 @@
 ﻿using Json.More;
 using Json.Path;
 
-namespace LearnJsonEverything.Services.Runners;
+namespace LearnJsonEverything.Services.Hosts;
 
 public class PathHost : ILessonHost
 {
@@ -20,7 +20,7 @@ public class PathHost : ILessonHost
 			var result = runner.Run(test.AsObject());
 			var localResult = expectedResult.IsEquivalentTo(result?.Matches?.Select(x => x.Value).ToJsonArray());
 			correct &= localResult;
-			results.Add($"{(localResult ? Iconography.SuccessIcon : Iconography.ErrorIcon)} {test["data"]!.Print()}");
+			results.Add($"{(localResult ? Iconography.SuccessIcon : Iconography.ErrorIcon)} {test.Print()}");
 		}
 
 		lesson.Achieved |= correct;

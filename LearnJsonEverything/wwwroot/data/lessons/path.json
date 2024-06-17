@@ -56,5 +56,459 @@
       }
     ],
     "solution": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = test[\"pathText\"].GetValue<string>();\r\n\r\n        if (!JsonPath.TryParse(pathText, out var path))\r\n        {\r\n            return null;\r\n        }\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}"
+  },
+  {
+    "id": "fc358233-24d7-445c-b083-930f77f45c99",
+    "skip": false,
+    "title": "JSON Path: The Root",
+    "background": "JSON Path is a query syntax that allows simple selection of nodes within JSON data.  That's all it does.\r\n\r\nIt is often paired with other technologies that use JSON Path (or a similar syntax and _claim_ it's JSON Path) to identify locations within JSON data to further perform other operations.  One example of this is the popular JSON processor [`jq`](https://jqlang.github.io/jq/).\r\n\r\nTo build a JSON Path query (a \"path\"), we must always start with the root selector `$`, which corresponds with the root of the data.\r\n\r\n---\r\n\r\nObserve that the expected results in the tests below are always shown in a JSON array.  This is more for convenience.  JSON Path doesn't output a JSON array; it outputs a collection of nodes paired with the JSON Path locations where each node was found.\r\n\r\nFor simple paths, this may seem redundant.  However, as our selection criteria grows more complex and can select multiple or nested values, knowing where those values come can become very important.\r\n\r\nTo see the full results including the paths to the nodes, head over to the [main `json-everything` playground](https://json-everything.net/json-path).",
+    "docs": "path/basics",
+    "api": null,
+    "schemaDocs": null,
+    "instructions": "Write a path that just returns the entire JSON data structure.",
+    "contextCode": "ususing System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"/* USER CODE */\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}",
+    "tests": [
+      {
+        "data": {
+          "foo": "bar"
+        },
+        "result": [
+          {
+            "foo": "bar"
+          }
+        ]
+      }
+    ],
+    "solution": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"$\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}"
+  },
+  {
+    "id": "1cb6d50e-378b-4710-8994-5d08c59f532d",
+    "skip": false,
+    "title": "JSON Path: Selecting from Objects",
+    "background": "Selectors are the heart of JSON Path.  They determine which nodes are selected.\r\n\r\nA selector is generally expressed inside of a set of square brackets `[]`.  This syntax comes primarily from languages like JavaScript.\r\n\r\nIf the indicated location doesn't exist, it's not an error; simply no node is selected.\r\n\r\nThe _name selector_ selects children of objects by **exactly** matching the key or property name.  It must be enclosed in quotes.\r\n\r\n- Either single- or double-quotes will work, but the start and end must match.\r\n- To include the same quote as the start/end of the string, escape it with a backslash `\\`.\r\n- Otherwise, JSON string escaping generally applies.\r\n",
+    "docs": "path/basics",
+    "api": null,
+    "schemaDocs": null,
+    "instructions": "Write a path that selects the value of the `foo` property from the given data.",
+    "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"/* USER CODE */\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}",
+    "tests": [
+      {
+        "data": {
+          "foo": "bar"
+        },
+        "result": [
+          "bar"
+        ]
+      },
+      {
+        "data": {
+          "foo": 42
+        },
+        "result": [
+          42
+        ]
+      },
+      {
+        "data": {
+          "foo": [
+            "bar"
+          ]
+        },
+        "result": [
+          [
+            "bar"
+          ]
+        ]
+      },
+      {
+        "data": {
+          "baz": "bar"
+        },
+        "result": []
+      }
+    ],
+    "solution": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"$['foo']\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}"
+  },
+  {
+    "id": "f782b060-7999-4317-a124-8fe4d74ddc93",
+    "skip": false,
+    "title": "JSON Path: Selecting from Arrays",
+    "background": "To select a value from an array, you'll need to use an _index selector_.  These selectors are expressed using a plain (unquoted) number, again inside square brackets.\r\n\r\nIndices in JSON Path are 0-based.\r\n\r\nNegative numbers indicate counting from the end of the array instead of the beginning such that -1 represents the last element in the array, -2 is the one before it, and so on.",
+    "docs": "path/basics",
+    "api": null,
+    "schemaDocs": null,
+    "instructions": "Write a path that selects the third value of the given array.",
+    "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"/* USER CODE */\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}",
+    "tests": [
+      {
+        "data": [
+          "string",
+          false,
+          42
+        ],
+        "result": [
+          42
+        ]
+      },
+      {
+        "data": [
+          "string",
+          false,
+          {
+            "foo": "bar"
+          },
+          42
+        ],
+        "result": [
+          {
+            "foo": "bar"
+          }
+        ]
+      },
+      {
+        "data": [
+          "string",
+          false,
+          null,
+          42
+        ],
+        "result": [
+          null
+        ]
+      }
+    ],
+    "solution": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"$[2]\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}"
+  },
+  {
+    "id": "7bca1f8d-7e93-4903-b8bb-32135e983b2a",
+    "skip": false,
+    "title": "JSON Path: Multiple Selections",
+    "background": "You can include multiple selectors within the brackets by comma-separating them.  This can be used either to select multiple nodes from the same data or to select different nodes depending on the data given.\r\n\r\nNodes are returned in the same order as the selectors.\r\n\r\nName selectors with numeric strings do not operate as index selectors, so `[1]` and `['1']` will not select the same nodes.",
+    "docs": "path/basics",
+    "api": null,
+    "schemaDocs": null,
+    "instructions": "Write a single path that selects all of required nodes in the right order.",
+    "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"/* USER CODE */\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}",
+    "tests": [
+      {
+        "data": {
+          "foo": "bar"
+        },
+        "result": [
+          "bar"
+        ]
+      },
+      {
+        "data": [
+          false,
+          "bar"
+        ],
+        "result": [
+          "bar"
+        ]
+      },
+      {
+        "data": {
+          "1": "bar",
+          "foo": "baz"
+        },
+        "result": [
+          "bar",
+          "baz"
+        ]
+      },
+      {
+        "data": {
+          "foo": "baz",
+          "1": "bar"
+        },
+        "result": [
+          "bar",
+          "baz"
+        ]
+      },
+      {
+        "data": [
+          false,
+          "bar",
+          "baz"
+        ],
+        "result": [
+          "baz",
+          "bar"
+        ]
+      }
+    ],
+    "solution": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"$[2, 1,'1','foo']\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}"
+  },
+  {
+    "id": "4e9d93b4-08dd-4c9c-bfbf-c8c22f84521d",
+    "skip": false,
+    "title": "JSON Path: Drilling Down into Data",
+    "background": "Most likely, the value you're looking for isn't going to be at the root level, which means that you'll need to dig down into the structure to find it.\r\n\r\nTo accomplish this, keep adding bracket notations for each level.\r\n\r\n```\r\n$['foo'][4]['bar','baz']\r\n```\r\n\r\nEach bracket notation, along with all of the selectors contained within it, is called a _path segment_.\r\n\r\n##### How It Works\r\n\r\nAs you know, a path returns a collection of node/path results.  This is actually just the result of the final path segment.\r\n\r\nFor each path segment, each selector it contains is run against each result from the previous result set.  (The root selector `$` simply selects the entire document to kick off the process.)  The results are then aggregated into a single collection and passed onto the next path segment.  The last path segment simply returns its result set to the user.\r\n\r\nSo for the above path, the following occurs:\r\n\r\n1. `$` - Select the document.\r\n2. `['foo']` - From each node in the result set, if the node is an object, select the `foo` property.  Form a new result set.\r\n3. `[4]` - From each node in the result set, if the node is an array, select the 5th item.  Form a new result set.\r\n4. `['bar','baz']` - From each node in the result set, if the node is an object, select the `bar` and `baz` properties.  Form a new result set.\r\n5. Return the final result set to the user.",
+    "docs": "path/basics",
+    "api": null,
+    "schemaDocs": null,
+    "instructions": "Build the data structure that allows all of the paths to select the appropriate data.",
+    "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var pathText = test[\"path\"].GetValue<string>();\r\n        var data = JsonNode.Parse(\r\n            \"\"\"\r\n            /* USER CODE */\r\n            \"\"\");\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}",
+    "tests": [
+      {
+        "path": "$['foo'][1]",
+        "result": [
+          "bar"
+        ]
+      },
+      {
+        "path": "$['bar']['baz']",
+        "result": [
+          [
+            true
+          ]
+        ]
+      },
+      {
+        "path": "$['bar']['baz'][0]",
+        "result": [
+          true
+        ]
+      }
+    ],
+    "solution": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var pathText = test[\"path\"].GetValue<string>();\r\n        var data = JsonNode.Parse(\r\n            \"\"\"\r\n            {\r\n              \"foo\": [ 42, \"bar\", false ],\r\n              \"bar\": { \"baz\": [ true ] }\r\n            }\r\n            \"\"\");\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}"
+  },
+  {
+    "id": "1f189a26-af22-4611-98d7-645ab707cc88",
+    "skip": false,
+    "title": "JSON Path: Shorthand Name Selector",
+    "background": "When using just a single name selector, it can be expressed in a shorthand using a dot `.` followed by the property name without quotes.  For example `['foo']` becomes `.foo`.\r\n\r\nThere are some requirements on when a shorthand name selector can be used:\r\n\r\n- Only the alphanumeric characters `A-Za-z0-9` and the underscore `_` are allowed.\r\n- Must begin with a letter `A-Za-z`\r\n\r\nIf the property you want to select does not meet these criteria, then the bracketed syntax must be used.",
+    "docs": "path/basics",
+    "api": null,
+    "schemaDocs": null,
+    "instructions": "Write a path using the shorthand property to select the value under the `bar` property.",
+    "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"/* USER CODE */\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}",
+    "tests": [
+      {
+        "data": {
+          "foo": 42,
+          "bar": "string"
+        },
+        "result": [
+          "string"
+        ]
+      }
+    ],
+    "solution": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"$.bar\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}"
+  },
+  {
+    "id": "5aa82cfd-92f3-4a8f-ab13-e5ba5eb86f0c",
+    "skip": false,
+    "title": "JSON Path: Recursive Descent",
+    "background": "Sometimes you may want to find data, but you don't know where it could be in the structure.  For instance, you may be working with a binary tree of data, and you want to find where a specific value is.\r\n\r\n_**NOTE** In cases like these, it's helpful to see the path in the results.  As mentioned in a prior lesson, you can view the path by working in the [`json-everything` playground](https://json-everything.net/json-path)._\r\n\r\nTo recursively search, you'll need to include the _recursive descent modifier_ `..`.  It's not a selector or a segment in its own right.  Instead it modifies the selectors in the segment following it to look at the entire subtree of nodes rather than just the immediate children.\r\n\r\n```\r\n$..['foo']\r\n```\r\n\r\nor its shorthand version\r\n\r\n```\r\n$..foo\r\n```\r\n\r\nwhich only has two dots total.\r\n\r\nThis syntax will return **all** of the nodes that match.\r\n\r\nThe sequence of the returned nodes is generational.  So the first nodes in the results will be the nodes the fewest levels down in the hierarchy.  Essentially, a node must appear before its children.\r\n",
+    "docs": "path/basics",
+    "api": null,
+    "schemaDocs": null,
+    "instructions": "Write a path to select all of the `foo` values scattered throughout the data.",
+    "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"/* USER CODE */\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}",
+    "tests": [
+      {
+        "data": {
+          "bar": {
+            "foo": 42
+          },
+          "foo": [
+            17,
+            {
+              "foo": 34
+            }
+          ],
+          "baz": {
+            "foo": -6
+          }
+        },
+        "result": [
+          [
+            17,
+            {
+              "foo": 34
+            }
+          ],
+          42,
+          34,
+          -6
+        ]
+      },
+      {
+        "data": {
+          "bar": {
+            "foo": 42
+          }
+        },
+        "result": [
+          42
+        ]
+      }
+    ],
+    "solution": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"$..foo\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}"
+  },
+  {
+    "id": "32ac3cd3-22db-4f97-833f-59c250f93f1d",
+    "skip": false,
+    "title": "JSON Path: Selecting Everything",
+    "background": "If you want to select all of the children of an object or array, you'll want to use the wildcard selector `*`.\r\n\r\n```\r\n$[*]\r\n```\r\n\r\nor its shorthand\r\n\r\n```\r\n$.*\r\n```\r\n\r\nThere's not much to this one, but it can be pretty powerfull, especially when combined with the recursive descent modifier.\r\n\r\n```\r\n$..*\r\n```",
+    "docs": "path/basics",
+    "api": null,
+    "schemaDocs": null,
+    "instructions": "Build a path that recursively selects all of the values.",
+    "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"/* USER CODE */\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}",
+    "tests": [
+      {
+        "data": [
+          42,
+          false,
+          {
+            "foo": "bar"
+          }
+        ],
+        "result": [
+          42,
+          false,
+          {
+            "foo": "bar"
+          },
+          "bar"
+        ]
+      },
+      {
+        "data": [
+          [
+            [
+              "string"
+            ]
+          ]
+        ],
+        "result": [
+          [
+            [
+              "string"
+            ]
+          ],
+          [
+            "string"
+          ],
+          "string"
+        ]
+      }
+    ],
+    "solution": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"$..*\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}"
+  },
+  {
+    "id": "e9c056e2-8890-4dbd-ad6f-a7a535f8f323",
+    "skip": false,
+    "title": "JSON Path: Selecting Ranges of Indices",
+    "background": "Selecting a range of indices by listing them all out is impractical.  Instead, use the _array slice selector_.\r\n\r\nThis selector takes inspiration mainly from [Python's slice type](https://docs.python.org/3/library/functions.html#slice) (and [JavaScript's slice function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice)).\r\n\r\nThe syntax is simple.  It consists of three integers, a _start_, an _end_, and a _step_, separated by colons `:`, e.g. `0:10:2`.\r\n\r\nAll of the values are optional.  Omitting the start or end just leaves the colon in place, e.g. `:10:2`, `0::2`, or `::2`.  If the step is left out, its colon separator isn't needed either (but leaving it in is also okay), e.g. `0:10` or `0:10:`.\r\n\r\nIf the start is omitted, the default value is 0.  If the end is omitted, the default is the array length.  If the step is omitted, the default value is 1.\r\n\r\nAs with index selectors, all numbers can be negative, indicating that the counting direction is reversed.\r\n\r\nCounting always begins with the start index and proceeds in increments of the step up to (but **not** including) the end.\r\n\r\nSo that first slice `0:10:2` will select indices 0, 2, 4, 6, and 8, but **not** 10.\r\n\r\nA reverse-direction slice may look like `-1:-11:-2`, and will select indices -1 (the last element), -3, -5, and -9, but **not** -11.",
+    "docs": "path/basics",
+    "api": null,
+    "schemaDocs": null,
+    "instructions": "Build a path using an array slice selector to select elements which have indices that are single-digit odd numbers greater than 2.",
+    "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"/* USER CODE */\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}",
+    "tests": [
+      {
+        "data": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "result": [
+          3,
+          5,
+          7
+        ]
+      },
+      {
+        "data": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11
+        ],
+        "result": [
+          3,
+          5,
+          7,
+          9
+        ]
+      }
+    ],
+    "solution": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"$[3:11:2]\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}"
+  },
+  {
+    "id": "7a6bebd5-2d9d-4c25-82df-d858870e01fe",
+    "skip": false,
+    "title": "JSON Path: Filtering on Value Existence",
+    "background": "The final selector type is the _filter selector_.  This selector takes an expression and selects children for which the expression evaluates to boolean **true**.  There are a lot of things that a filter expression can do, so the syntax is broken up into multiple lessons.\r\n\r\nFilter selectors operate on both arrays and objects by iterating over all of the children and applying an expression.  If the expression evaluates to a boolean **true** (not to be confused with the JSON `true` literal), then the child is selected; boolean **false** (again, not the JSON `false` literal) and the child is not selected.\r\n\r\nFilter selectors start with a question mark `?` followed by an expression.\r\n\r\n_**NOTE** The [original JSON Path](https://goessner.net/articles/JsonPath/) syntax required that the expression be contained in parenthesis `()`, but the specification removed this requirement.  It's still supported, but no longer required._\r\n\r\nThe first filter expressions we'll cover checks whether any value exists at a given location within the item.  This check is called an _existence test_.\r\n\r\nExistence tests return boolean **true** if the value exists, and boolean **false** otherwise.\r\n\r\nThe test consists of a special form of JSON Path that starts with the _local root_ selector `@`.  The local root selector `@` operates just like the root selector `$`, however instead of always referring to the root of the entire JSON document, the local root selector `@` refers to the current child in the filter iteration.\r\n\r\n_**NOTE** The existence test doesn't care what the value is; it only cares that a value is there.  The JSON `null` literal is a value, as is the JSON `false` literal.  If the value exists, boolean **true** is returned._\r\n\r\nFor the path `$[?@]`, you'll get all of the children extracted from their parent because `@` selects the child root, which always must exist (or else it wouldn't be in the iteration).  This path isn't very interesting, so let's add a segment.\r\n\r\nFor the path `$[?@.foo]`, you'll get any child which has a `foo` property.\r\n\r\nExistence test paths support all segment types.  A non-empty result set translates to a boolean **true** result.",
+    "docs": "path/basics",
+    "api": null,
+    "schemaDocs": null,
+    "instructions": "Write a path that selects items from the array with a `foo` property that contains an array with at least 2 items.",
+    "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"/* USER CODE */\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}",
+    "tests": [
+      {
+        "data": [
+          {
+            "foo": "bar"
+          },
+          {
+            "foo": [
+              1,
+              false,
+              [
+                97
+              ]
+            ]
+          },
+          {
+            "foo": [
+              "string"
+            ]
+          },
+          {
+            "foo": [
+              "string",
+              null
+            ]
+          }
+        ],
+        "result": [
+          {
+            "foo": [
+              1,
+              false,
+              [
+                97
+              ]
+            ]
+          },
+          {
+            "foo": [
+              "string",
+              null
+            ]
+          }
+        ]
+      }
+    ],
+    "solution": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"$[?@.foo[1]]\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}"
   }
 ]

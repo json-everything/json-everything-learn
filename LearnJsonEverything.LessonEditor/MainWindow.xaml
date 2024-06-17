@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:controls="clr-namespace:LearnJsonEverything.LessonEditor.Controls"
-        xmlns:runners="clr-namespace:LearnJsonEverything.Services.Runners;assembly=LearnJsonEverything"
+        xmlns:hosts="clr-namespace:LearnJsonEverything.Services.Hosts;assembly=LearnJsonEverything"
         mc:Ignorable="d"
         Title="MainWindow" Height="800" Width="1200"
 				SnapsToDevicePixels="True"
@@ -12,8 +12,8 @@
         TextElement.FontSize="14"
         x:Name="Self">
 	<Window.Resources>
-		<runners:SchemaHost x:Key="SchemaHost"/>
-		<runners:PathHost x:Key="PathHost"/>
+		<hosts:SchemaHost x:Key="SchemaHost"/>
+		<hosts:PathHost x:Key="PathHost"/>
 	</Window.Resources>
 	<TabControl>
 		<TabItem Header="Schema">

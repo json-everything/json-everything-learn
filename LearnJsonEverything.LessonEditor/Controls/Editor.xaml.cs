@@ -4,10 +4,8 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using Json.More;
 using LearnJsonEverything.Services;
-using LearnJsonEverything.Services.Runners;
+using LearnJsonEverything.Services.Hosts;
 
 namespace LearnJsonEverything.LessonEditor.Controls;
 
@@ -92,7 +90,7 @@ public partial class Editor : UserControl
 	}
 
 	public static readonly DependencyProperty ValidationOutputProperty =
-		DependencyProperty.Register(nameof(ValidationOutput), typeof(string), typeof(Editor), new PropertyMetadata(null, LoadFile));
+		DependencyProperty.Register(nameof(ValidationOutput), typeof(string), typeof(Editor), new PropertyMetadata(null));
 
 	private void ValidateSolution(object sender, RoutedEventArgs e)
 	{
