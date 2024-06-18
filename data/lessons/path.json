@@ -3,7 +3,7 @@
     "id": "26b6ebca-58e6-4814-86ea-494ed844c9a8",
     "skip": false,
     "title": "Parsing",
-    "background": "JSON Path is a syntax for querying JSON data.\n\n_JsonPath.Net_ provides an implementation that conforms to the official IETF\nspecification, [RFC 9535](https://www.rfc-editor.org/rfc/rfc9535.html).  Like the other\nguides on this site, this guide will teach you how to use the library _JsonPath.Net_.\n\nHowever, because there are so few implementations of the RFC, and little to no\ndocumentation of it, this guide will also teach you the features of JSON Path itself,\nas described by the RFC.\n\nWe'll start with the library since there is less to cover, then we'll move on to\nwhat you can do with it.\n\nUnlike JSON Schema, JSON Logic, or other technologies that are actually represented in\nJSON, JSON Path is its own syntax, so it must usually be parsed.  The primary way to\nparse a path is using the static `JsonPath.Parse()` method.\n",
+    "background": "JSON Path is a syntax for querying JSON data.\n\n_JsonPath.Net_ provides an implementation that conforms to the official IETF specification, [RFC 9535](https://www.rfc-editor.org/rfc/rfc9535.html).  Like the other guides on this site, this guide will teach you how to use the library _JsonPath.Net_.\n\nHowever, because there are so few implementations of the RFC, and little to no documentation of it, this guide will also teach you the features of JSON Path itself, as described by the RFC.\n\nWe'll start with some basic operations with the library, then we'll move on to what you can do with the syntax.  Later, we'll revisit the library's optional functionality.\n\nUnlike JSON Schema, JSON Logic, or other technologies that are actually represented in JSON, JSON Path is its own syntax, so it must usually be parsed.  The primary way to parse a path is using the static `JsonPath.Parse()` method.\n\r\nIf the path can be parsed successfully, then an implementation is required to be able to evaluate the path without any errors.",
     "docs": "path/basics",
     "api": null,
     "schemaDocs": null,
@@ -27,7 +27,7 @@
     "id": "bee48c06-4b02-4e2a-9dd7-97eb1c25e7d1",
     "skip": false,
     "title": "Parsing Safely",
-    "background": "Unlike JSON Schema, JSON Logic, or other technologies that are actually represented in\r\nJSON, JSON Path is its own syntax, so it must usually be parsed.  The primary way to\r\nparse a path is using the static `JsonPath.Parse()` method, but this can throw exceptions when the path string is not valid.\r\n\r\nIf you want to avoid an exception, `JsonPath.TryParse()` exists to parse a path string in a way that does not throw an exception.",
+    "background": "Unlike JSON Schema, JSON Logic, or other technologies that are actually represented in JSON, JSON Path is its own syntax, so it must usually be parsed.  The primary way to parse a path is using the static `JsonPath.Parse()` method, but this can throw exceptions when the path string is not valid.\r\n\r\nIf you want to avoid an exception, `JsonPath.TryParse()` exists to parse a path string in a way that does not throw an exception.",
     "docs": "path/basics/#path-in-code",
     "api": null,
     "schemaDocs": null,
@@ -457,7 +457,7 @@
     "id": "7a6bebd5-2d9d-4c25-82df-d858870e01fe",
     "skip": false,
     "title": "JSON Path: Filtering on Value Existence",
-    "background": "The final selector type is the _filter selector_.  This selector takes an expression and selects children for which the expression evaluates to boolean **true**.  There are a lot of things that a filter expression can do, so the syntax is broken up into multiple lessons.\r\n\r\nFilter selectors operate on both arrays and objects by iterating over all of the children and applying an expression.  If the expression evaluates to a boolean **true** (not to be confused with the JSON `true` literal), then the child is selected; boolean **false** (again, not the JSON `false` literal) and the child is not selected.\r\n\r\nFilter selectors start with a question mark `?` followed by an expression.\r\n\r\n_**NOTE** The [original JSON Path](https://goessner.net/articles/JsonPath/) syntax required that the expression be contained in parenthesis `()`, but the specification removed this requirement.  It's still supported, but no longer required._\r\n\r\nThe first filter expressions we'll cover checks whether any value exists at a given location within the item.  This check is called an _existence test_.\r\n\r\nExistence tests return boolean **true** if the value exists, and boolean **false** otherwise.\r\n\r\nThe test consists of a special form of JSON Path that starts with the _local root_ selector `@`.  The local root selector `@` operates just like the root selector `$`, however instead of always referring to the root of the entire JSON document, the local root selector `@` refers to the current child in the filter iteration.\r\n\r\n_**NOTE** The existence test doesn't care what the value is; it only cares that a value is there.  The JSON `null` literal is a value, as is the JSON `false` literal.  If the value exists, boolean **true** is returned._\r\n\r\nFor the path `$[?@]`, you'll get all of the children extracted from their parent because `@` selects the child root, which always must exist (or else it wouldn't be in the iteration).  This path isn't very interesting, so let's add a segment.\r\n\r\nFor the path `$[?@.foo]`, you'll get any child which has a `foo` property.\r\n\r\nExistence test paths support all segment types.  A non-empty result set translates to a boolean **true** result.",
+    "background": "The final selector type is the _filter selector_.  This selector takes an expression and selects children for which the expression evaluates to boolean **true**.  There are a lot of things that a filter expression can do, so the syntax is broken up into multiple lessons.\r\n\r\nFilter selectors operate on both arrays and objects by iterating over all of the children and applying an expression.  If the expression evaluates to a boolean **true** (not to be confused with the JSON `true` literal), then the child is selected; boolean **false** (again, not the JSON `false` literal) and the child is not selected.\r\n\r\nFilter selectors start with a question mark `?` followed by an expression.\r\n\r\n_**NOTE** The [original JSON Path](https://goessner.net/articles/JsonPath/) syntax required that the expression be contained in parenthesis `()`, but the specification removed this requirement.  It's still supported, but no longer required._\r\n\r\n---\r\n\r\nThe first filter expressions we'll cover checks whether any value exists at a given location within the item.  This check is called an _existence test_.\r\n\r\nExistence tests return boolean **true** if the value exists, and boolean **false** otherwise.\r\n\r\nThe test consists of a special form of JSON Path that starts with the _local root_ selector `@`.  The local root selector `@` operates just like the root selector `$`, however instead of always referring to the root of the entire JSON document, the local root selector `@` refers to the current child in the filter iteration.\r\n\r\n_**NOTE** The existence test doesn't care what the value is; it only cares that a value is there.  The JSON `null` literal is a value, as is the JSON `false` literal.  If the value exists, boolean **true** is returned._\r\n\r\nFor the path `$[?@]`, you'll get all of the children extracted from their parent because `@` selects the child root, which always must exist (or else it wouldn't be in the iteration).  This path isn't very interesting, so let's add a segment.\r\n\r\nFor the path `$[?@.foo]`, you'll get any child which has a `foo` property.\r\n\r\nTo test for absence, invert the result using the not `!` operator: `$[?!@.foo]`.\r\n\r\nExistence test paths support all segment types.  A non-empty result set translates to a boolean **true** result.",
     "docs": "path/basics",
     "api": null,
     "schemaDocs": null,
@@ -468,7 +468,12 @@
         "data": [
           {
             "foo": "bar"
-          },
+          }
+        ],
+        "result": []
+      },
+      {
+        "data": [
           {
             "foo": [
               1,
@@ -476,17 +481,6 @@
               [
                 97
               ]
-            ]
-          },
-          {
-            "foo": [
-              "string"
-            ]
-          },
-          {
-            "foo": [
-              "string",
-              null
             ]
           }
         ],
@@ -499,7 +493,29 @@
                 97
               ]
             ]
-          },
+          }
+        ]
+      },
+      {
+        "data": [
+          {
+            "foo": [
+              "string"
+            ]
+          }
+        ],
+        "result": []
+      },
+      {
+        "data": [
+          {
+            "foo": [
+              "string",
+              null
+            ]
+          }
+        ],
+        "result": [
           {
             "foo": [
               "string",
@@ -510,5 +526,684 @@
       }
     ],
     "solution": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"$[?@.foo[1]]\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}"
+  },
+  {
+    "id": "718cf6cb-df2d-49ea-89d6-bcd0a2938ae8",
+    "skip": false,
+    "title": "JSON Path: Filtering on Value",
+    "background": "You can also filter by comparing two values in a _comparison test_.  JSON Path offers six comparison operators that should be familiar to users of C-based languages.\r\n\r\n- Equals `==`\r\n- Not equals `!=`\r\n- Less than `<`\r\n- Less than or equal `<=`\r\n- Greater than `>`\r\n- Greater than `>=`\r\n\r\nThe equality operators `==` and `!=` work with all JSON value types, but the inequality operators `<` and friends are only defined for numbers and strings.  Number comparison is based on the numeric value.  There's no distinction on type.  String comparison is case-senstive by Unicode code point.\r\n\r\nOnly JSON primitive values (strings, numbers, booleans, and `null`) are supported in expressions; structured values (arrays and objects) are not supported.  String literals can be expressed using single or double quotes and follow the same rules as strings in name selectors.  Other values are expressed raw, with no quotes.\r\n\r\nTo select a value from the current item, the same locally rooted path syntax is used, but with some restrictions: segments may only contain a single name or index selector.  This restriction guarantees that only a single value is selected, which is important because the comparisons above are only defined for single values.\r\n\r\nIf no value exists at the location identified by the path, a special value `Nothing` is returned.  `Nothing` is not comparable to any JSON value, including `null`.  Such comparisons **always** return false.  This has the effect that a comparison implies existence.",
+    "docs": "path/basics",
+    "api": null,
+    "schemaDocs": null,
+    "instructions": "Build a path that selects all objects for which the `foo` property has a value less that 10.",
+    "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"/* USER CODE */\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}",
+    "tests": [
+      {
+        "data": [
+          {
+            "foo": 42
+          }
+        ],
+        "result": []
+      },
+      {
+        "data": [
+          {
+            "bar": 42
+          }
+        ],
+        "result": []
+      },
+      {
+        "data": [
+          {
+            "foo": 5
+          }
+        ],
+        "result": [
+          {
+            "foo": 5
+          }
+        ]
+      },
+      {
+        "data": [
+          {
+            "foo": -6
+          }
+        ],
+        "result": [
+          {
+            "foo": -6
+          }
+        ]
+      },
+      {
+        "data": [
+          {
+            "foo": 42
+          },
+          {
+            "bar": 42
+          },
+          {
+            "foo": 5
+          },
+          {
+            "foo": -6
+          }
+        ],
+        "result": [
+          {
+            "foo": 5
+          },
+          {
+            "foo": -6
+          }
+        ]
+      }
+    ],
+    "solution": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"$[?@.foo<10]\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}"
+  },
+  {
+    "id": "8b5c2785-5ceb-44b5-be38-181ceaf90c10",
+    "skip": false,
+    "title": "JSON Path: Filtering with Multiple Tests",
+    "background": "Lastly with filters, multiple tests can be combined using the boolean operations `&&` (\"and\") and `||` (\"or\").  Again, users of C-based languages should be familiar with these.\r\n\r\nBoth kinds of tests can be combined using these operators, and grouping with parentheses `()` works as expected.",
+    "docs": "path/basics",
+    "api": null,
+    "schemaDocs": null,
+    "instructions": "Build a path to query for items which both have a `foo` property **and** whose `bar` property is equal to the string `\"baz\"`.",
+    "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"/* USER CODE */\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}",
+    "tests": [
+      {
+        "data": [
+          {
+            "foo": 42,
+            "bar": "baz"
+          }
+        ],
+        "result": [
+          {
+            "foo": 42,
+            "bar": "baz"
+          }
+        ]
+      },
+      {
+        "data": [
+          {
+            "bar": "baz"
+          }
+        ],
+        "result": []
+      },
+      {
+        "data": [
+          {
+            "foo": 42,
+            "bar": "quux"
+          }
+        ],
+        "result": []
+      }
+    ],
+    "solution": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"$[?@.foo && @.bar=='baz']\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}"
+  },
+  {
+    "id": "f806ad63-5c73-4d20-80bd-9cb2bb133197",
+    "skip": false,
+    "title": "JSON Path: Filter Functions - length()",
+    "background": "Filter expressions also support functions.  There are five functions defined by the specification.\r\n\r\n- `length()`\r\n- `count()`\r\n- `match()`\r\n- `search()`\r\n- `value()`\r\n\r\nThe spec also allows for custom functions to be defined, but such functions would only be supported where the implementation is explicitly configured to do so.  By defining these functions, the spec declares that they are interoperable.  (There's also an IETF registry where additional functions can be defined that implementations are expected to support, so these would be interoperable as well.)\r\n\r\nThis is also a good opportunity to discuss the type system.  JSON Path defines three basic types:\r\n\r\n- **Values**, which are individual JSON values (objects, arrays, strings, numbers, booleans, `null`) and the special value `Nothing`.\r\n- **Logical**, which is an expression boolean, e.g. the operands of `&&` and `||` (**not** the same as JSON `true` and `false`, which are values)\r\n- **Nodelists**, which are the result of a path evaluation.\r\n\r\nEach function is defined to return one of these types, and each function defines its parameters in terms of these types.  Trying to write a path that uses a function incorrectly or passes a parameter incorrectly will result in a parsing failure.\r\n\r\nFor example, `length()` (which will be describe more in detail below) returns a value.  It cannot be used as an operand to `&&`.  Trying to do so will result in a parsing failure.\r\n\r\nSingular paths have special consideration in that they may act both as a nodelist and a value.  Speaking more technically, they return a nodelist, and because we always know that it contains at most a single node, we can implicitly extract that node (or `Nothing` if it's empty) and use it as a value.\r\n\r\n---\r\n\r\nThe `length()` function takes a value and returns a numeric value that represents the values's length.\r\n\r\n- For strings, it returns the length in Unicode code points.\r\n- For objects and arrays, it return the number of children.\r\n- For other value types, it returns `Nothing`.\r\n\r\nIt takes a single value parameter and returns a value (number).\r\n\r\nThe function's parameter can be a string literal, a singular path, or another function.  In the cases of a path or a function as a parameter, if the resulting parameter value is not a string, the `length()` function will return `Nothing`.",
+    "docs": "path/basics",
+    "api": null,
+    "schemaDocs": null,
+    "instructions": "Build a path that selects children that have a length greater than 2.",
+    "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"/* USER CODE */\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}",
+    "tests": [
+      {
+        "data": [
+          "a",
+          "long",
+          "string"
+        ],
+        "result": [
+          "long",
+          "string"
+        ]
+      },
+      {
+        "data": [
+          42,
+          1235363,
+          false,
+          null
+        ],
+        "result": []
+      },
+      {
+        "data": [
+          {
+            "enough": 1,
+            "kids": 2,
+            "already": 3
+          }
+        ],
+        "result": [
+          {
+            "enough": 1,
+            "kids": 2,
+            "already": 3
+          }
+        ]
+      },
+      {
+        "data": [
+          [
+            "long",
+            "enough",
+            "array"
+          ]
+        ],
+        "result": [
+          [
+            "long",
+            "enough",
+            "array"
+          ]
+        ]
+      }
+    ],
+    "solution": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"$[?length(@)>2]\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}"
+  },
+  {
+    "id": "4a380ba2-0402-4107-bbc2-aa59d30ed1f8",
+    "skip": false,
+    "title": "JSON Path: Filter Functions - count()",
+    "background": "The `count()` function is similar to `length()` except that it operates on nodelists instead of values.  Its purpose is to disambiguate between wanting to know the length of an array vs the number of results returned from a path.\r\n\r\nIt takes a single nodelist parameter and returns a value (number).\r\n\r\nThe parameter can be supplied by either a path (doesn't need to be a singular path) or another function which returns a nodelist.",
+    "docs": "path/basics",
+    "api": null,
+    "schemaDocs": null,
+    "instructions": "Build a path which returns only children that have at least 2 descendants under a `foo` property.",
+    "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"/* USER CODE */\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}",
+    "tests": [
+      {
+        "data": [],
+        "result": []
+      }
+    ],
+    "solution": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"$[?count(@.foo)>2]\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}"
+  },
+  {
+    "id": "616e2915-a7cf-41a6-be40-ae62965479b3",
+    "skip": false,
+    "title": "JSON Path: Filter Functions - match() & search()",
+    "background": "The `match()` and `search()` functions evaluate a string against a regular expression.\r\n\r\nRegular expressions follow the new I-Regexp specification, [RFC 9485](https://www.rfc-editor.org/rfc/rfc9485.html).  Because regular expression support is so widely varied across languages, this specification was developed to define a minimally compatable feature set that _should_ be supported by most languages.  This feature set is what is expected to be supported by all implementations.  Though implementations can choose to support more, such support might not be interoperable.\r\n\r\nThe `match()` function interprets the regular expression as \"implicitly anchored\", meaning that the start `^` and end `$` constraints are implied.  This results in only exact matches.  This behavior comes primarily from JSON Path's roots in XPath.\r\n\r\nThe `search()` function interprets the regular expression as \"explicitly anchored\", meaning that the user must specify the start `^` and end `$` of the string within the expression.  This is the more common usage seen across the internet today, as supported by https://regex101.com/ and many other online interpreters.\r\n\r\nBoth functions take two value parameters, the string content and the regular expression (in that order), and return an expression boolean (**not** the JSON literals `true` and `false`) that indicates whether the content matches the regular expression.\r\n\r\nIf either parameter is not a string, `Nothing` is returned.  (Parsing can only check that values are provided; it cannot check that the values are strings.)\r\n\r\nAs with other functions, these values may be supplied by literals, singular paths, or other functions which return the appropriate values.",
+    "docs": "path/basics",
+    "api": null,
+    "schemaDocs": null,
+    "instructions": "Build a path that return values which end with the substring `\"foo\"`.",
+    "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"/* USER CODE */\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}",
+    "tests": [
+      {
+        "data": {
+          "a": "foo start"
+        },
+        "result": []
+      },
+      {
+        "data": {
+          "a": "and foo in the middle"
+        },
+        "result": []
+      },
+      {
+        "data": {
+          "a": "ends with foo"
+        },
+        "result": [
+          "ends with foo"
+        ]
+      },
+      {
+        "data": {
+          "a": "missing altogether"
+        },
+        "result": []
+      }
+    ],
+    "solution": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"$[?search(@,'foo$')]\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}"
+  },
+  {
+    "id": "4d20a777-6943-4a44-9d6e-2c8dd974270a",
+    "skip": false,
+    "title": "JSON Path: Filter Functions - value()",
+    "background": "The `value()` function allows you to use a regular path where only a singular path may be otherwise allowed.  For instance, if you know your data only has one value under a `foo` property, but you don't know where it is, you can use `@..foo` inside the `value()` function to convert that resulting nodelist into the single result.\r\n\r\nThe `value()` function takes a nodelist and returns a value.  If the nodelist contains a single node, the result is that node's value; otherwise `Nothing` is returned.",
+    "docs": "path/basics",
+    "api": null,
+    "schemaDocs": null,
+    "instructions": "Build a path that searches the current item for a `foo` property and returns nodes that have values less than or equal to 100.",
+    "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"/* USER CODE */\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}",
+    "tests": [
+      {
+        "data": {
+          "a": {
+            "foo": 10
+          }
+        },
+        "result": [
+          {
+            "foo": 10
+          }
+        ]
+      },
+      {
+        "data": {
+          "a": {
+            "foo": 1000
+          }
+        },
+        "result": []
+      },
+      {
+        "data": {
+          "a": {
+            "bar": 10
+          }
+        },
+        "result": []
+      },
+      {
+        "data": {
+          "a": {
+            "foo": 10
+          },
+          "b": {
+            "foo": 45
+          },
+          "c": {
+            "bar": 10
+          }
+        },
+        "result": [
+          {
+            "foo": 10
+          },
+          {
+            "foo": 45
+          }
+        ]
+      }
+    ],
+    "solution": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"$[?value(@..foo)<=100]\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}"
+  },
+  {
+    "id": "d42878da-401c-4187-8ef7-96ac0ed176f3",
+    "skip": false,
+    "title": "JSON Path: Filter Nesting",
+    "background": "Filter selectors can also be nested.  That is, a path build from the local root `@` can also have a filter selector.\r\n\r\nNested filters also use the local root `@`.  The local root `@` is contexted to the expression in which its found.",
+    "docs": "path/basics",
+    "api": null,
+    "schemaDocs": null,
+    "instructions": "Build a path that checks for objects and arrays that contain the string `\"foo\"`.",
+    "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"/* USER CODE */\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}",
+    "tests": [
+      {
+        "data": [
+          {
+            "foo": "foo"
+          }
+        ],
+        "result": [
+          {
+            "foo": "foo"
+          }
+        ]
+      },
+      {
+        "data": [
+          [
+            "foo"
+          ]
+        ],
+        "result": [
+          [
+            "foo"
+          ]
+        ]
+      },
+      {
+        "data": [
+          {
+            "foo": "bar"
+          }
+        ],
+        "result": []
+      },
+      {
+        "data": [
+          [
+            "bar"
+          ]
+        ],
+        "result": []
+      },
+      {
+        "data": [
+          [
+            "foo",
+            42
+          ],
+          [
+            "bar",
+            "foo"
+          ],
+          [
+            "bar",
+            42
+          ]
+        ],
+        "result": [
+          [
+            "foo",
+            42
+          ],
+          [
+            "bar",
+            "foo"
+          ]
+        ]
+      }
+    ],
+    "solution": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"$[?@[?@ == 'foo']]\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}"
+  },
+  {
+    "id": "68646b32-566d-4462-a0c1-e5e8e5291c38",
+    "skip": false,
+    "title": "Options: Extra Whitespace",
+    "background": "The syntax defined by JSON Path only allows whitespace in specific locations.\r\n\r\nThe `TolerateExtraWhitespace` option allows you to put whitespace in these additional locations:\r\n\r\n- before the start of the path (useful if you're extracting the path from another string)\r\n- after the recursive descent modifier `..`\r\n\r\nA final review before the specification was released allowed spaces in most other locations, but these were intentionally disallowed.",
+    "docs": "api/JsonPath.Net/PathParsingOptions",
+    "api": null,
+    "schemaDocs": null,
+    "instructions": "Create parsing options and configure it to allow extra whitespace.",
+    "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = test[\"path\"].GetValue<string>();\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}",
+    "tests": [
+      {
+        "data": {
+          "foo": {
+            "bar": "baz"
+          }
+        },
+        "path": "$.. bar",
+        "result": [
+          "baz"
+        ]
+      },
+      {
+        "data": {
+          "foo": {
+            "bar": "baz"
+          }
+        },
+        "path": "  $..bar",
+        "result": [
+          "baz"
+        ]
+      }
+    ],
+    "solution": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = test[\"path\"].GetValue<string>();\r\n\r\n        var options = new PathParsingOptions\r\n        {\r\n            TolerateExtraWhitespace = true\r\n        };\r\n\r\n        var path = JsonPath.Parse(pathText, options);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}"
+  },
+  {
+    "id": "6a057d5d-eff6-4dca-8fcb-b9d866e6d255",
+    "skip": false,
+    "title": "Options: Structured JSON Literals",
+    "background": "In developing the JSON Path specification, there were a number of features that didn't make the cut.  However, because _JsonPath.Net_ was developed alongside the specification, it often operated as a test bed for proposals.  As such, some of the features cut from the specification are still available in the library via the `PathParsingOptions` class which can be passed into the parsing methods.\r\n\r\n---\r\n\r\nJSON Path only allows JSON primitives (strings, numbers, booleans, and `null`) to appear in expressions.\r\n\r\nThe `AllowJsonConstructs` option enables using objects and arrays as well.\r\n\r\nThese are JSON literals, so strings inside objects and array (including object keys) **must** use double quotes.",
+    "docs": "api/JsonPath.Net/PathParsingOptions",
+    "api": null,
+    "schemaDocs": null,
+    "instructions": "Create parsing options and configure it to allow structured JSON literals in expressions.",
+    "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = test[\"path\"].GetValue<string>();\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}",
+    "tests": [
+      {
+        "data": {
+          "a": "foo",
+          "b": [
+            1,
+            "two",
+            3
+          ],
+          "c": [
+            1,
+            2,
+            3
+          ]
+        },
+        "path": "$[?@ == [1, \"two\", 3]]",
+        "result": [
+          [
+            1,
+            "two",
+            3
+          ]
+        ]
+      },
+      {
+        "data": {
+          "a": "foo",
+          "b": [
+            1,
+            "two",
+            3
+          ],
+          "c": [
+            1,
+            2,
+            3
+          ]
+        },
+        "path": "$[?@ == [1, 'two', 3]]",
+        "result": null
+      },
+      {
+        "data": {
+          "a": {
+            "foo": 42
+          },
+          "b": {
+            "bar": 43
+          },
+          "c": {
+            "foo": 43
+          }
+        },
+        "path": "$[?@ == {\"foo\": 42}]",
+        "result": [
+          {
+            "foo": 42
+          }
+        ]
+      },
+      {
+        "data": {
+          "a": {
+            "foo": 42
+          },
+          "b": {
+            "bar": 43
+          },
+          "c": {
+            "foo": 43
+          }
+        },
+        "path": "$[?@ == {'foo': 42}]",
+        "result": null
+      }
+    ],
+    "solution": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = test[\"path\"].GetValue<string>();\r\n\r\n        var options = new PathParsingOptions\r\n        {\r\n            AllowJsonConstructs = true\r\n        };\r\n\r\n        var path = JsonPath.Parse(pathText, options);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}"
+  },
+  {
+    "id": "d0044337-24ab-4821-b3c9-c764c35a04bb",
+    "skip": false,
+    "title": "Options: \"in\" Operator",
+    "background": "The `in` operator is supported by many pre-RFC implementations, but it was never adopted by the specification itself.\r\n\r\nThe use cases for the `in` operator _can_ be expressed using the syntax defined by the specification, however doing it with the operator can often be more natural and easier to understand.\r\n\r\n##### A value that contains another value\r\n\r\nThis was the subject of the filter nesting lesson.  The task was to build a path that checks for objects and arrays that contain the string `\"foo\"`.  For which the solution was:\r\n\r\n```\r\n$[?@[?@ == 'foo']]\r\n```\r\n\r\nDoing this with the `in` operator looks like this:\r\n\r\n```\r\n$[?'foo' in @]\r\n```\r\n\r\nSo much simpler.\r\n\r\n##### Values that are one of a set of predefined options\r\n\r\nSuppose we have a set of predefined options, like a set of colors, and we want to find all objects which have a `color` property that is one of those colors.\r\n\r\nThis is pretty straighforward to do with specification syntax, but it's a bit verbose:\r\n\r\n```\r\n$[?@.color == 'red' || @.color == 'white' || @.color == 'green']\r\n```\r\n\r\nThe `in` operator, when combined with structured JSON literals, allows us to make this much more concise:\r\n\r\n```\r\n$[?@.color in [\"red\", \"white\", \"green\"]]\r\n```",
+    "docs": "api/JsonPath.Net/PathParsingOptions",
+    "api": null,
+    "schemaDocs": null,
+    "instructions": "Create parsing options and configure it to allow the `in` operator.  (Just for good measure, enable `AllowJsonConstructs`, too.)",
+    "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = test[\"path\"].GetValue<string>();\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}",
+    "tests": [
+      {
+        "data": {
+          "foo": {
+            "bar": "baz"
+          }
+        },
+        "path": "$[?'foo' in @]",
+        "result": []
+      },
+      {
+        "data": {
+          "foo": {
+            "bar": "foo"
+          }
+        },
+        "path": "$[?'foo' in @]",
+        "result": [
+          {
+            "bar": "foo"
+          }
+        ]
+      },
+      {
+        "data": [
+          {
+            "color": "red"
+          },
+          {
+            "color": true
+          }
+        ],
+        "path": "$[?@.color in [\"red\", \"white\", \"green\"]]",
+        "result": [
+          {
+            "color": "red"
+          }
+        ]
+      },
+      {
+        "data": [
+          {
+            "color": "white"
+          },
+          {
+            "color": "blue"
+          }
+        ],
+        "path": "$[?@.color in [\"red\", \"white\", \"green\"]]",
+        "result": [
+          {
+            "color": "white"
+          }
+        ]
+      }
+    ],
+    "solution": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = test[\"path\"].GetValue<string>();\r\n\r\n        var options = new PathParsingOptions\r\n        {\r\n            AllowJsonConstructs = true,\r\n            AllowInOperator = true\r\n        };\r\n\r\n        var path = JsonPath.Parse(pathText, options);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}"
+  },
+  {
+    "id": "21bced0e-8f9d-44f7-b3f6-5e59e5ee022f",
+    "skip": false,
+    "title": "Options: Math Operators",
+    "background": "Though proposed, the specification team elected not to support math operations on values in expressions.  The `AllowMathOperations` option enables this.\r\n\r\nThe supported math operators are:\r\n\r\n- addition `+`\r\n- subtraction `-`\r\n- multiplication `*`\r\n- division `/`\r\n\r\nAll operators work with numbers; addition `+` also concantenates strings.\r\n\r\nFor division `/`, if the divisor is 0, `Nothing` is returned.",
+    "docs": "api/JsonPath.Net/PathParsingOptions",
+    "api": null,
+    "schemaDocs": null,
+    "instructions": "Create parsing options and configure it to allow math operations.",
+    "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = test[\"path\"].GetValue<string>();\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}",
+    "tests": [
+      {
+        "data": [
+          {
+            "a": 5,
+            "b": 3
+          },
+          {
+            "a": 5,
+            "b": 6
+          }
+        ],
+        "path": "$[?@.a + @.b > 10]",
+        "result": [
+          {
+            "a": 5,
+            "b": 6
+          }
+        ]
+      },
+      {
+        "data": [
+          {
+            "a": "foo",
+            "b": "bar"
+          },
+          {
+            "a": "fooooo",
+            "b": "baaaar"
+          }
+        ],
+        "path": "$[?length(@.a + @.b) > 10]",
+        "result": [
+          {
+            "a": "fooooo",
+            "b": "baaaar"
+          }
+        ]
+      },
+      {
+        "data": [
+          {
+            "a": 15,
+            "b": 5
+          },
+          {
+            "a": 20,
+            "b": 10
+          },
+          {
+            "b": 15
+          }
+        ],
+        "path": "$[?@.a / @.b == 2]",
+        "result": [
+          {
+            "a": 20,
+            "b": 10
+          }
+        ]
+      }
+    ],
+    "solution": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = test[\"path\"].GetValue<string>();\r\n\r\n        var options = new PathParsingOptions\r\n        {\r\n            AllowMathOperations = true\r\n        };\r\n\r\n        var path = JsonPath.Parse(pathText, options);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}"
+  },
+  {
+    "id": "23d225a1-3746-4dde-a923-1e477aa00dbe",
+    "skip": false,
+    "title": "Options: Relative Path Start",
+    "background": "The JSON Path specification requires that a path start with the root selector `$`.  However, it was demonstrated that in some use cases, it may make sense to start a path with the local root selector `@`.\r\n\r\nThe `AllowRelativePathStart` option enables this behavior.",
+    "docs": "api/JsonPath.Net/PathParsingOptions",
+    "api": null,
+    "schemaDocs": null,
+    "instructions": "Create parsing options and configure it to allow starting a path with the local root selector `@`.",
+    "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = test[\"path\"].GetValue<string>();\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}",
+    "tests": [
+      {
+        "data": {
+          "foo": 42
+        },
+        "path": "@.foo",
+        "result": [
+          42
+        ]
+      }
+    ],
+    "solution": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = test[\"path\"].GetValue<string>();\r\n\r\n        var options = new PathParsingOptions\r\n        {\r\n            AllowRelativePathStart = true\r\n        };\r\n\r\n        var path = JsonPath.Parse(pathText, options);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}"
   }
 ]
