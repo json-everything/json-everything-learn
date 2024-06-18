@@ -96,12 +96,19 @@ public partial class Editor : UserControl
 	{
 		if (SelectedLesson is null) return;
 
-		SelectedLesson.Save();
+		try
+		{
+			SelectedLesson.Save();
 
-		SelectedLesson.Lesson.UserCode = SelectedLesson.Solution;
-		var output = LessonHost.Run(SelectedLesson.Lesson);
-		ValidationOutput = string.Join(Environment.NewLine, output);
-		CanSave = output.All(x => x.StartsWith(Iconography.SuccessIcon));
+			SelectedLesson.Lesson.UserCode = SelectedLesson.Solution;
+			var output = LessonHost.Run(SelectedLesson.Lesson);
+			ValidationOutput = string.Join(Environment.NewLine, output);
+			CanSave = output.All(x => x.StartsWith(Iconography.SuccessIcon));
+		}
+		catch (Exception exception)
+		{
+			ValidationOutput = exception.Message + Environment.NewLine + exception.StackTrace;
+		}
 	}
 
 	private void SaveChanges(object sender, RoutedEventArgs e)

@@ -17,7 +17,16 @@ public class PathHost : ILessonHost
 		foreach (var test in lesson.Tests)
 		{
 			var expectedResult = test!["result"];
-			var result = runner.Run(test.AsObject());
+			PathResult? result = null;
+			try
+			{
+				result = runner.Run(test.AsObject());
+			}
+			catch
+			{
+				// ignored
+			}
+
 			var localResult = expectedResult.IsEquivalentTo(result?.Matches?.Select(x => x.Value).ToJsonArray());
 			correct &= localResult;
 			results.Add($"{(localResult ? Iconography.SuccessIcon : Iconography.ErrorIcon)} {test.Print()}");
