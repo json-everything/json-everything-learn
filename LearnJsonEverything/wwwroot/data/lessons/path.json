@@ -61,7 +61,7 @@
     "id": "fc358233-24d7-445c-b083-930f77f45c99",
     "skip": false,
     "title": "JSON Path: The Root",
-    "background": "JSON Path is a query syntax that allows simple selection of nodes within JSON data.  That's all it does.\r\n\r\nIt is often paired with other technologies that use JSON Path (or a similar syntax and _claim_ it's JSON Path) to identify locations within JSON data to further perform other operations.  One example of this is the popular JSON processor [`jq`](https://jqlang.github.io/jq/).\r\n\r\nTo build a JSON Path query (a \"path\"), we must always start with the root selector `$`, which corresponds with the root of the data.\r\n\r\n---\r\n\r\nObserve that the expected results in the tests below are always shown in a JSON array.  This is more for convenience.  JSON Path doesn't output a JSON array; it outputs a collection of nodes paired with the JSON Path locations where each node was found.\r\n\r\nFor simple paths, this may seem redundant.  However, as our selection criteria grows more complex and can select multiple or nested values, knowing where those values come can become very important.\r\n\r\nTo see the full results including the paths to the nodes, head over to the [main `json-everything` playground](https://json-everything.net/json-path).",
+    "background": "JSON Path is a query syntax that allows simple selection of nodes within JSON data.  That's all it does.\r\n\r\nIt is often paired with other technologies that use JSON Path (or a similar syntax and _claim_ it's JSON Path) to identify locations within JSON data to further perform other operations.  One example of this is the popular JSON processor [`jq`](https://jqlang.github.io/jq/).\r\n\r\nTo build a JSON Path query (a \"path\"), we must always start with the root selector `$`, which corresponds with the root of the data.\r\n\r\n---\r\n\r\nObserve that the expected results in the tests below are always shown in a JSON array.  This is more for convenience than actually representative of the results.  JSON Path doesn't output a JSON array; it outputs a collection of nodes, where each node contains a value and the JSON Path location where value was found.\r\n\r\nFor simple paths, this may seem redundant.  However, as our selection criteria grows more complex and can select multiple or nested values, knowing where those values come can become very important.\r\n\r\nTo see the full results including the paths to the nodes, head over to the [main `json-everything` playground](https://json-everything.net/json-path).",
     "docs": "path/basics",
     "api": null,
     "schemaDocs": null,
@@ -245,7 +245,7 @@
     "id": "4e9d93b4-08dd-4c9c-bfbf-c8c22f84521d",
     "skip": false,
     "title": "JSON Path: Drilling Down into Data",
-    "background": "Most likely, the value you're looking for isn't going to be at the root level, which means that you'll need to dig down into the structure to find it.\r\n\r\nTo accomplish this, keep adding bracket notations for each level.\r\n\r\n```\r\n$['foo'][4]['bar','baz']\r\n```\r\n\r\nEach bracket notation, along with all of the selectors contained within it, is called a _path segment_.\r\n\r\n##### How It Works\r\n\r\nAs you know, a path returns a collection of node/path results.  This is actually just the result of the final path segment.\r\n\r\nFor each path segment, each selector it contains is run against each result from the previous result set.  (The root selector `$` simply selects the entire document to kick off the process.)  The results are then aggregated into a single collection and passed onto the next path segment.  The last path segment simply returns its result set to the user.\r\n\r\nSo for the above path, the following occurs:\r\n\r\n1. `$` - Select the document.\r\n2. `['foo']` - From each node in the result set, if the node is an object, select the `foo` property.  Form a new result set.\r\n3. `[4]` - From each node in the result set, if the node is an array, select the 5th item.  Form a new result set.\r\n4. `['bar','baz']` - From each node in the result set, if the node is an object, select the `bar` and `baz` properties.  Form a new result set.\r\n5. Return the final result set to the user.",
+    "background": "Most likely, the value you're looking for isn't going to be at the root level, which means that you'll need to dig down into the structure to find it.\r\n\r\nTo accomplish this, keep adding bracket notations for each level.\r\n\r\n```\r\n$['foo'][4]['bar','baz']\r\n```\r\n\r\nEach bracket notation, along with all of the selectors contained within it, is called a _path segment_.\r\n\r\n##### How It Works\r\n\r\nAs you know, a path returns a collection of node/path results.  This is actually just the result of the final path segment.\r\n\r\nFor each path segment, each selector it contains is run against each result from the previous result set.  (The root selector `$` simply selects the entire document to kick off the process.)  The results are then aggregated into a single collection and passed on to the next path segment.  The last path segment simply returns its result set to the user.\r\n\r\nSo for the above path, the following occurs:\r\n\r\n1. `$` - Select the document.\r\n2. `['foo']` - From each node in the result set, if the node is an object, select the `foo` property.  Form a new result set.\r\n3. `[4]` - From each node in the result set, if the node is an array, select the 5th item.  Form a new result set.\r\n4. `['bar','baz']` - From each node in the result set, if the node is an object, select the `bar` and `baz` properties.  Form a new result set.\r\n5. Return the final result set to the user.",
     "docs": "path/basics",
     "api": null,
     "schemaDocs": null,
@@ -279,7 +279,7 @@
     "id": "1f189a26-af22-4611-98d7-645ab707cc88",
     "skip": false,
     "title": "JSON Path: Shorthand Name Selector",
-    "background": "When using just a single name selector, it can be expressed in a shorthand using a dot `.` followed by the property name without quotes.  For example `['foo']` becomes `.foo`.\r\n\r\nThere are some requirements on when a shorthand name selector can be used:\r\n\r\n- Only the alphanumeric characters `A-Za-z0-9` and the underscore `_` are allowed.\r\n- Must begin with a letter `A-Za-z`\r\n\r\nIf the property you want to select does not meet these criteria, then the bracketed syntax must be used.",
+    "background": "When a segment only contains a single name selector, it can be expressed in a shorthand using a dot `.` followed by the property name without quotes.  For example `['foo']` becomes `.foo`.\r\n\r\nThere are some requirements that determine when a shorthand name selector can be used:\r\n\r\n- Only the alphanumeric characters `A-Za-z0-9` and the underscore `_` are allowed.\r\n- Must begin with a letter `A-Za-z`\r\n\r\nIf the property you want to select does not meet these criteria, then the bracketed syntax must be used.",
     "docs": "path/basics",
     "api": null,
     "schemaDocs": null,
@@ -302,7 +302,7 @@
     "id": "5aa82cfd-92f3-4a8f-ab13-e5ba5eb86f0c",
     "skip": false,
     "title": "JSON Path: Recursive Descent",
-    "background": "Sometimes you may want to find data, but you don't know where it could be in the structure.  For instance, you may be working with a binary tree of data, and you want to find where a specific value is.\r\n\r\n_**NOTE** In cases like these, it's helpful to see the path in the results.  As mentioned in a prior lesson, you can view the path by working in the [`json-everything` playground](https://json-everything.net/json-path)._\r\n\r\nTo recursively search, you'll need to include the _recursive descent modifier_ `..`.  It's not a selector or a segment in its own right.  Instead it modifies the selectors in the segment following it to look at the entire subtree of nodes rather than just the immediate children.\r\n\r\n```\r\n$..['foo']\r\n```\r\n\r\nor its shorthand version\r\n\r\n```\r\n$..foo\r\n```\r\n\r\nwhich only has two dots total.\r\n\r\nThis syntax will return **all** of the nodes that match.\r\n\r\nThe sequence of the returned nodes is generational.  So the first nodes in the results will be the nodes the fewest levels down in the hierarchy.  Essentially, a node must appear before its children.\r\n",
+    "background": "Sometimes you may want to find data, but you don't know where it could be in the structure.  For instance, you may be working with a binary tree of data, and you want to find where a specific value is.\r\n\r\n_**NOTE** In cases like these, it's helpful to see the path in the results.  As mentioned in a prior lesson, you can view the path by working in the [`json-everything` playground](https://json-everything.net/json-path)._\r\n\r\nTo recursively search, you'll need to include the _recursive descent modifier_ `..`.  It's not a selector or a segment in its own right.  Instead it modifies the selectors in the segment following it to look at the entire subtree of nodes rather than just the immediate children.\r\n\r\n```\r\n$..['foo']\r\n```\r\n\r\nor its shorthand version\r\n\r\n```\r\n$..foo\r\n```\r\n\r\nwhich only has two dots total.\r\n\r\nThis syntax will return **all** of the nodes that match.\r\n\r\nIn the result set, a node must appear before its children.\r\n",
     "docs": "path/basics",
     "api": null,
     "schemaDocs": null,
@@ -353,7 +353,7 @@
     "id": "32ac3cd3-22db-4f97-833f-59c250f93f1d",
     "skip": false,
     "title": "JSON Path: Selecting Everything",
-    "background": "If you want to select all of the children of an object or array, you'll want to use the wildcard selector `*`.\r\n\r\n```\r\n$[*]\r\n```\r\n\r\nor its shorthand\r\n\r\n```\r\n$.*\r\n```\r\n\r\nThere's not much to this one, but it can be pretty powerfull, especially when combined with the recursive descent modifier.\r\n\r\n```\r\n$..*\r\n```",
+    "background": "If you want to select all of the children of an object or array, you'll want to use the _wildcard selector_ `*`.\r\n\r\n```\r\n$[*]\r\n```\r\n\r\nor its shorthand\r\n\r\n```\r\n$.*\r\n```\r\n\r\nThere's not much to this one, but it can be pretty powerful, especially when combined with the recursive descent modifier.\r\n\r\n```\r\n$..*\r\n```",
     "docs": "path/basics",
     "api": null,
     "schemaDocs": null,
@@ -404,7 +404,7 @@
     "id": "e9c056e2-8890-4dbd-ad6f-a7a535f8f323",
     "skip": false,
     "title": "JSON Path: Selecting Ranges of Indices",
-    "background": "Selecting a range of indices by listing them all out is impractical.  Instead, use the _array slice selector_.\r\n\r\nThis selector takes inspiration mainly from [Python's slice type](https://docs.python.org/3/library/functions.html#slice) (and [JavaScript's slice function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice)).\r\n\r\nThe syntax is simple.  It consists of three integers, a _start_, an _end_, and a _step_, separated by colons `:`, e.g. `0:10:2`.\r\n\r\nAll of the values are optional.  Omitting the start or end just leaves the colon in place, e.g. `:10:2`, `0::2`, or `::2`.  If the step is left out, its colon separator isn't needed either (but leaving it in is also okay), e.g. `0:10` or `0:10:`.\r\n\r\nIf the start is omitted, the default value is 0.  If the end is omitted, the default is the array length.  If the step is omitted, the default value is 1.\r\n\r\nAs with index selectors, all numbers can be negative, indicating that the counting direction is reversed.\r\n\r\nCounting always begins with the start index and proceeds in increments of the step up to (but **not** including) the end.\r\n\r\nSo that first slice `0:10:2` will select indices 0, 2, 4, 6, and 8, but **not** 10.\r\n\r\nA reverse-direction slice may look like `-1:-11:-2`, and will select indices -1 (the last element), -3, -5, and -9, but **not** -11.",
+    "background": "Selecting a range of indices by listing them all out is impractical.  Instead, use the _array slice selector_.\r\n\r\nThis selector takes inspiration mainly from [Python's slice type](https://docs.python.org/3/library/functions.html#slice) (and [JavaScript's slice function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice)).\r\n\r\nThe syntax is simple.  It consists of three integers, a _start_, an _end_, and a _step_, separated by colons `:`, e.g. `0:10:2`.\r\n\r\nAll of the values are optional.  Omitting the start or end just leaves the colon in place, e.g. `:10:2`, `0::2`, or `::2`.  If the step is left out, its colon separator isn't needed either (but leaving it in is also okay), e.g. `0:10` or `0:10:`.\r\n\r\nIf the start is omitted, the default value is 0.  If the end is omitted, the default value is the array length.  If the step is omitted, the default value is 1.\r\n\r\nAs with index selectors, all numbers can be negative, indicating that the counting direction is reversed.\r\n\r\nCounting always begins with the start index and proceeds in increments of the step up to (but **not** including) the end.\r\n\r\nSo that first slice `0:10:2` will select indices 0, 2, 4, 6, and 8, but **not** 10.\r\n\r\nA reverse-direction slice may look like `-1:-11:-2`, and will select indices -1 (the last element), -3, -5, and -9, but **not** -11.",
     "docs": "path/basics",
     "api": null,
     "schemaDocs": null,
@@ -457,11 +457,11 @@
     "id": "7a6bebd5-2d9d-4c25-82df-d858870e01fe",
     "skip": false,
     "title": "JSON Path: Filtering on Value Existence",
-    "background": "The final selector type is the _filter selector_.  This selector takes an expression and selects children for which the expression evaluates to boolean **true**.  There are a lot of things that a filter expression can do, so the syntax is broken up into multiple lessons.\r\n\r\nFilter selectors operate on both arrays and objects by iterating over all of the children and applying an expression.  If the expression evaluates to a boolean **true** (not to be confused with the JSON `true` literal), then the child is selected; boolean **false** (again, not the JSON `false` literal) and the child is not selected.\r\n\r\nFilter selectors start with a question mark `?` followed by an expression.\r\n\r\n_**NOTE** The [original JSON Path](https://goessner.net/articles/JsonPath/) syntax required that the expression be contained in parenthesis `()`, but the specification removed this requirement.  It's still supported, but no longer required._\r\n\r\n---\r\n\r\nThe first filter expressions we'll cover checks whether any value exists at a given location within the item.  This check is called an _existence test_.\r\n\r\nExistence tests return boolean **true** if the value exists, and boolean **false** otherwise.\r\n\r\nThe test consists of a special form of JSON Path that starts with the _local root_ selector `@`.  The local root selector `@` operates just like the root selector `$`, however instead of always referring to the root of the entire JSON document, the local root selector `@` refers to the current child in the filter iteration.\r\n\r\n_**NOTE** The existence test doesn't care what the value is; it only cares that a value is there.  The JSON `null` literal is a value, as is the JSON `false` literal.  If the value exists, boolean **true** is returned._\r\n\r\nFor the path `$[?@]`, you'll get all of the children extracted from their parent because `@` selects the child root, which always must exist (or else it wouldn't be in the iteration).  This path isn't very interesting, so let's add a segment.\r\n\r\nFor the path `$[?@.foo]`, you'll get any child which has a `foo` property.\r\n\r\nTo test for absence, invert the result using the not `!` operator: `$[?!@.foo]`.\r\n\r\nExistence test paths support all segment types.  A non-empty result set translates to a boolean **true** result.",
+    "background": "The final selector type is the _filter selector_.  This selector takes an expression and selects children for which the expression evaluates to boolean **true**.  There are a lot of things that a filter expression can do, so the syntax is broken up into multiple lessons.\r\n\r\nFilter selectors operate on both arrays and objects by iterating over all of the children and applying an expression.  If the expression evaluates to a boolean **true** (not to be confused with the JSON `true` literal), then the child is selected; boolean **false** (again, not the JSON `false` literal) means the child is not selected.\r\n\r\nFilter selectors start with a question mark `?` followed by an expression.\r\n\r\n_**NOTE** The [original JSON Path](https://goessner.net/articles/JsonPath/) syntax required that the expression be contained in parenthesis `()`, but the specification removed this requirement.  It's still supported, but no longer required._\r\n\r\n---\r\n\r\nThe first filter expressions we'll cover checks whether any value exists at a given location within the item.  This check is called an _existence test_.\r\n\r\nExistence tests return boolean **true** if the value exists, and boolean **false** otherwise.\r\n\r\nThe test consists of a special form of JSON Path that starts with the _local root selector_ `@`.  The local root selector `@` operates just like the root selector `$`, however instead of always referring to the root of the entire JSON document, the local root selector `@` refers to the current child in the filter iteration.\r\n\r\n_**NOTE** The existence test doesn't care what the value is; it only cares that a value is there.  The JSON `null` literal is a value, as is the JSON `false` literal.  If the value exists, boolean **true** is returned._\r\n\r\nFor the path `$[?@]`, you'll get all of the children extracted from their parent because `@` selects the child root, which always must exist (or else it wouldn't be in the iteration).  This path isn't very interesting, so let's add a segment.\r\n\r\nFor the path `$[?@.foo]`, you'll get any child which has a `foo` property.\r\n\r\nTo test for absence, invert the result using the not `!` operator: `$[?!@.foo]`.\r\n\r\nExistence test paths support all segment types.  A non-empty result set translates to a boolean **true** result.",
     "docs": "path/basics",
     "api": null,
     "schemaDocs": null,
-    "instructions": "Write a path that selects items from the array with a `foo` property that contains an array with at least 2 items.",
+    "instructions": "Write a path that selects items with a `foo` property that contains an array with at least 2 items.",
     "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"/* USER CODE */\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}",
     "tests": [
       {
@@ -531,7 +531,7 @@
     "id": "718cf6cb-df2d-49ea-89d6-bcd0a2938ae8",
     "skip": false,
     "title": "JSON Path: Filtering on Value",
-    "background": "You can also filter by comparing two values in a _comparison test_.  JSON Path offers six comparison operators that should be familiar to users of C-based languages.\r\n\r\n- Equals `==`\r\n- Not equals `!=`\r\n- Less than `<`\r\n- Less than or equal `<=`\r\n- Greater than `>`\r\n- Greater than `>=`\r\n\r\nThe equality operators `==` and `!=` work with all JSON value types, but the inequality operators `<` and friends are only defined for numbers and strings.  Number comparison is based on the numeric value.  There's no distinction on type.  String comparison is case-senstive by Unicode code point.\r\n\r\nOnly JSON primitive values (strings, numbers, booleans, and `null`) are supported in expressions; structured values (arrays and objects) are not supported.  String literals can be expressed using single or double quotes and follow the same rules as strings in name selectors.  Other values are expressed raw, with no quotes.\r\n\r\nTo select a value from the current item, the same locally rooted path syntax is used, but with some restrictions: segments may only contain a single name or index selector.  This restriction guarantees that only a single value is selected, which is important because the comparisons above are only defined for single values.\r\n\r\nIf no value exists at the location identified by the path, a special value `Nothing` is returned.  `Nothing` is not comparable to any JSON value, including `null`.  Such comparisons **always** return false.  This has the effect that a comparison implies existence.",
+    "background": "You can also filter by comparing two values in a _comparison test_.  JSON Path offers six comparison operators that should be familiar to users of C-based languages.\r\n\r\n- Equals `==`\r\n- Not equals `!=`\r\n- Less than `<`\r\n- Less than or equal `<=`\r\n- Greater than `>`\r\n- Greater than or equal `>=`\r\n\r\nThe equality operators `==` and `!=` work with all JSON value types, but the inequality operators `<` and friends are only defined for numbers and strings.  Number comparison is based on the numeric value.  String comparison is case-senstive by Unicode code point.\r\n\r\nOnly JSON primitive values (strings, numbers, booleans, and `null`) are supported as literals in expressions; structured values (arrays and objects) are not supported.  String literals can be expressed using single or double quotes and follow the same rules as strings in name selectors.  Other values are expressed raw, with no quotes.\r\n\r\nTo select a value from the current item, the same locally rooted path syntax is used, but with a restriction: segments may only contain a single name or index selector.  This restriction guarantees that only a single value is selected, which is important because the comparisons above are only defined for single values.\r\n\r\nIf no value exists at the location identified by the path, a special value `Nothing` is returned.  `Nothing` is not comparable to any JSON value, including `null`.  Comparisons against `Nothing` **always** produce a boolean **false**.  This has the effect that a successful comparison implies existence.",
     "docs": "path/basics",
     "api": null,
     "schemaDocs": null,
@@ -609,7 +609,7 @@
     "id": "8b5c2785-5ceb-44b5-be38-181ceaf90c10",
     "skip": false,
     "title": "JSON Path: Filtering with Multiple Tests",
-    "background": "Lastly with filters, multiple tests can be combined using the boolean operations `&&` (\"and\") and `||` (\"or\").  Again, users of C-based languages should be familiar with these.\r\n\r\nBoth kinds of tests can be combined using these operators, and grouping with parentheses `()` works as expected.",
+    "background": "Multiple tests (both existence and comparison) can be combined using the boolean operators `&&` (\"and\") and `||` (\"or\").  Again, users of C-based languages should be familiar with these.\r\n\r\nBoth kinds of tests can be combined using these operators, and grouping with parentheses `()` works as expected.",
     "docs": "path/basics",
     "api": null,
     "schemaDocs": null,
@@ -654,7 +654,7 @@
     "id": "f806ad63-5c73-4d20-80bd-9cb2bb133197",
     "skip": false,
     "title": "JSON Path: Filter Functions - length()",
-    "background": "Filter expressions also support functions.  There are five functions defined by the specification.\r\n\r\n- `length()`\r\n- `count()`\r\n- `match()`\r\n- `search()`\r\n- `value()`\r\n\r\nThe spec also allows for custom functions to be defined, but such functions would only be supported where the implementation is explicitly configured to do so.  By defining these functions, the spec declares that they are interoperable.  (There's also an IETF registry where additional functions can be defined that implementations are expected to support, so these would be interoperable as well.)\r\n\r\nThis is also a good opportunity to discuss the type system.  JSON Path defines three basic types:\r\n\r\n- **Values**, which are individual JSON values (objects, arrays, strings, numbers, booleans, `null`) and the special value `Nothing`.\r\n- **Logical**, which is an expression boolean, e.g. the operands of `&&` and `||` (**not** the same as JSON `true` and `false`, which are values)\r\n- **Nodelists**, which are the result of a path evaluation.\r\n\r\nEach function is defined to return one of these types, and each function defines its parameters in terms of these types.  Trying to write a path that uses a function incorrectly or passes a parameter incorrectly will result in a parsing failure.\r\n\r\nFor example, `length()` (which will be describe more in detail below) returns a value.  It cannot be used as an operand to `&&`.  Trying to do so will result in a parsing failure.\r\n\r\nSingular paths have special consideration in that they may act both as a nodelist and a value.  Speaking more technically, they return a nodelist, and because we always know that it contains at most a single node, we can implicitly extract that node (or `Nothing` if it's empty) and use it as a value.\r\n\r\n---\r\n\r\nThe `length()` function takes a value and returns a numeric value that represents the values's length.\r\n\r\n- For strings, it returns the length in Unicode code points.\r\n- For objects and arrays, it return the number of children.\r\n- For other value types, it returns `Nothing`.\r\n\r\nIt takes a single value parameter and returns a value (number).\r\n\r\nThe function's parameter can be a string literal, a singular path, or another function.  In the cases of a path or a function as a parameter, if the resulting parameter value is not a string, the `length()` function will return `Nothing`.",
+    "background": "Filter expressions also support functions.  There are five functions defined by the specification.\r\n\r\n- `length()`\r\n- `count()`\r\n- `match()`\r\n- `search()`\r\n- `value()`\r\n\r\nThe specification also allows for custom functions to be defined, but such functions would only be supported where the implementation is explicitly configured to do so.  By defining these functions, the spec declares that they are interoperable.  (There's also an IETF registry where additional functions can be defined that implementations are expected to support, so these would be interoperable as well.)\r\n\r\nThis is also a good opportunity to discuss the type system.  JSON Path defines three basic types:\r\n\r\n- **Values**, which are individual JSON values (objects, arrays, strings, numbers, `true`, `false`, and `null`) and the special value `Nothing`, which represents the absence of a value.\r\n- **Logical**, which is either boolean **true** or boolean **false**.\r\n- **Nodelists**, which are the result of a path evaluation.\r\n\r\nEach function defines its parameter types and return type.  Trying to write a path that uses a function's return incorrectly or passes a parameter incorrectly will result in a parsing failure.\r\n\r\nFor example, `length()` (which will be described in more detail below) returns a value.  It cannot be used as an operand to `&&`.  Trying to do so will result in a parsing failure.\r\n\r\nSingular paths have special consideration in that they may act both as a nodelist and a value.  Speaking more technically, they return a nodelist, and because we always know that it contains at most a single node, we can implicitly extract that node (or `Nothing` if it's empty) and use it as a value.\r\n\r\n---\r\n\r\nThe `length()` function takes a value and returns a numeric value that represents the values's length.\r\n\r\n- For strings, it returns the length in Unicode code points.\r\n- For objects and arrays, it return the number of children.\r\n- For other value types, it returns `Nothing`.\r\n\r\nIt takes a single value parameter and returns a value (number).\r\n\r\nThe function's parameter can be a string literal, a singular path, or a function which returns a value.",
     "docs": "path/basics",
     "api": null,
     "schemaDocs": null,
@@ -720,25 +720,59 @@
     "id": "4a380ba2-0402-4107-bbc2-aa59d30ed1f8",
     "skip": false,
     "title": "JSON Path: Filter Functions - count()",
-    "background": "The `count()` function is similar to `length()` except that it operates on nodelists instead of values.  Its purpose is to disambiguate between wanting to know the length of an array vs the number of results returned from a path.\r\n\r\nIt takes a single nodelist parameter and returns a value (number).\r\n\r\nThe parameter can be supplied by either a path (doesn't need to be a singular path) or another function which returns a nodelist.",
+    "background": "The `count()` function is similar to the `length()` function except that it operates on nodelists instead of values.  Its purpose is to disambiguate between wanting to know the length of an array vs the number of results returned from a path.\r\n\r\nIt takes a single nodelist parameter and returns a value (number).\r\n\r\nThe parameter can be supplied by either a path (doesn't need to be a singular path) or a function which returns a nodelist.",
     "docs": "path/basics",
     "api": null,
     "schemaDocs": null,
-    "instructions": "Build a path which returns only children that have at least 2 descendants under a `foo` property.",
+    "instructions": "Build a path which returns items that have at least 2 nodes somewhere in their tree.",
     "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"/* USER CODE */\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}",
     "tests": [
       {
-        "data": [],
+        "data": [
+          {
+            "foo": 42
+          }
+        ],
         "result": []
+      },
+      {
+        "data": [
+          {
+            "foo": 42,
+            "bar": "baz"
+          }
+        ],
+        "result": [
+          {
+            "foo": 42,
+            "bar": "baz"
+          }
+        ]
+      },
+      {
+        "data": [
+          {
+            "foo": {
+              "bar": "baz"
+            }
+          }
+        ],
+        "result": [
+          {
+            "foo": {
+              "bar": "baz"
+            }
+          }
+        ]
       }
     ],
-    "solution": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"$[?count(@.foo)>2]\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}"
+    "solution": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"$[?count(@..*)>=2]\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}"
   },
   {
     "id": "616e2915-a7cf-41a6-be40-ae62965479b3",
     "skip": false,
     "title": "JSON Path: Filter Functions - match() & search()",
-    "background": "The `match()` and `search()` functions evaluate a string against a regular expression.\r\n\r\nRegular expressions follow the new I-Regexp specification, [RFC 9485](https://www.rfc-editor.org/rfc/rfc9485.html).  Because regular expression support is so widely varied across languages, this specification was developed to define a minimally compatable feature set that _should_ be supported by most languages.  This feature set is what is expected to be supported by all implementations.  Though implementations can choose to support more, such support might not be interoperable.\r\n\r\nThe `match()` function interprets the regular expression as \"implicitly anchored\", meaning that the start `^` and end `$` constraints are implied.  This results in only exact matches.  This behavior comes primarily from JSON Path's roots in XPath.\r\n\r\nThe `search()` function interprets the regular expression as \"explicitly anchored\", meaning that the user must specify the start `^` and end `$` of the string within the expression.  This is the more common usage seen across the internet today, as supported by https://regex101.com/ and many other online interpreters.\r\n\r\nBoth functions take two value parameters, the string content and the regular expression (in that order), and return an expression boolean (**not** the JSON literals `true` and `false`) that indicates whether the content matches the regular expression.\r\n\r\nIf either parameter is not a string, `Nothing` is returned.  (Parsing can only check that values are provided; it cannot check that the values are strings.)\r\n\r\nAs with other functions, these values may be supplied by literals, singular paths, or other functions which return the appropriate values.",
+    "background": "The `match()` and `search()` functions evaluate a string against a regular expression.\r\n\r\nRegular expressions follow the new I-Regexp specification, [RFC 9485](https://www.rfc-editor.org/rfc/rfc9485.html).  Because regular expression support is so widely varied across languages, this specification was developed to define a minimally compatable feature set that _should_ be supported by most languages.  This feature set is what is expected to be supported by all implementations.  Though implementations can choose to support more, such support might not be interoperable.\r\n\r\nThe `match()` function interprets the regular expression as \"implicitly anchored\", meaning that the start `^` and end `$` constraints are implied.  This results in only exact matches.  This behavior comes primarily from JSON Path's roots in XPath.\r\n\r\nThe `search()` function interprets the regular expression as \"explicitly anchored\", meaning that the user must specify the start `^` and end `$` of the string within the expression.  This is the more common usage seen across the internet today, as supported by https://regex101.com/ and many other online interpreters.\r\n\r\nBoth functions take two value parameters, the string content and the regular expression (in that order), and return a boolean **true** if the content matches the regular expression and boolean **false** if it doesn't.\r\n\r\nIf either parameter is not a string, `Nothing` is returned.  (Parsing can only check that values are provided; it cannot check that the values are strings.)\r\n\r\nAs with other functions, these values may be supplied by literals, singular paths, or other functions which return the appropriate values.",
     "docs": "path/basics",
     "api": null,
     "schemaDocs": null,
@@ -833,6 +867,19 @@
             "foo": 45
           }
         ]
+      },
+      {
+        "data": {
+          "a": [
+            {
+              "foo": 10
+            },
+            {
+              "foo": 20
+            }
+          ]
+        },
+        "result": []
       }
     ],
     "solution": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"$[?value(@..foo)<=100]\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}"
