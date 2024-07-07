@@ -51,7 +51,7 @@ public class LessonPlanJsonConverter : JsonConverter<LessonPlan>
 		var lessonData = JsonSerializer.Deserialize<LessonData[]>(ref reader, options)!;
 #pragma warning restore IL2026 // Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code
 
-		return new LessonPlan(lessonData.Where(x => !x.Skip).ToArray());
+		return new LessonPlan(lessonData.ToArray());
 	}
 
 	public override void Write(Utf8JsonWriter writer, LessonPlan value, JsonSerializerOptions options)

@@ -30,5 +30,14 @@ namespace LearnJsonEverything.LessonEditor.Controls
 
 		public static readonly DependencyProperty CodeContentProperty =
 			DependencyProperty.Register(nameof(CodeContent), typeof(string), typeof(CodeInput), new PropertyMetadata(string.Empty));
+
+		public bool IsReadOnly
+		{
+			get => (bool)GetValue(IsReadOnlyProperty);
+			set => SetValue(IsReadOnlyProperty, value);
+		}
+
+		public static readonly DependencyProperty IsReadOnlyProperty =
+			DependencyProperty.Register(nameof(IsReadOnly), typeof(bool), typeof(CodeInput), new PropertyMetadata(false));
 	}
 }

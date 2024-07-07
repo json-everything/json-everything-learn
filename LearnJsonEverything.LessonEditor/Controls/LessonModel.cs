@@ -18,6 +18,15 @@ public class LessonModel : DependencyObject
 	public static readonly DependencyProperty TitleProperty =
 		DependencyProperty.Register(nameof(Title), typeof(string), typeof(LessonModel), new PropertyMetadata(null));
 
+	public bool Skip
+	{
+		get => (bool)GetValue(SkipProperty);
+		set => SetValue(SkipProperty, value);
+	}
+
+	public static readonly DependencyProperty SkipProperty =
+		DependencyProperty.Register(nameof(Skip), typeof(bool), typeof(LessonModel), new PropertyMetadata(false));
+
 	public string Background
 	{
 		get => (string)GetValue(BackgroundProperty);
@@ -94,6 +103,7 @@ public class LessonModel : DependencyObject
 	public void Reset()
 	{
 		Title = Lesson.Title;
+		Skip = Lesson.Skip;
 		Background = Lesson.Background;
 		DocsPath = Lesson.Docs;
 		Instructions = Lesson.Instructions;
@@ -106,6 +116,7 @@ public class LessonModel : DependencyObject
 	public void Save()
 	{
 		Lesson.Title = Title;
+		Lesson.Skip = Skip;
 		Lesson.Background = Background;
 		Lesson.Docs = DocsPath;
 		Lesson.Instructions = Instructions;

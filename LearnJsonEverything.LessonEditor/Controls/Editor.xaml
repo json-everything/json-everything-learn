@@ -59,8 +59,10 @@
 				<RowDefinition Height="Auto"/>
 				<RowDefinition/>
 			</Grid.RowDefinitions>
-			<local:TextInput Label="Title
-											 " TextContent="{Binding SelectedLesson.Title, ElementName=Self, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+      <local:TextInput Label="Title"
+                       TextContent="{Binding SelectedLesson.Title, ElementName=Self, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+      <CheckBox Content="Skip" HorizontalAlignment="Right" Margin="0,6,0,0"
+                IsChecked="{Binding SelectedLesson.Skip, ElementName=Self, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 			<local:TextInput Grid.Row="1" Label="Background" 
 			                 TextContent="{Binding SelectedLesson.Background, ElementName=Self, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 			<local:TextInput Grid.Row="2" Label="Docs Path (from root on docs.json-everything.net)"
@@ -78,7 +80,7 @@
 			                 CodeContent="{Binding SelectedLesson.InitialCode, ElementName=Self, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 			<local:CodeInput Grid.Row="1" Label="Solution" Margin="0,5,5,5"
 			                 CodeContent="{Binding SelectedLesson.Solution, ElementName=Self, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-			<local:CodeInput Grid.Row="2" Label="Output" Margin="0,5,5,0" IsEnabled="False"
+			<local:CodeInput Grid.Row="2" Label="Output" Margin="0,5,5,0" IsReadOnly="False"
 			                 CodeContent="{Binding ValidationOutput, ElementName=Self}"/>
 			<Button Grid.Row="1" Content="Copy from above" Click="CopyInitialToSolution"
 			        HorizontalAlignment="Right" VerticalAlignment="Top"

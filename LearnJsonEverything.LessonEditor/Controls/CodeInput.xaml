@@ -12,7 +12,8 @@
 			<RowDefinition/>
 		</Grid.RowDefinitions>
 		<Label Content="{Binding Label, ElementName=Self}"/>
-		<TextBox Grid.Row="1" Text="{Binding CodeContent, ElementName=Self, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-		         FontFamily="Consolas" AcceptsReturn="True" AcceptsTab="True"/>
+    <TextBox Grid.Row="1" FontFamily="Consolas" AcceptsReturn="True" AcceptsTab="True"
+		         Text="{Binding CodeContent, ElementName=Self, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+		         IsReadOnly="{Binding IsReadOnly, ElementName=Self, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 	</Grid>
 </UserControl>
