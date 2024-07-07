@@ -18,24 +18,21 @@ public class ProvidedSolutionTests
 		CompilationHelpers.TestOnly_SetReferences(ReferenceLoader.Load());
 	}
 
-	private static LessonPlan LoadLessonPlan(string filename)
+	private static IEnumerable<TestCaseData> GetLessons(string filename)
 	{
 		var json = File.ReadAllText(filename);
-		return JsonSerializer.Deserialize<LessonPlan>(json, SerializerOptions)!;
-	}
+		var lessonPlan = JsonSerializer.Deserialize<LessonPlan>(json, SerializerOptions)!;
 
-	public static IEnumerable<TestCaseData> SchemaLessons
-	{
-		get
-		{
-			var lessonPlan = LoadLessonPlan("schema.json");
-			return lessonPlan.Select(x =>
+		return lessonPlan.Where(x => !x.Skip)
+			.Select(x =>
 			{
 				x.UserCode = x.Solution;
 				return new TestCaseData(x) { TestName = x.Title };
 			});
-		}
 	}
+
+
+	public static IEnumerable<TestCaseData> SchemaLessons => GetLessons("schema.json");
 
 	[TestCaseSource(nameof(SchemaLessons))]
 	public void Schema(LessonData lesson)
@@ -53,18 +50,7 @@ public class ProvidedSolutionTests
 		}
 	}
 
-	public static IEnumerable<TestCaseData> PathLessons
-	{
-		get
-		{
-			var lessonPlan = LoadLessonPlan("path.json");
-			return lessonPlan.Select(x =>
-			{
-				x.UserCode = x.Solution;
-				return new TestCaseData(x) { TestName = x.Title };
-			});
-		}
-	}
+	public static IEnumerable<TestCaseData> PathLessons => GetLessons("path.json");
 
 	[TestCaseSource(nameof(PathLessons))]
 	public void Path(LessonData lesson)
