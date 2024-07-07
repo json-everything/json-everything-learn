@@ -20,6 +20,8 @@
 			<ul role="listbox">
 				@foreach (var lesson in _lessons)
 				{
+					@if (lesson.Skip) continue;
+
 					<li id="@lesson.Id" role="option" @onclick="() => SelectLesson(lesson.Id)">
 						<span class="@(lesson.Achieved ? "" : "invisible")">@Iconography.SuccessIcon</span>
 						@lesson.Title
