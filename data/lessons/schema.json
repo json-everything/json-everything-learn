@@ -200,7 +200,7 @@
     "id": "26b6ebca-58e6-4814-86ea-4946d444c9a8",
     "skip": false,
     "title": "Options: Validating Formats",
-    "background": "By default, JSON Schema doesn't validate the `format` keyword.  Instead, tools are generally encouraged to provide a configuration option to enforce `format` validation.\n\nIn _JsonSchema.Net_ that option is called `RequiredFormatValidation`.\n",
+    "background": "By default, JSON Schema doesn't validate the `format` keyword.  Instead, tools are generally encouraged to provide a configuration option to enforce `format` validation.\n\nIn _JsonSchema.Net_ that option is called `RequiredFormatValidation`.\n\r\n_**NOTE** Unregistered formats will still pass validation._",
     "docs": "schema/basics/#schema-format",
     "api": null,
     "schemaDocs": null,
@@ -251,9 +251,48 @@
         "instance": 6.8,
         "format": "date-time",
         "isValid": false
+      },
+      {
+        "instance": "hello",
+        "format": "unknown-format",
+        "isValid": true
       }
     ],
     "solution": "using System.Text.Json.Nodes;\nusing Json.Schema;\n\nnamespace LearnJsonEverything;\n\npublic class Lesson : ILessonRunner<EvaluationResults>\n{\n    public EvaluationResults Run(JsonObject test)\n    {\n        var instance = test[\"instance\"];\n        var format = test[\"format\"].GetValue<string>();\n        JsonSchema schema = new JsonSchemaBuilder()\n            .Type(SchemaValueType.String)\n            .Format(format); \n\n        var options = new EvaluationOptions();\n\n        options.RequireFormatValidation = true;\n\n        return schema.Evaluate(instance, options);\n    }\n}"
+  },
+  {
+    "id": "3e605625-c57f-4e36-bdd4-76ca289b59a2",
+    "skip": false,
+    "title": "Options: Only Known Formats",
+    "background": "The `format` keyword can accept any string value, even if it doesn't correspond to a registered format.\r\n\r\nThe `OnlyKnownFormats` restricts validation to only accept formats that are registered.  Unknown formats will cause validation to fail.\r\n\r\n_**NOTE** This does not implicitly enable `format` validation._",
+    "docs": "schema/basics/#schema-options",
+    "api": null,
+    "schemaDocs": null,
+    "instructions": "Configure the evaluation options so that only known formats validate.",
+    "contextCode": "using System.Text.Json.Nodes;\nusing Json.Schema;\n\nnamespace LearnJsonEverything;\n\npublic class Lesson : ILessonRunner<EvaluationResults>\n{\n    public EvaluationResults Run(JsonObject test)\n    {\n        var instance = test[\"instance\"];\n        var format = test[\"format\"].GetValue<string>();\n        JsonSchema schema = new JsonSchemaBuilder()\n            .Type(SchemaValueType.String)\n            .Format(format); \n\n        var options = new EvaluationOptions();\n\n        /* USER CODE */\n\n        return schema.Evaluate(instance, options);\n    }\n}",
+    "tests": [
+      {
+        "instance": "2015-06-13T10:31:16+04:00",
+        "format": "date-time",
+        "isValid": true
+      },
+      {
+        "instance": "1.1.1.1",
+        "format": "ipv4",
+        "isValid": true
+      },
+      {
+        "instance": "not an IP address",
+        "format": "ipv4",
+        "isValid": true
+      },
+      {
+        "instance": "#FFFFFF",
+        "format": "web-color",
+        "isValid": false
+      }
+    ],
+    "solution": "using System.Text.Json.Nodes;\nusing Json.Schema;\n\nnamespace LearnJsonEverything;\n\npublic class Lesson : ILessonRunner<EvaluationResults>\n{\n    public EvaluationResults Run(JsonObject test)\n    {\n        var instance = test[\"instance\"];\n        var format = test[\"format\"].GetValue<string>();\n        JsonSchema schema = new JsonSchemaBuilder()\n            .Type(SchemaValueType.String)\n            .Format(format); \n\n        var options = new EvaluationOptions();\n\n        options.OnlyKnownFormats = true;\n\n        return schema.Evaluate(instance, options);\n    }\n}"
   },
   {
     "id": "26b6ebca-58e6-4814-8dea-4946d444c9a8",
@@ -351,6 +390,112 @@
       }
     ],
     "solution": "using System.Text.Json;\nusing System.Text.Json.Nodes;\nusing Json.Schema;\nusing Json.More;\n\nnamespace LearnJsonEverything;\n\npublic class Lesson : ILessonRunner<EvaluationResults>\n{\n    public EvaluationResults Run(JsonObject test)\n    {\n        var instance = test[\"instance\"];\n        var specVersion = test[\"version\"].Deserialize<SpecVersion>(\n            new JsonSerializerOptions\n            {\n                Converters = { new EnumStringConverter<SpecVersion>() }\n            }\n        );\n\n        JsonSchema schema = new JsonSchemaBuilder()\n            .Type(SchemaValueType.Array)\n            .Items(new JsonSchemaBuilder()\n                .Type(SchemaValueType.Integer)\n            )\n            .Contains(new JsonSchemaBuilder().Const(4))\n            // Introduced with Draft 7\n            .If(new JsonSchemaBuilder().MinItems(3))\n            .Then(new JsonSchemaBuilder()\n                .Items(new JsonSchemaBuilder().MultipleOf(2))\n            )\n            // Introduced with Draft 2019-09\n            .MinContains(2)\n            // Introduced with Draft 2020-12\n            .PrefixItems(\n                new JsonSchemaBuilder().Type(SchemaValueType.String),\n                new JsonSchemaBuilder().Type(SchemaValueType.Boolean)\n            );\n\n        var options = new EvaluationOptions { EvaluateAs = specVersion };\n\n        return schema.Evaluate(instance, options);\n    }\n}"
+  },
+  {
+    "id": "6684e30c-e983-4a0a-8da4-0ed59099ea2a",
+    "skip": false,
+    "title": "Options: Schema Registry",
+    "background": "The schema registry scans and stores reference targets defined by schemas.  These targets are defined by several keywords:\r\n\r\n| Keyword | Availability |\r\n|:-:|:-:|\r\n| `$id` | all supported versions |\r\n| `$anchor` | draft 2019-09 and later |\r\n| `$recursiveAnchor` | draft 2019-09 |\r\n| `$dynamicAnchor` | draft 2020-12 and later |\r\n\r\nThe schema registry operates in two parts: a global registry and a local registry defined on the evaluation options.  Typically, you want to use the local registry, but if you have well-known schemas that you're regularly referencing, the global registry may be a good choice for you.  When attempting to dereference one of the keywords above, local schema registry is checked first followed by the global registry.\r\n\r\nJSON Schema recommends against automatically fetching references.  Therefore, it's important to pre-register any referenced external schemas prior to evaluation.\r\n\r\nIf a reference cannot be found, a `RefResolutionException` is thrown.",
+    "docs": "schema/basics/#schema-options",
+    "api": null,
+    "schemaDocs": null,
+    "instructions": "Register the `fooSchema` schema into the options' schema registry so that the validation passes.",
+    "contextCode": "using System.Text.Json.Nodes;\nusing Json.Schema;\n\nnamespace LearnJsonEverything;\n\npublic class Lesson : ILessonRunner<EvaluationResults>\n{\n    public EvaluationResults Run(JsonObject test)\n    {\n        var instance = test[\"instance\"];\n        JsonSchema schema = new JsonSchemaBuilder()\r\n            .Type(SchemaValueType.Object)\r\n            .Properties(\r\n                (\"foo\", new JsonSchemaBuilder().Ref(\"foo\"))\r\n            );\n        JsonSchema fooSchema = new JsonSchemaBuilder()\r\n            .Id(\"foo\")\n            .Type(SchemaValueType.String)\r\n            .MinLength(10);\n\n        var options = new EvaluationOptions();\n\n        /* USER CODE */\n\n        return schema.Evaluate(instance, options);\n    }\n}",
+    "tests": [
+      {
+        "instance": {
+          "foo": "it's long enough"
+        },
+        "isValid": true
+      },
+      {
+        "instance": {
+          "foo": "too short"
+        },
+        "isValid": false
+      },
+      {
+        "instance": {
+          "foo": 10
+        },
+        "isValid": false
+      }
+    ],
+    "solution": "using System.Text.Json.Nodes;\nusing Json.Schema;\n\nnamespace LearnJsonEverything;\n\npublic class Lesson : ILessonRunner<EvaluationResults>\n{\n    public EvaluationResults Run(JsonObject test)\n    {\n        var instance = test[\"instance\"];\n        JsonSchema schema = new JsonSchemaBuilder()\r\n            .Type(SchemaValueType.Object)\r\n            .Properties(\r\n                (\"foo\", new JsonSchemaBuilder().Ref(\"foo\"))\r\n            );\n        JsonSchema fooSchema = new JsonSchemaBuilder()\r\n            .Id(\"foo\")\n            .Type(SchemaValueType.String)\r\n            .MinLength(10);\n\n        var options = new EvaluationOptions();\n\n        options.SchemaRegistry.Register(fooSchema);\n\n        return schema.Evaluate(instance, options);\n    }\n}"
+  },
+  {
+    "id": "3a31e2e2-842e-4dab-9795-1e7c1d6ef82a",
+    "skip": true,
+    "title": "Options: Meta-Schema Evaluation",
+    "background": "At first glance, meta-schema evaluation appears to be evaluating a schema as an instance against its meta-schema.  However, due to a few edge cases ([example](https://github.com/json-schema-org/json-schema-spec/issues/1442)), this doesn't always work.  Because of this, meta-schema evaluation has been incorporated into the normal evaluation process, and is enabled via the `ValidateAgainstMetaSchema` option.\r\n\r\nSetting this option to true will cause the schema to be evaluated its meta-schema.  If the declared meta-schema can't be found, a `JsonSchemaException` will be thrown.  If the schema isn't valid, then an error will be produced from the `$schema` keyword.",
+    "docs": "schema/basics/#schema-options",
+    "api": null,
+    "schemaDocs": null,
+    "instructions": "The example code creates a custom meta-schema that requires the `enum` keyword to have at least 3 items.\r\n\r\nEnable meta-schema evaluation so that this additional constraint is enforced.\r\n\r\n_Note that the custom meta-schema must still be registered as mentioned in the previous lesson._",
+    "contextCode": "using System;\r\nusing System.Collections.Generic;\r\nusing System.Text.Json.Nodes;\nusing Json.Schema;\n\nnamespace LearnJsonEverything;\n\npublic class Lesson : ILessonRunner<EvaluationResults>\n{\n    public EvaluationResults Run(JsonObject test)\n    {\n        var instance = test[\"instance\"];\n        var values = test[\"values\"];\r\n\r\n        var metaSchemaId = new Uri(\"https://learn.json-everything.net/schemas/meta-schema\");\r\n        JsonSchema metaSchema = new JsonSchemaBuilder()\r\n            .Id(metaSchemaId)\n            .Properties(\r\n                (\"enum\", new JsonSchemaBuilder().MinItems(3))\r\n            );\n\n        JsonSchema schema = new JsonSchemaBuilder()\r\n            .Schema(metaSchemaId)\r\n            .Enum((IEnumerable<JsonNode?>)values);\n\n        var options = new EvaluationOptions();\n\n        options.SchemaRegistry.Register(metaSchema);\n\n        return schema.Evaluate(instance, options);\n    }\n}",
+    "tests": [
+      {
+        "instance": "foo",
+        "values": [
+          "foo",
+          "bar",
+          "baz",
+          "quux"
+        ],
+        "isValid": true
+      },
+      {
+        "instance": "foo",
+        "values": [
+          "foo",
+          "bar"
+        ],
+        "isValid": false
+      }
+    ],
+    "solution": "using System;\r\nusing System.Collections.Generic;\r\nusing System.Text.Json.Nodes;\nusing Json.Schema;\n\nnamespace LearnJsonEverything;\n\npublic class Lesson : ILessonRunner<EvaluationResults>\n{\n    public EvaluationResults Run(JsonObject test)\n    {\n        var instance = test[\"instance\"];\n        var values = test[\"values\"];\r\n\r\n        var metaSchemaId = new Uri(\"https://learn.json-everything.net/schemas/meta-schema\");\r\n        JsonSchema metaSchema = new JsonSchemaBuilder()\r\n            .Id(metaSchemaId)\n            .Properties(\r\n                (\"enum\", new JsonSchemaBuilder().MinItems(3))\r\n            );\n\n        JsonSchema schema = new JsonSchemaBuilder()\r\n            .Schema(metaSchemaId)\r\n            .Enum((IEnumerable<JsonNode?>)values);\n\n        var options = new EvaluationOptions\r\n        {\r\n            ValidateAgainstMetaSchema = true\r\n        };\n\n        options.SchemaRegistry.Register(metaSchema);\n\n        return schema.Evaluate(instance, options);\n    }\n}"
+  },
+  {
+    "id": "0b574a0b-d017-4048-a856-8f218ee0a7f8",
+    "skip": false,
+    "title": "Custom Formats",
+    "background": "The `format` keyword can accept any string value, even if it doesn't correspond to a registered format.\r\n\r\nIf you want validation to operate on a custom `format` value, you'll need to implement it as a `Format` subclass and register it.\r\n\r\nTo get you started, there are two `Format` subclasses provided:\r\n\r\n- `RegexFormat` allows you to define your format using a regular expression.\r\n- `PredicateFormat` allows you to define your format using a custom predicate (a function that takes the instance and returns a boolean).\r\n\r\nYou don't need to use one of these, but they're available for you.  All of the built-in formats use one of these.\r\n\r\nOnce created, you'll need to register it with the `Formats` static class.",
+    "docs": "schema/basics/#schema-format",
+    "api": null,
+    "schemaDocs": null,
+    "instructions": "Build a custom format that validates a CSS color string:\r\n\r\n- starts with `#`\r\n- contains either three or six hexadecimal characters, case-insensitive\r\n\r\nRegister your new format as `web-color`.",
+    "contextCode": "using System.Text.Json.Nodes;\nusing Json.Schema;\n\nnamespace LearnJsonEverything;\n\npublic class Lesson : ILessonRunner<EvaluationResults>\n{\n    public EvaluationResults Run(JsonObject test)\n    {\n        var instance = test[\"instance\"];\n        JsonSchema schema = new JsonSchemaBuilder()\n            .Type(SchemaValueType.String)\n            .Format(\"web-color\"); \n\n        var options = new EvaluationOptions { RequireFormatValidation = true };\n\n        /* USER CODE */\n\n        return schema.Evaluate(instance, options);\n    }\n}",
+    "tests": [
+      {
+        "instance": "#6800B7",
+        "isValid": true
+      },
+      {
+        "instance": "6800B7",
+        "isValid": false
+      },
+      {
+        "instance": "#abc",
+        "isValid": true
+      },
+      {
+        "instance": "abc",
+        "isValid": false
+      },
+      {
+        "instance": "#f4",
+        "isValid": false
+      },
+      {
+        "instance": "#FFFFF",
+        "isValid": false
+      },
+      {
+        "instance": "#",
+        "isValid": false
+      }
+    ],
+    "solution": "using System.Text.Json.Nodes;\nusing Json.Schema;\n\nnamespace LearnJsonEverything;\n\npublic class Lesson : ILessonRunner<EvaluationResults>\n{\n    public EvaluationResults Run(JsonObject test)\n    {\n        var instance = test[\"instance\"];\n        JsonSchema schema = new JsonSchemaBuilder()\n            .Type(SchemaValueType.String)\n            .Format(\"web-color\"); \n\n        var options = new EvaluationOptions { RequireFormatValidation = true };\n\n        Formats.Register(new RegexFormat(\"web-color\", \"^#([a-fA-F0-9]{3}|[a-fA-F0-9]{6})$\"));\n\n        return schema.Evaluate(instance, options);\n    }\n}"
   },
   {
     "id": "26b6ebca-58e6-4824-8dea-4946d444c9a8",
