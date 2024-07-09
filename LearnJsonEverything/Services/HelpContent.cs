@@ -44,4 +44,8 @@ public static class HelpContent
 		|JSON Logic|[https://jsonlogic.com/](https://jsonlogic.com/)|
 		|JSON Patch|[https://jsonpatch.com/](https://jsonpatch.com/)|
 		""";
+
+	public const string BlogPromo = "Stay up to date on the project";
+	public const string DocsPromo = "How to use the libraries, API documentation, and release notes";
+	public const string PlaygroundPromo = "Play with the technologies implemented by the libraries";
 }
