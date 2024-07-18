@@ -15,13 +15,17 @@
 	<Window.Resources>
 		<hosts:SchemaHost x:Key="SchemaHost"/>
 		<hosts:PathHost x:Key="PathHost"/>
+    <hosts:JsonEHost x:Key="JsonEHost"/>
 	</Window.Resources>
 	<TabControl>
-		<TabItem Header="Schema">
+		<TabItem Header="JSON Schema">
 			<controls:Editor FileName="schema.json" LessonHost="{StaticResource SchemaHost}"/>
 		</TabItem>
-		<TabItem Header="Path">
+		<TabItem Header="JSON Path">
 			<controls:Editor FileName="path.json" LessonHost="{StaticResource PathHost}"/>
+		</TabItem>
+		<TabItem Header="JSON-e">
+      <controls:Editor FileName="json-e.json" LessonHost="{StaticResource JsonEHost}"/>
 		</TabItem>
 	</TabControl>
 </Window>

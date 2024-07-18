@@ -67,4 +67,22 @@ public class ProvidedSolutionTests
 			Assert.That(result, Does.StartWith(Iconography.SuccessIcon));
 		}
 	}
+
+	public static IEnumerable<TestCaseData> JsonELessons => GetLessons("json-e.json");
+
+	[TestCaseSource(nameof(JsonELessons))]
+	public void JsonE(LessonData lesson)
+	{
+		var results = new JsonEHost().Run(lesson);
+
+		foreach (var result in results)
+		{
+			Console.WriteLine(result);
+		}
+
+		foreach (var result in results)
+		{
+			Assert.That(result, Does.StartWith(Iconography.SuccessIcon));
+		}
+	}
 }

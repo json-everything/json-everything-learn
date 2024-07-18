@@ -3,6 +3,7 @@ using System.Text.Json;
 using Microsoft.CodeAnalysis.CSharp;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
+using Json.JsonE;
 using Json.More;
 using Json.Schema;
 
@@ -29,6 +30,7 @@ public static class SerializationHelpers
 
 [JsonSerializable(typeof(JsonSchema))]
 [JsonSerializable(typeof(EvaluationResults))]
+[JsonSerializable(typeof(JsonFunction))]
 [JsonSerializable(typeof(JsonNode))]
 [JsonSerializable(typeof(JsonObject))]
 [JsonSerializable(typeof(JsonArray))]

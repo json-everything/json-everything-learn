@@ -347,7 +347,6 @@ blockquote {
 	padding: 9.5px;
 	margin: 0 20px 15px;
 	font-size: 13px;
-	word-break: break-all;
 	word-wrap: break-word;
 	background-color: rgba(127, 127, 127, 0.2);
 	border-radius: 6px;

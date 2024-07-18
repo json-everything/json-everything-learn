@@ -15,6 +15,7 @@ public static class CompilationHelpers
 	private static readonly string[] EnsuredAssemblies =
 	[
 		"Json.More",
+		"JsonE.Net",
 		"JsonPath.Net",
 		"JsonPointer.Net",
 		"JsonSchema.Net",
@@ -76,7 +77,7 @@ public static class CompilationHelpers
 
 		Console.WriteLine($"Compiling...\n\n{fullSource}");
 
-		var syntaxTree = CSharpSyntaxTree.ParseText(fullSource);
+		var syntaxTree = CSharpSyntaxTree.ParseText(fullSource, new CSharpParseOptions(LanguageVersion.Latest));
 		var assemblyPath = Path.ChangeExtension(Path.GetTempFileName(), "dll");
 
 		var compilation = CSharpCompilation.Create(Path.GetFileName(assemblyPath))
