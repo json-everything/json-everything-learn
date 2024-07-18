@@ -1,0 +1,135 @@
+[
+  {
+    "id": "391f6512-f9f2-47be-94f8-315788b76638",
+    "skip": false,
+    "title": "Basic evaluation",
+    "background": "JSON-e is a JSON-based templating language that allows you to perform actions and evaluate expressions in order to calculate or otherwise transform JSON data.\r\n\r\nAn evaluation typically consists of two parts: a template and a context, both of which are expressed in JSON.  The context is optional, but to get the most of the template, you'll generally provide one.\r\n\r\nThe template and context _**must**_ both be objects, and the template can have at most single operation, a special property that starts with a dollar sign `$`.\r\n\r\nRead more about JSON-e on [their website](https://json-e.js.org/).\r\n\r\nTo evaluate a template, you'll use the `JsonE.Evaluate()` method, passing in the template and context as parameters.",
+    "docs": "/json-e/basics",
+    "api": null,
+    "schemaDocs": null,
+    "instructions": "Evaluate the template and the context.  Return the result.",
+    "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.JsonE;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var template = test[\"template\"];\r\n        var context = test[\"context\"];\r\n\r\n        return /* USER CODE */;\r\n    }\r\n}",
+    "tests": [
+      {
+        "template": {
+          "message": "hello ${key}",
+          "k=${num}": true
+        },
+        "context": {
+          "key": "world",
+          "num": 1
+        },
+        "result": {
+          "message": "hello world",
+          "k=1": true
+        }
+      }
+    ],
+    "solution": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.JsonE;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var template = test[\"template\"];\r\n        var context = test[\"context\"];\r\n\r\n        return JsonE.Evaluate(template, context);\r\n    }\r\n}"
+  },
+  {
+    "id": "135d89b9-c35d-4320-a92f-cb1c313a8438",
+    "skip": false,
+    "title": "Functions as Values",
+    "background": "Internally, JSON-e uses an extended JSON model that supports functions as values.  When an expression contains a function, such as the `max()` function in\r\n\r\n```json\r\n{\"$eval\": \"max(2, 4, 6)\"}\r\n```\r\n\r\nthe `max` symbol is fetched from the context, just like any other symbol.  Because of the parameter list syntax following the `max` symbol, JSON-e expects a function that can process those parameters.  The return value can be anything in the JSON-e model, so JSON values or even references to other functions.\r\n\r\nThe only catch is that a function _**must not**_ be returned as part of the final output.  An error will result if this happens.  JSON in; JSON out.\r\n\r\nJSON-e prescribes a number of built-in functions that must be supported.  See [their documentation](https://json-e.js.org/built-ins.html) for the list of supported functions.",
+    "docs": "/json-e/basics/#built-in-functions",
+    "api": null,
+    "schemaDocs": null,
+    "instructions": "Complete the template to include a `max()` function that compares the `x` and `y` values in the  context.",
+    "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.JsonE;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var context = test[\"context\"];\r\n\r\n        var template = new JsonObject\r\n        {\r\n            [\"$eval\"] = \"/* USER CODE */\"\r\n        };\r\n\r\n        return JsonE.Evaluate(template, context);\r\n    }\r\n}",
+    "tests": [
+      {
+        "context": {
+          "x": 5,
+          "y": 1
+        },
+        "result": 5
+      },
+      {
+        "context": {
+          "x": 5,
+          "y": 15
+        },
+        "result": 15
+      },
+      {
+        "context": {
+          "x": 5,
+          "y": 21
+        },
+        "result": 21
+      }
+    ],
+    "solution": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.JsonE;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var context = test[\"context\"];\r\n\r\n        var template = new JsonObject\r\n        {\r\n            [\"$eval\"] = \"max(x, y)\"\r\n        };\r\n\r\n        return JsonE.Evaluate(template, context);\r\n    }\r\n}"
+  },
+  {
+    "id": "6a83a410-4f60-4f10-90a7-94be921e4daa",
+    "skip": false,
+    "title": "Custom Functions",
+    "background": "While JSON-e prescribes a fair number of built-in functions, it also requires that implementations support custom functions. _JsonE.Net_ handles this by providing the `JsonFunction` class, which operates seamlessly with the `JsonNode` family of types.\r\n\r\nThe `JsonFunction` class exposes a simple `.Create()` method which takes a lambda expression to represent the function.  The parameters for the lambda are:\r\n\r\n- `parameters` - which is an array of `JsonNode`s (`JsonNode?[]`, not `JsonArray`).  These will be filled with the values from the parameter list.  (If they're variables in the expression, they'll already be resolved.)\r\n- `context` - which is just the context object in case you need to access more than what's given in the parameters.\r\n\r\nWhen accessing the parameters, you will need to perform any type checking, such as ensuring that you've been given the right values types.",
+    "docs": "/json-e/basics/#custom-functions",
+    "api": null,
+    "schemaDocs": null,
+    "instructions": "Add a `mod` function to the context.",
+    "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.JsonE;\r\nusing Json.More;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var template = test[\"template\"];\r\n        var context = test[\"context\"];\r\n\r\n        /* USER CODE */\r\n\r\n        return JsonE.Evaluate(template, context);\r\n    }\r\n}",
+    "tests": [
+      {
+        "template": {
+          "$eval": "mod(x,y)"
+        },
+        "context": {
+          "x": 10,
+          "y": 4
+        },
+        "result": 2
+      }
+    ],
+    "solution": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.JsonE;\r\nusing Json.More;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var template = test[\"template\"];\r\n        var context = test[\"context\"];\r\n\r\n        context[\"mod\"] = JsonFunction.Create((parameters, context) =>\r\n            parameters[0]!.AsValue().GetNumber() % parameters[1]!.AsValue().GetNumber()\r\n        );\r\n\r\n        return JsonE.Evaluate(template, context);\r\n    }\r\n}"
+  },
+  {
+    "id": "84a80f6c-9b0f-4f9b-97e2-7da2eac1160b",
+    "skip": false,
+    "title": "Error Handling",
+    "background": "Various errors can occur while processing JSON-e templates.\r\n\r\n| Error Type | Thrown when... |\r\n|:-|:-|\r\n|Built-In | something goes wrong function evaluation |\r\n|Interpreter | a template can't be evaluated |\r\n|Syntax | an expression contains an invalid syntax |\r\n|Template| a template is invalid |\r\n|Type | ... in some cases.  None of the test cases result in this error, but it is defined so... ¯\\\\\\_(ツ)_/¯ |\r\n\r\n> These error types, and even the error messages, are specified by JSON-e.  _JsonE.Net_ has been urged to keep the error types and messaging as consistent with the other libraries as possible.  It's not perfect, but it's pretty close.\r\n{: .prompt-info}",
+    "docs": "/json-e/basics/#errors",
+    "api": null,
+    "schemaDocs": null,
+    "instructions": "Wrap the evaluation in a try/catch.  Return the exception type name.",
+    "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.JsonE;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var template = test[\"template\"];\r\n        var context = test[\"context\"];\r\n\r\n        /* USER CODE */\r\n\r\n        return JsonE.Evaluate(template, context);\r\n    }\r\n}",
+    "tests": [
+      {
+        "template": {
+          "$reverse": true
+        },
+        "context": {},
+        "result": "TemplateException"
+      },
+      {
+        "template": {
+          "$eval": "key.length"
+        },
+        "context": {
+          "key": "12345"
+        },
+        "result": "InterpreterException"
+      },
+      {
+        "template": {
+          "$eval": "ceil(true)"
+        },
+        "context": {},
+        "result": "BuiltInException"
+      },
+      {
+        "template": {
+          "$eval": "key.{"
+        },
+        "context": {
+          "key": {}
+        },
+        "result": "SyntaxException"
+      }
+    ],
+    "solution": "using System;\r\nusing System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.JsonE;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var template = test[\"template\"];\r\n        var context = test[\"context\"];\r\n\r\n        try\r\n        {\r\n            return JsonE.Evaluate(template, context);\r\n        }\r\n        catch (JsonEException e)\r\n        {\r\n            Console.WriteLine(e.Message); // check the browser console!\r\n            return e.GetType().Name;\r\n        }\r\n    }\r\n}"
+  }
+]
