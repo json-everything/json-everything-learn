@@ -11,6 +11,7 @@ public static class CompilationHelpers
 	private static AssemblyLoadContext? _assemblyLoadContext;
 	private static MetadataReference[]? _references;
 	private static bool _isLoading;
+	private static readonly bool IsBrowserRuntime = OperatingSystem.IsBrowser();
 
 	private static readonly string[] EnsuredAssemblies =
 	[
@@ -33,36 +34,41 @@ public static class CompilationHelpers
 			if (_isLoading) return null;
 			_isLoading = true;
 
-			var refs = AppDomain.CurrentDomain.GetAssemblies();
-			var names = refs
-				.Where(x => !x.IsDynamic)
-				.Select(x => x.FullName!.Split(',')[0])
-				.Concat(EnsuredAssemblies)
-				.Distinct()
-				.OrderBy(x => x)
-				.ToArray();
-			
-			var references = new MetadataReference[names.Length];
-			int i = 0;
-			foreach (var assemblyName in names)
+			try
 			{
-				var source = $"/_framework/{assemblyName}.dll";
-				try
-				{
-					var stream = await client.GetStreamAsync(source);
-					Console.WriteLine($"Loading {assemblyName}...");
-					references[i] = MetadataReference.CreateFromStream(stream);
-					i++;
-				}
-				catch (Exception e)
-				{
-					Console.WriteLine(e);
-					Console.WriteLine(source);
-				}
-			}
+				var refs = AppDomain.CurrentDomain.GetAssemblies();
+				var names = refs
+					.Where(x => !x.IsDynamic)
+					.Select(x => x.FullName!.Split(',')[0])
+					.Concat(EnsuredAssemblies)
+					.Distinct()
+					.OrderBy(x => x)
+					.ToArray();
 
-			_references = references;
-			_isLoading = false;
+				var references = new List<MetadataReference>(names.Length);
+				foreach (var assemblyName in names)
+				{
+					var source = $"/_framework/{assemblyName}.dll";
+					try
+					{
+						Console.WriteLine($"Loading {assemblyName}...");
+						var bytes = await client.GetByteArrayAsync(source);
+						using var stream = new MemoryStream(bytes, writable: false);
+						references.Add(MetadataReference.CreateFromStream(stream));
+					}
+					catch (Exception e)
+					{
+						Console.WriteLine(e);
+						Console.WriteLine(source);
+					}
+				}
+
+				_references = [.. references];
+			}
+			finally
+			{
+				_isLoading = false;
+			}
 		}
 
 		return _references;
@@ -113,8 +119,8 @@ public static class CompilationHelpers
 #pragma warning disable IL2026
 #pragma warning disable IL2072
 #pragma warning disable IL2070
-		_assemblyLoadContext?.Unload();
-		_assemblyLoadContext = new AssemblyLoadContext(nameof(CompilationHelpers), true);
+		if (!IsBrowserRuntime) _assemblyLoadContext?.Unload();
+		_assemblyLoadContext = new AssemblyLoadContext(nameof(CompilationHelpers), !IsBrowserRuntime);
 		var assembly = _assemblyLoadContext.LoadFromStream(dllStream, pdbStream);
 
 		using var reader = new StreamReader(xmlStream);
