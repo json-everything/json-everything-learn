@@ -21,14 +21,18 @@
 	<div id="lessons-col" class="col-3 d-flex h-100 position-relative">
 		<div class="grid-panel flex-grow-1 scroll">
 			<ul role="listbox">
+				@{ var lessonNumber = 1; }
 				@foreach (var lesson in _lessons)
 				{
 					@if (lesson.Skip) continue;
 
-					<li id="@lesson.Id" role="option" @onclick="() => SelectLesson(lesson.Id)">
-						<span class="@(lesson.Achieved ? "" : "invisible")">@Iconography.SuccessIcon</span>
-						@lesson.Title
+					<li id="@lesson.Id" role="option" class="@(lesson.Id == _currentLesson?.Id ? "selected" : string.Empty)" @onclick="() => SelectLesson(lesson.Id)">
+						<span class="lesson-achieved @(lesson.Achieved ? "" : "invisible")">@Iconography.SuccessIcon</span>
+						<span class="lesson-number">@lessonNumber.</span>
+						<span class="lesson-title">@lesson.Title</span>
 					</li>
+
+					lessonNumber++;
 				}
 			</ul>
 		</div>
@@ -78,6 +82,7 @@
 	private bool _editorsReady;
 	private bool _initializationStarted;
 	private bool _disposed;
+	private string? _loadedLessonSource;
 
 	[Parameter]
 	public string LessonSource { get; set; }
@@ -183,9 +188,26 @@
 	{
 		ThemeService.OnThemeChanged += HandleThemeChanged;
 
+		await base.OnInitializedAsync();
+	}
+
+	protected override async Task OnParametersSetAsync()
+	{
+		if (_loadedLessonSource == LessonSource)
+		{
+			await base.OnParametersSetAsync();
+			return;
+		}
+
+		_loadedLessonSource = LessonSource;
 		await DownloadLessonPlan();
 
-		await base.OnInitializedAsync();
+		if (_editorsReady)
+			await LoadLesson();
+		else
+			StateHasChanged();
+
+		await base.OnParametersSetAsync();
 	}
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)

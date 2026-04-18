@@ -23,8 +23,12 @@ select.form-control {
 		background: #2f2f31;
 	}
 
-.table {
+html:not([data-bs-theme="light"]) .table {
 	color: rgb(175, 176, 177);
+}
+
+html[data-bs-theme="light"] .table {
+	color: rgb(33, 37, 41);
 }
 
 .row > * {

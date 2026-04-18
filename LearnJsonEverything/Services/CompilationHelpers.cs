@@ -1,6 +1,7 @@
 ﻿using Json.Schema.Generation.XmlComments;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using System.Reflection;
 using System.Runtime.Loader;
 using static LearnJsonEverything.Services.Iconography;
 
@@ -119,9 +120,17 @@ public static class CompilationHelpers
 #pragma warning disable IL2026
 #pragma warning disable IL2072
 #pragma warning disable IL2070
-		if (!IsBrowserRuntime) _assemblyLoadContext?.Unload();
-		_assemblyLoadContext = new AssemblyLoadContext(nameof(CompilationHelpers), !IsBrowserRuntime);
-		var assembly = _assemblyLoadContext.LoadFromStream(dllStream, pdbStream);
+		Assembly assembly;
+		if (IsBrowserRuntime)
+		{
+			assembly = Assembly.Load(dllStream.ToArray());
+		}
+		else
+		{
+			_assemblyLoadContext?.Unload();
+			_assemblyLoadContext = new AssemblyLoadContext(nameof(CompilationHelpers), true);
+			assembly = _assemblyLoadContext.LoadFromStream(dllStream, pdbStream);
+		}
 
 		using var reader = new StreamReader(xmlStream);
 		var xmlContent = reader.ReadToEnd();
