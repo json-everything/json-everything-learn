@@ -1,0 +1,8 @@
+@page "/json-patch"
+@using LearnJsonEverything.Services.Hosts
+
+<Teacher LessonSource="/data/lessons/json-patch.json" Host="@_host"></Teacher>
+
+@code {
+	private readonly ILessonHost _host = new JsonPatchHost();
+}

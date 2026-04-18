@@ -24,7 +24,7 @@ This repository is a Blazor WebAssembly interactive learning site for JSON tooli
 
 ## Target Frameworks
 
-- All projects target `net8.0`.
+- All projects target `net10.0`.
 - Do not change target frameworks unless explicitly requested.
 
 ## Dependency Direction

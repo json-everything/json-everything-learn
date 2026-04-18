@@ -8,24 +8,28 @@
         mc:Ignorable="d"
         Title="Learn json-everything - Lesson Editor"
         WindowState="Maximized"
-				SnapsToDevicePixels="True"
-				UseLayoutRounding="True"
+        SnapsToDevicePixels="True"
+        UseLayoutRounding="True"
         TextElement.FontSize="14"
         x:Name="Self">
-	<Window.Resources>
-		<hosts:SchemaHost x:Key="SchemaHost"/>
-		<hosts:PathHost x:Key="PathHost"/>
-    <hosts:JsonEHost x:Key="JsonEHost"/>
-	</Window.Resources>
-	<TabControl>
-		<TabItem Header="JSON Schema">
-			<controls:Editor FileName="schema.json" LessonHost="{StaticResource SchemaHost}"/>
-		</TabItem>
-		<TabItem Header="JSON Path">
-			<controls:Editor FileName="path.json" LessonHost="{StaticResource PathHost}"/>
-		</TabItem>
-		<TabItem Header="JSON-e">
-      <controls:Editor FileName="json-e.json" LessonHost="{StaticResource JsonEHost}"/>
-		</TabItem>
-	</TabControl>
+    <Window.Resources>
+        <hosts:SchemaHost x:Key="SchemaHost"/>
+        <hosts:PathHost x:Key="PathHost"/>
+        <hosts:JsonEHost x:Key="JsonEHost"/>
+        <hosts:JsonPatchHost x:Key="JsonPatchHost"/>
+    </Window.Resources>
+    <TabControl>
+        <TabItem Header="JSON Schema">
+            <controls:Editor FileName="schema.json" LessonHost="{StaticResource SchemaHost}"/>
+        </TabItem>
+        <TabItem Header="JSON Path">
+            <controls:Editor FileName="path.json" LessonHost="{StaticResource PathHost}"/>
+        </TabItem>
+        <TabItem Header="JSON-e">
+            <controls:Editor FileName="json-e.json" LessonHost="{StaticResource JsonEHost}"/>
+        </TabItem>
+        <TabItem Header="JSON Patch">
+            <controls:Editor FileName="json-patch.json" LessonHost="{StaticResource JsonPatchHost}"/>
+        </TabItem>
+    </TabControl>
 </Window>

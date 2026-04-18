@@ -1,6 +1,7 @@
 using Json.JsonE;
 using Json.Logic;
 using Json.More;
+using Json.Patch;
 using Json.Path;
 using Json.Schema;
 using Json.Schema.Generation;
@@ -20,6 +21,7 @@ public static class ReferenceLoader
 		Load<JsonPath>();
 		Load<JsonFunction>();
 		Load<Rule>();
+		Load<JsonPatch>();
 	}
 
 	private static void Load<T>(){}

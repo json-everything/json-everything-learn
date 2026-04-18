@@ -15,7 +15,7 @@ These instructions apply to `ILessonHost` implementations in `LearnJsonEverythin
 
 - Implement `ILessonHost` with a single `Run(LessonData lesson)` method returning `string[]`.
 - Use `CompilationHelpers` to compile user code at runtime.
-- Each result string must be prefixed with either `Iconography.SuccessIcon` (pass) or `Iconography.FailIcon` (fail).
+- Each result string must be prefixed with either `Iconography.SuccessIcon` (pass) or `Iconography.ErrorIcon` (fail).
 - Keep test execution logic consistent across hosts so lesson behavior is predictable.
 
 ## Adding A New Host

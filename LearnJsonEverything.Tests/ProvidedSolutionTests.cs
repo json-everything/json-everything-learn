@@ -103,4 +103,22 @@ public class ProvidedSolutionTests
 			Assert.That(result, Does.StartWith(Iconography.SuccessIcon));
 		}
 	}
+
+	public static IEnumerable<TestCaseData> JsonPatchLessons => GetLessons("json-patch.json");
+
+	[TestCaseSource(nameof(JsonPatchLessons))]
+	public void JsonPatch(LessonData lesson)
+	{
+		var results = new JsonPatchHost().Run(lesson);
+
+		foreach (var result in results)
+		{
+			Console.WriteLine(result);
+		}
+
+		foreach (var result in results)
+		{
+			Assert.That(result, Does.StartWith(Iconography.SuccessIcon));
+		}
+	}
 }

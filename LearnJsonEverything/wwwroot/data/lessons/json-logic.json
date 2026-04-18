@@ -10,8 +10,16 @@
     "instructions": "Build a rule that adds the `a` and `b` test values, then return the result of `rule.Apply()`.",
     "contextCode": "using System.Text.Json.Nodes;\r\nusing Json.Logic;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var a = test[\"a\"];\r\n        var b = test[\"b\"];\r\n\r\n        /* USER CODE */\r\n\r\n        return null;\r\n    }\r\n}",
     "tests": [
-      { "a": 3, "b": 4, "result": 7 },
-      { "a": 10, "b": -3, "result": 7 }
+      {
+        "a": 3,
+        "b": 4,
+        "result": 7
+      },
+      {
+        "a": 10,
+        "b": -3,
+        "result": 7
+      }
     ],
     "solution": "using System.Text.Json.Nodes;\r\nusing Json.Logic;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var a = test[\"a\"];\r\n        var b = test[\"b\"];\r\n\r\n        var rule = JsonLogic.Add(a, b);\r\n        return rule.Apply();\r\n    }\r\n}"
   },
@@ -27,18 +35,40 @@
     "contextCode": "using System.Text.Json.Nodes;\r\nusing Json.Logic;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var rule = test[\"rule\"];\r\n        var data = test[\"data\"];\r\n\r\n        return /* USER CODE */;\r\n    }\r\n}",
     "tests": [
       {
-        "rule": { "var": "score" },
-        "data": { "score": 42 },
+        "rule": {
+          "var": "score"
+        },
+        "data": {
+          "score": 42
+        },
         "result": 42
       },
       {
-        "rule": { "<": [ { "var": "temp" }, 100 ] },
-        "data": { "temp": 75 },
+        "rule": {
+          "<": [
+            {
+              "var": "temp"
+            },
+            100
+          ]
+        },
+        "data": {
+          "temp": 75
+        },
         "result": true
       },
       {
-        "rule": { "<": [ { "var": "temp" }, 100 ] },
-        "data": { "temp": 120 },
+        "rule": {
+          "<": [
+            {
+              "var": "temp"
+            },
+            100
+          ]
+        },
+        "data": {
+          "temp": 120
+        },
         "result": false
       }
     ],
@@ -55,9 +85,24 @@
     "instructions": "Build a typed rule that returns `true` only when `age` is greater than 18 and less than 65, then apply it to the test data.",
     "contextCode": "using System.Text.Json.Nodes;\r\nusing Json.Logic;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n\r\n        /* USER CODE */\r\n\r\n        return null;\r\n    }\r\n}",
     "tests": [
-      { "data": { "age": 30 }, "result": true },
-      { "data": { "age": 15 }, "result": false },
-      { "data": { "age": 65 }, "result": false }
+      {
+        "data": {
+          "age": 30
+        },
+        "result": true
+      },
+      {
+        "data": {
+          "age": 15
+        },
+        "result": false
+      },
+      {
+        "data": {
+          "age": 65
+        },
+        "result": false
+      }
     ],
     "solution": "using System.Text.Json.Nodes;\r\nusing Json.Logic;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n\r\n        var rule = JsonLogic.And(\r\n            JsonLogic.MoreThan(JsonLogic.Variable(\"age\"), 18),\r\n            JsonLogic.LessThan(JsonLogic.Variable(\"age\"), 65)\r\n        );\r\n\r\n        return rule.Apply(data);\r\n    }\r\n}"
   },
@@ -73,18 +118,40 @@
     "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Logic;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var ruleJson = test[\"rule\"]!.ToJsonString();\r\n        var data = test[\"data\"];\r\n\r\n        /* USER CODE */\r\n\r\n        return null;\r\n    }\r\n}",
     "tests": [
       {
-        "rule": { ">=": [ { "var": "score" }, 50 ] },
-        "data": { "score": 75 },
+        "rule": {
+          ">=": [
+            {
+              "var": "score"
+            },
+            50
+          ]
+        },
+        "data": {
+          "score": 75
+        },
         "result": true
       },
       {
-        "rule": { ">=": [ { "var": "score" }, 50 ] },
-        "data": { "score": 30 },
+        "rule": {
+          ">=": [
+            {
+              "var": "score"
+            },
+            50
+          ]
+        },
+        "data": {
+          "score": 30
+        },
         "result": false
       },
       {
-        "rule": { "var": "label" },
-        "data": { "label": "pass" },
+        "rule": {
+          "var": "label"
+        },
+        "data": {
+          "label": "pass"
+        },
         "result": "pass"
       }
     ],
@@ -101,8 +168,18 @@
     "instructions": "Build a variable lookup rule for the `city` path with a default of `\"unknown\"`, then apply it to the test data.",
     "contextCode": "using System.Text.Json.Nodes;\r\nusing Json.Logic;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n\r\n        /* USER CODE */\r\n\r\n        return null;\r\n    }\r\n}",
     "tests": [
-      { "data": { "city": "London" }, "result": "London" },
-      { "data": { "country": "UK" }, "result": "unknown" }
+      {
+        "data": {
+          "city": "London"
+        },
+        "result": "London"
+      },
+      {
+        "data": {
+          "country": "UK"
+        },
+        "result": "unknown"
+      }
     ],
     "solution": "using System.Text.Json.Nodes;\r\nusing Json.Logic;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n\r\n        var rule = JsonLogic.Variable(\"city\", \"unknown\");\r\n        return rule.Apply(data);\r\n    }\r\n}"
   },
@@ -117,10 +194,22 @@
     "instructions": "Return whether `test[\"value\"]` is truthy using the `IsTruthy()` extension method.",
     "contextCode": "using System.Text.Json.Nodes;\r\nusing Json.Logic;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var value = test[\"value\"];\r\n\r\n        return /* USER CODE */;\r\n    }\r\n}",
     "tests": [
-      { "value": 0, "result": false },
-      { "value": 1, "result": true },
-      { "value": [], "result": false },
-      { "value": {}, "result": false }
+      {
+        "value": 0,
+        "result": false
+      },
+      {
+        "value": 1,
+        "result": true
+      },
+      {
+        "value": [],
+        "result": false
+      },
+      {
+        "value": {},
+        "result": false
+      }
     ],
     "solution": "using System.Text.Json.Nodes;\r\nusing Json.Logic;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var value = test[\"value\"];\r\n\r\n        return value.IsTruthy();\r\n    }\r\n}"
   },
@@ -135,9 +224,24 @@
     "instructions": "Build an equality rule that uses strict comparison when `test[\"strict\"]` is `true` and loose comparison otherwise, using `a` and `b` from the test. Apply it with no data.",
     "contextCode": "using System.Text.Json.Nodes;\r\nusing Json.Logic;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var a = test[\"a\"];\r\n        var b = test[\"b\"];\r\n        var strict = test[\"strict\"]!.GetValue<bool>();\r\n\r\n        /* USER CODE */\r\n\r\n        return null;\r\n    }\r\n}",
     "tests": [
-      { "a": 1, "b": 1, "strict": true, "result": true },
-      { "a": 1, "b": "1", "strict": true, "result": false },
-      { "a": 1, "b": "1", "strict": false, "result": true }
+      {
+        "a": 1,
+        "b": 1,
+        "strict": true,
+        "result": true
+      },
+      {
+        "a": 1,
+        "b": "1",
+        "strict": true,
+        "result": false
+      },
+      {
+        "a": 1,
+        "b": "1",
+        "strict": false,
+        "result": true
+      }
     ],
     "solution": "using System.Text.Json.Nodes;\r\nusing Json.Logic;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var a = test[\"a\"];\r\n        var b = test[\"b\"];\r\n        var strict = test[\"strict\"]!.GetValue<bool>();\r\n\r\n        Rule rule = strict\r\n            ? JsonLogic.StrictEquals(a, b)\r\n            : JsonLogic.LooseEquals(a, b);\r\n\r\n        return rule.Apply();\r\n    }\r\n}"
   },
@@ -152,9 +256,21 @@
     "instructions": "Build a numeric rule that sums `test[\"a\"]` and `test[\"b\"]`, then return the result of `rule.Apply()`.",
     "contextCode": "using System.Text.Json.Nodes;\r\nusing Json.Logic;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var a = test[\"a\"];\r\n        var b = test[\"b\"];\r\n\r\n        /* USER CODE */\r\n\r\n        return null;\r\n    }\r\n}",
     "tests": [
-      { "a": 2, "b": 3, "result": 5 },
-      { "a": "3", "b": 2, "result": 5 },
-      { "a": true, "b": 4, "result": 5 }
+      {
+        "a": 2,
+        "b": 3,
+        "result": 5
+      },
+      {
+        "a": "3",
+        "b": 2,
+        "result": 5
+      },
+      {
+        "a": true,
+        "b": 4,
+        "result": 5
+      }
     ],
     "solution": "using System.Text.Json.Nodes;\r\nusing Json.Logic;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var a = test[\"a\"];\r\n        var b = test[\"b\"];\r\n\r\n        var rule = JsonLogic.Add(a, b);\r\n        return rule.Apply();\r\n    }\r\n}"
   },
@@ -169,8 +285,16 @@
     "instructions": "Build a rule that adds `a` and `b`, wrap that rule in a logging rule, and return the result of `rule.Apply()`.",
     "contextCode": "using System.Text.Json.Nodes;\r\nusing Json.Logic;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var a = test[\"a\"];\r\n        var b = test[\"b\"];\r\n\r\n        /* USER CODE */\r\n\r\n        return null;\r\n    }\r\n}",
     "tests": [
-      { "a": 3, "b": 4, "result": 7 },
-      { "a": 10, "b": 5, "result": 15 }
+      {
+        "a": 3,
+        "b": 4,
+        "result": 7
+      },
+      {
+        "a": 10,
+        "b": 5,
+        "result": 15
+      }
     ],
     "solution": "using System.Text.Json.Nodes;\r\nusing Json.Logic;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var a = test[\"a\"];\r\n        var b = test[\"b\"];\r\n\r\n        var rule = JsonLogic.Log(JsonLogic.Add(a, b));\r\n        return rule.Apply();\r\n    }\r\n}"
   },
@@ -185,8 +309,18 @@
     "instructions": "Serialize `rule` to JSON, deserialize it back to a typed `Rule`, then apply the deserialized rule to `test[\"data\"]`.",
     "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Logic;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n\r\n        var rule = JsonLogic.Variable(\"value\");\r\n\r\n        /* USER CODE */\r\n\r\n        return null;\r\n    }\r\n}",
     "tests": [
-      { "data": { "value": 42 }, "result": 42 },
-      { "data": { "value": "hello" }, "result": "hello" }
+      {
+        "data": {
+          "value": 42
+        },
+        "result": 42
+      },
+      {
+        "data": {
+          "value": "hello"
+        },
+        "result": "hello"
+      }
     ],
     "solution": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Logic;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n\r\n        var rule = JsonLogic.Variable(\"value\");\r\n\r\n        var json = JsonSerializer.Serialize(rule);\r\n        var deserialized = JsonSerializer.Deserialize<Rule>(json)!;\r\n        return deserialized.Apply(data);\r\n    }\r\n}"
   },
@@ -202,12 +336,26 @@
     "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Logic;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var ruleJson = test[\"rule\"]!.ToJsonString();\r\n        var data = test[\"data\"];\r\n\r\n        /* USER CODE */\r\n\r\n        return null;\r\n    }\r\n}",
     "tests": [
       {
-        "rule": { "==": [ { "var": "x" }, 5 ] },
-        "data": { "x": 5 },
+        "rule": {
+          "==": [
+            {
+              "var": "x"
+            },
+            5
+          ]
+        },
+        "data": {
+          "x": 5
+        },
         "result": true
       },
       {
-        "rule": { "unknown-op": [ 1, 2 ] },
+        "rule": {
+          "unknown-op": [
+            1,
+            2
+          ]
+        },
         "data": {},
         "result": null
       }
@@ -225,8 +373,24 @@
     "instructions": "Implement an `IRule` handler for a `\"double\"` operator that multiplies its evaluated argument by 2, then register it in the rule registry before evaluation.",
     "contextCode": "using System.Text.Json.Nodes;\r\nusing Json.Logic;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var rule = test[\"rule\"];\r\n        var data = test[\"data\"];\r\n\r\n        /* USER CODE */\r\n\r\n        return JsonLogic.Apply(rule, data);\r\n    }\r\n}",
     "tests": [
-      { "rule": { "double": 5 }, "data": null, "result": 10 },
-      { "rule": { "double": { "var": "x" } }, "data": { "x": 3 }, "result": 6 }
+      {
+        "rule": {
+          "double": 5
+        },
+        "data": null,
+        "result": 10
+      },
+      {
+        "rule": {
+          "double": {
+            "var": "x"
+          }
+        },
+        "data": {
+          "x": 3
+        },
+        "result": 6
+      }
     ],
     "solution": "using System.Text.Json.Nodes;\r\nusing Json.Logic;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var rule = test[\"rule\"];\r\n        var data = test[\"data\"];\r\n\r\n        RuleRegistry.AddRule(\"double\", new DoubleRule());\r\n\r\n        return JsonLogic.Apply(rule, data);\r\n    }\r\n}\r\n\r\ninternal class DoubleRule : IRule\r\n{\r\n    public JsonNode? Apply(JsonNode? args, EvaluationContext context)\r\n    {\r\n        var value = JsonLogic.Apply(args, context);\r\n        var number = value.Numberify();\r\n        if (number == null) return null;\r\n        return number.Value * 2;\r\n    }\r\n}"
   },
@@ -241,8 +405,18 @@
     "instructions": "Implement a `DoubleRule : Rule` class that evaluates an inner rule and returns the numeric result multiplied by 2. Construct it with a rule that reads `x` from the test data, then apply it.",
     "contextCode": "using System.Text.Json.Nodes;\r\nusing Json.Logic;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n\r\n        /* USER CODE */\r\n\r\n        return null;\r\n    }\r\n}",
     "tests": [
-      { "data": { "x": 5 }, "result": 10 },
-      { "data": { "x": -3 }, "result": -6 }
+      {
+        "data": {
+          "x": 5
+        },
+        "result": 10
+      },
+      {
+        "data": {
+          "x": -3
+        },
+        "result": -6
+      }
     ],
     "solution": "using System.Text.Json.Nodes;\r\nusing Json.Logic;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n\r\n        var rule = new DoubleRule(JsonLogic.Variable(\"x\"));\r\n        return rule.Apply(data);\r\n    }\r\n}\r\n\r\ninternal class DoubleRule : Rule\r\n{\r\n    private readonly Rule _input;\r\n\r\n    public DoubleRule(Rule input)\r\n    {\r\n        _input = input;\r\n    }\r\n\r\n    public override JsonNode? Apply(JsonNode? data, JsonNode? contextData = null)\r\n    {\r\n        var value = _input.Apply(data, contextData);\r\n        var number = value.Numberify();\r\n        if (number == null) return null;\r\n        return number.Value * 2;\r\n    }\r\n}"
   }

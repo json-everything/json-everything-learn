@@ -20,6 +20,7 @@ public static class CompilationHelpers
 		"Json.More",
 		"JsonE.Net",
 		"JsonLogic",
+		"JsonPatch.Net",
 		"JsonPath.Net",
 		"JsonPointer.Net",
 		"JsonSchema.Net",
