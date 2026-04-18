@@ -8,14 +8,17 @@
 @using System.Text.Json
 @using Json.More
 @using LearnJsonEverything.Services.Hosts
-@using EditorOptions = LearnJsonEverything.Services.EditorOptions
+@using ServiceEditorOptions = LearnJsonEverything.Services.EditorOptions
+@implements IDisposable
 
 @inject DataManager DataManager;
 @inject IJSRuntime JsRuntime;
 @inject HttpClient Client;
+@inject ServiceEditorOptions EditorOptions;
+@inject ThemeService ThemeService;
 
 <div id="layout" class="row fill-remaining row-margin-reset">
-	<div class="col-3 d-flex h-100">
+	<div id="lessons-col" class="col-3 d-flex h-100 position-relative">
 		<div class="grid-panel flex-grow-1 scroll">
 			<ul role="listbox">
 				@foreach (var lesson in _lessons)
@@ -29,13 +32,15 @@
 				}
 			</ul>
 		</div>
+		<div class="resize-handle column-handle" id="lessons-resize-handle"></div>
 	</div>
-	<div class="col-4 d-flex h-100">
+	<div id="instructions-col" class="col-4 d-flex h-100 position-relative">
 		<div id="instructions-panel" class="grid-panel flex-grow-1 scroll">
 			<MarkdownSpan Content="@Instructions"></MarkdownSpan>
 		</div>
+		<div class="resize-handle column-handle" id="instructions-resize-handle"></div>
 	</div>
-	<div class="col-5 d-flex">
+	<div id="editor-col" class="col-5 d-flex">
 		<div id="right-panel" class="row row-margin-reset flex-grow-1">
 			<div id="workspace" class="col-12 d-flex flex-grow-1">
 				<div class="grid-panel flex-grow-1">
@@ -70,6 +75,9 @@
 	private LessonData? _currentLesson;
 	private bool _previousButtonDisabled = true;
 	private bool _nextButtonDisabled = true;
+	private bool _editorsReady;
+	private bool _initializationStarted;
+	private bool _disposed;
 
 	[Parameter]
 	public string LessonSource { get; set; }
@@ -78,12 +86,14 @@
 
 	private string Instructions { get; set; }
 
-	private static StandaloneEditorConstructionOptions OptionsForEditor(StandaloneCodeEditor _) => EditorOptions.Basic("csharp", 4);
-	private static StandaloneEditorConstructionOptions OptionsForOutput(StandaloneCodeEditor _) => EditorOptions.Readonly("json", 2);
+	private StandaloneEditorConstructionOptions OptionsForEditor(StandaloneCodeEditor _) => EditorOptions.Basic("csharp", 4);
+	private StandaloneEditorConstructionOptions OptionsForOutput(StandaloneCodeEditor _) => EditorOptions.Readonly("json", 2);
 #pragma warning restore CS8618
 
 	private async Task Run()
 	{
+		if (!_editorsReady) return;
+
 		try
 		{
 			var userCode = await _codeEditor.GetValue();
@@ -107,6 +117,8 @@
 
 	private Task RevealSolution()
 	{
+		if (!_editorsReady) return Task.CompletedTask;
+
 		return _codeEditor.SetValue(_currentLesson?.Solution ?? string.Empty);
 	}
 
@@ -137,6 +149,8 @@
 
 	private async Task LoadLesson()
 	{
+		if (!_editorsReady) return;
+
 		_currentLesson ??= _lessons[0];
 		Instructions = InstructionsBuilder.BuildInstructions(_currentLesson);
 		_nextButtonDisabled = !CanMoveToNextLesson();
@@ -167,10 +181,27 @@
 
 	protected override async Task OnInitializedAsync()
 	{
+		ThemeService.OnThemeChanged += HandleThemeChanged;
+
 		await DownloadLessonPlan();
-		await LoadLesson();
 
 		await base.OnInitializedAsync();
+	}
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender && !_initializationStarted)
+		{
+			_initializationStarted = true;
+			_ = InitializeEditorsAndUiAsync();
+		}
+
+		if (_editorsReady)
+		{
+			await JsRuntime.InvokeVoidAsync("initLearnResizableLayout");
+		}
+
+		await base.OnAfterRenderAsync(firstRender);
 	}
 
 	private async Task DownloadLessonPlan()
@@ -211,5 +242,44 @@
 	{
 		_currentLesson = _lessons[lessonId];
 		await LoadLesson();
+	}
+
+	private void HandleThemeChanged()
+	{
+		if (!_editorsReady) return;
+
+		var theme = ThemeService.MonacoTheme;
+		_codeEditor?.UpdateOptions(new EditorUpdateOptions { Theme = theme });
+		_outputEditor?.UpdateOptions(new EditorUpdateOptions { Theme = theme });
+		StateHasChanged();
+	}
+
+	private async Task InitializeEditorsAndUiAsync()
+	{
+		while (!_disposed)
+		{
+			var inputReady = await JsRuntime.InvokeAsync<bool>("isMonacoEditorReady", "editor-schema");
+			var outputReady = await JsRuntime.InvokeAsync<bool>("isMonacoEditorReady", "editor-output");
+
+			if (inputReady && outputReady)
+			{
+				_editorsReady = true;
+				await InvokeAsync(async () =>
+				{
+					HandleThemeChanged();
+					await LoadLesson();
+					StateHasChanged();
+				});
+				return;
+			}
+
+			await Task.Delay(50);
+		}
+	}
+
+	public void Dispose()
+	{
+		_disposed = true;
+		ThemeService.OnThemeChanged -= HandleThemeChanged;
 	}
 }

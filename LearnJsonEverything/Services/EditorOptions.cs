@@ -2,14 +2,21 @@
 
 namespace LearnJsonEverything.Services
 {
-	public static class EditorOptions
+	public class EditorOptions
 	{
-		public static StandaloneEditorConstructionOptions Basic(string lang, int tab) =>
+		private readonly ThemeService _themeService;
+
+		public EditorOptions(ThemeService themeService)
+		{
+			_themeService = themeService;
+		}
+
+		public StandaloneEditorConstructionOptions Basic(string lang, int tab) =>
 			new()
 			{
 				AutomaticLayout = true,
 				Language = lang,
-				Theme = "vs-dark",
+				Theme = _themeService.MonacoTheme,
 				SelectOnLineNumbers = true,
 				Scrollbar = new EditorScrollbarOptions
 				{
@@ -19,7 +26,7 @@ namespace LearnJsonEverything.Services
 				TabSize = tab
 			};
 
-		public static StandaloneEditorConstructionOptions Readonly(string lang, int tab)
+		public StandaloneEditorConstructionOptions Readonly(string lang, int tab)
 		{
 			var options = Basic(lang, tab);
 			options.ReadOnly = true;

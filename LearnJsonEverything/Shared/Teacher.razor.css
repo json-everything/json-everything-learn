@@ -67,3 +67,34 @@ div::-webkit-scrollbar-thumb {
   border: 1px solid #1a1a1a !important;
   border-radius: 2.5px !important;
 }
+
+.resize-handle {
+  cursor: col-resize;
+  width: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 10;
+  background: transparent;
+}
+
+.resize-handle::after {
+  content: "";
+  width: 2px;
+  height: 30px;
+  background-color: #dee2e6;
+  border-radius: 1px;
+  pointer-events: none;
+}
+
+.resize-handle:hover::after {
+  background-color: #0d6efd;
+}
+
+.column-handle {
+  position: absolute;
+  right: -0.5rem;
+  top: 0;
+  bottom: 0;
+}

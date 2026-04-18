@@ -4,11 +4,12 @@ html,
 body,
 #app,
 #page {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  height: 99.7vh;
-  padding: 0;
-  margin: 0;
-  width: 99.9vw;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+	height: 100vh;
+	padding: 0;
+	margin: 0;
+  width: 100vw;
+	overflow: hidden;
 }
 
 body {
@@ -18,9 +19,15 @@ body {
 	color: rgb(216, 216, 216);
 }
 
+html[data-bs-theme="light"] body {
+	background: rgb(248, 249, 250);
+	color: rgb(33, 37, 41);
+}
+
 main {
 	display: flex;
 	flex-direction: column;
+  flex: 1;
 }
 
 header {
@@ -29,9 +36,10 @@ header {
 }
 
 article {
-	overflow: hidden;
-	flex-grow: 1;
-	position: relative;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  position: relative;
 }
 
 .fill-remaining {
@@ -42,8 +50,16 @@ article {
 	bottom: 0;
 }
 
+.col-8-stretch {
+	flex: 1 0 66.66667%;
+}
+
 .scroll {
-  overflow: auto;
+	overflow-y: auto;
+}
+
+.mw-content {
+	min-width: fit-content;
 }
 
 h1:focus {
@@ -94,11 +110,24 @@ a,
 	border-width: 1px;
 	border-radius: 3px;
 	border-style: solid;
+	position: relative;
+	padding-bottom: 1.5rem;
 }
 
-.monaco-editor {
-  position: absolute !important;
+.banner-dismiss {
+	position: absolute;
+	bottom: 0.25rem;
+	right: 0.5rem;
+	font-size: 0.85rem;
+	color: #bbb;
+	text-decoration: none;
+	cursor: pointer;
 }
+
+	.banner-dismiss:hover {
+		color: #fff;
+		text-decoration: underline;
+	}
 
 #blazor-error-ui {
 	background-color: #1e1e1e;
@@ -158,6 +187,11 @@ a.navbar-brand {
 	padding: 2px 6px;
 }
 
+html[data-bs-theme="light"] .new-label {
+	background-color: rgb(200, 200, 205);
+	color: rgb(33, 37, 41);
+}
+
 /*--- BUTTON ---*/
 
 .btn-primary {
@@ -210,6 +244,7 @@ a.navbar-brand {
 .header-btn {
 	background-color: transparent;
     text-decoration: none;
+	position: relative;
 }
 
 .header-btn:hover {
@@ -217,28 +252,35 @@ a.navbar-brand {
 }
 
 .stamp {
-  border: 4px groove rgba(220, 0, 0, 0.8);
-  border-radius: 10px;
-  color: rgba(220, 0, 0, 0.8);
-  font-weight: 800;
-  padding: 0 6px 0 6px;
-  position: absolute;
-  transform: translate(40%, 50%) rotate(-10deg);
-  z-index: 10;
+	border: 4px groove rgba(220, 0, 0, 0.8);
+	border-radius: 10px;
+	color: rgba(220, 0, 0, 0.8);
+	font-weight: 800;
+	font-size: 0.85rem;
+	line-height: 1.1;
+	text-wrap: nowrap;
+	padding: 0 6px 0 6px;
+	position: absolute;
+	top: 0.45rem;
+	left: 50%;
+	transform: translateX(-50%) rotate(-10deg);
+	transform-origin: center;
+	z-index: 10;
+	pointer-events: none;
 }
 
 .disabled {
-  pointer-events: none;
-  background-color: transparent !important;
-  border-color: transparent !important;
+	pointer-events: none;
+	background-color: transparent !important;
+	border-color: transparent !important;
 }
 
 /*--- LIBRARY ---*/
 
 .version-callout {
-	padding: 9.5px;
-	margin: 0 0 10px;
-	font-size: 13px;
+	padding: 3px 6px;
+	margin: 3px;
+	font-size: 12px;
 	word-break: break-all;
 	word-wrap: break-word;
 	color: #bfbfbf;
@@ -264,17 +306,20 @@ a.navbar-brand {
 /*--- TOOLTIPS ---*/
 
 .tooltip-icon {
+	position: relative;
 }
 
 .tooltip-text {
 	visibility: hidden;
-	position: absolute;
-	z-index: 99;
+	position: fixed;
+	z-index: 999;
+	min-width: 200px;
 	max-width: 400px;
 	font-size: 14px;
 	background-color: #271a3b;
 	border-radius: 5px;
 	padding: 10px;
+	pointer-events: none;
 }
 
 .tooltip-text-small {
@@ -291,10 +336,29 @@ a.navbar-brand {
 }
 
 .header-tooltip {
-  top: 50px;
+  position: absolute;
+  top: 30px;
   transform: translateX(-65%);
   text-wrap: nowrap;
   max-width: none;
+  color: rgb(175, 176, 177) !important;
+}
+
+html[data-bs-theme="light"] .tooltip-text {
+	background-color: #f8f9fa;
+	color: rgb(33, 37, 41);
+	border: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+html[data-bs-theme="light"] .tooltip-text code {
+	background-color: rgba(0, 0, 0, 0.05);
+	color: rgb(33, 37, 41);
+}
+
+html[data-bs-theme="light"] .header-tooltip {
+	background-color: #271a3b;
+	color: rgb(175, 176, 177);
+	border: none;
 }
 
 /*--- DOCS ---*/
@@ -315,7 +379,7 @@ a.navbar-brand {
 pre {
 	padding: 9.5px;
 	font-size: 13px;
-  tab-size: 4;
+	tab-size: 4;
 	word-break: break-all;
 	word-wrap: break-word;
 	background-color: rgb(27, 27, 30);
@@ -327,12 +391,13 @@ pre {
 	unicode-bidi: normal;
 }
 
-.editor-colors {
-}
-
 .editor-colors > div {
 	background-color: transparent !important;
 
+}
+
+.monaco-editor {
+	position: absolute !important;
 }
 
 code {
@@ -344,15 +409,25 @@ code {
 	unicode-bidi: normal;
 }
 
+html[data-bs-theme="light"] code {
+	color: #c7254e;
+	background-color: #f9f2f4;
+}
+
 blockquote {
 	padding: 9.5px;
 	margin: 0 20px 15px;
 	font-size: 13px;
+	word-break: break-all;
 	word-wrap: break-word;
 	background-color: rgba(127, 127, 127, 0.2);
 	border-radius: 6px;
 	border: none;
 	unicode-bidi: normal;
+}
+
+html[data-bs-theme="light"] blockquote {
+	background-color: rgba(0, 0, 0, 0.05);
 }
 
 	blockquote > p {
@@ -364,13 +439,214 @@ blockquote {
 }
 
 kbd {
-  border: solid 1px dimgray;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+	border: solid 1px dimgray;
+	background-color: #272822;
+	color: #de6b18;
+	border-radius: 4px;
+	padding: 2px 4px;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+html[data-bs-theme="light"] kbd {
+	background-color: #f8f9fa;
+	color: rgb(33, 37, 41);
+	border-color: rgba(0, 0, 0, 0.25);
 }
 
 /*--- FEATURE ---*/
 
 .feature{
   margin: 120px auto;
+}
+
+/*--- SPONSOR CLOUD ---*/
+
+.bubble-field {
+	width: min(720px, 90vw);
+	min-height: 120px;
+	margin: 0 auto;
+  position: relative;
+}
+
+.sponsor-bubble {
+  position: absolute;
+  background: white;
+  transition: transform .3s ease-in-out;
+
+}
+
+  .sponsor-bubble:hover {
+    transform: scale(1.1);
+  }
+
+.tooltip-icon:hover .sponsor-bubble {
+  transform: scale(1.1);
+}
+
+.bubble-Small {
+  height: 50px;
+  width: 50px;
+  border-radius: 25px;
+}
+
+.bubble-Medium {
+  height: 70px;
+  width: 70px;
+  border-radius: 35px;
+}
+
+.bubble-Large {
+  height: 100px;
+  width: 100px;
+  border-radius: 50px;
+}
+
+.cover {
+  object-fit: cover;
+}
+
+.sponsor-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(128, 128, 128, 0.7); /* Gray overlay */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: 50%;
+}
+
+.sponsor-bubble:hover .sponsor-overlay {
+  opacity: 1;
+}
+
+.sponsor-username {
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Nav container styling for collapse functionality */
+.nav-container {
+    position: relative;
+	padding-bottom: 1rem;
+	max-height: 400px;
+	transition: padding-bottom 0.3s ease, max-height 0.3s ease, transform 0.3s ease;
+}
+
+/* Toggle button styling */
+.collapse-toggle-btn {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%) translateY(50%);
+    width: 80px;
+    height: 10px;
+    border-radius: 4px;
+    background-color: #6800B7;
+    border: 1px solid transparent;
+    color: rgb(216, 216, 217);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+}
+
+.collapse-toggle-btn:hover {
+    color: lightgray;
+}
+
+.collapse-toggle-btn:focus {
+    outline: none;
+	box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+}
+
+.toggle-icon {
+    font-size: 6px;
+    line-height: 1;
+}
+
+.feature-description {
+	max-height: 3rem;
+	overflow: hidden;
+	transition: opacity 0.3s ease, max-height 0.3s ease, margin-top 0.3s ease, width 0.3s ease;
+}
+
+/* Collapsed state styles */
+.nav-container .header-btn {
+	min-width: 140px;
+	transition: min-width 0.3s ease, padding 0.3s ease;
+}
+
+.nav-container.collapsed {
+    padding-top: 0;
+	max-height: 140px;
+}
+
+.nav-container.collapsed .feature-description {
+    opacity: 0;
+    max-height: 0;
+    width: 0;
+}
+
+.nav-container.collapsed .header-btn {
+    height: auto;
+	min-width: 110px;
+}
+
+.nav-container.collapsed .header-btn.disabled .stamp {
+	top: 0.2rem;
+	left: 50%;
+	transform: translateX(-50%) rotate(-10deg);
+	font-size: 0.72rem;
+	border-width: 3px;
+	padding: 0 4px;
+}
+
+.nav-container.collapsed .header-btn > div > div:first-child {
+    white-space: nowrap;
+}
+
+/* Apply transform translation only on larger screens when collapsed */
+@media (min-width: 1200px) {
+	.nav-container.collapsed {
+		transform: translateY(-46px);
+		margin-bottom: -46px;
+		/* Keep translated content visible and clickable above article */
+		overflow: visible;
+		position: relative;
+		z-index: 10;
+		pointer-events: none;
+	}
+
+	.nav-container.collapsed .header-btn {
+		min-width: auto;
+		width: auto;
+	}
+
+	/* Left-align row; add fixed horizontal offset and keep above article */
+	.nav-container.collapsed .row.justify-content-center {
+		justify-content: flex-start !important;
+		transform: translateX(275px);
+		position: relative;
+		z-index: 11;
+		pointer-events: auto;
+	}
+
+	.nav-container.collapsed .collapse-toggle-btn {
+		pointer-events: auto;
+	}
+
+	.nav-container.collapsed .width-auto {
+		width: 100%;
+	}
 }
 
