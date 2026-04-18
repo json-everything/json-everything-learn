@@ -98,8 +98,15 @@ public static class InstructionsBuilder
 
 	private static string MaybeCode(JsonNode? node, string key)
 	{
-		if (KeysToFormat.Contains(key)) return $"`{node.Print()}`";
+        var rendered = node?.Print() ?? "null";
+        rendered = rendered
+            .Replace("\r\n", "<br>")
+            .Replace("\n", "<br>")
+            .Replace("|", "\\|");
 
-		return node?.Print();
+        if (KeysToFormat.Contains(key) || node is JsonObject or JsonArray)
+            return $"`{rendered}`";
+
+        return rendered;
 	}
 }

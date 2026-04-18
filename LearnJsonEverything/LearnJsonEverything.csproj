@@ -15,6 +15,7 @@
     <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
     <PackageReference Include="BlazorMonaco" Version="3.4.0" />
     <PackageReference Include="JsonE.Net" Version="3.0.1" />
+    <PackageReference Include="JsonLogic" Version="6.0.2" />
     <PackageReference Include="JsonPath.Net" Version="3.0.2" />
     <PackageReference Include="JsonSchema.Net" Version="9.2.0" />
     <PackageReference Include="JsonSchema.Net.Generation" Version="7.3.6" />

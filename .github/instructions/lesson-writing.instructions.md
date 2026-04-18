@@ -51,7 +51,8 @@ Each lesson is an object in the lesson plan array with these fields:
 ### Instructions
 - State exactly what the user must do, in one or two sentences.
 - Use imperative language: "Parse the path…", "Write a query that…", "Return null if…".
-- Name the required library action in the task (method/class/option/exception behavior) so the objective is implementation-focused rather than concept-only.
+- Name the required library action at the capability level (method family/class/option/exception behavior) so the objective is implementation-focused rather than concept-only.
+- Do not reveal the full implementation path in the task text. Avoid naming the exact operator or single method call when that would make the solution trivial.
 - Do not explain how — that belongs in the background.
 - Do not refer to the testing framework or expected test mechanics in user-facing task text.
 

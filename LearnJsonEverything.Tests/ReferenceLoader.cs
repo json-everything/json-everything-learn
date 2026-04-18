@@ -1,4 +1,5 @@
 using Json.JsonE;
+using Json.Logic;
 using Json.More;
 using Json.Path;
 using Json.Schema;
@@ -18,6 +19,7 @@ public static class ReferenceLoader
 		Load<MinimumAttribute>();
 		Load<JsonPath>();
 		Load<JsonFunction>();
+		Load<Rule>();
 	}
 
 	private static void Load<T>(){}

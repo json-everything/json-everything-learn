@@ -8,8 +8,10 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\LearnJsonEverything\LearnJsonEverything.csproj" />
+  <ItemGroup>    <PackageReference Include="JsonLogic" Version="6.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>    <ProjectReference Include="..\LearnJsonEverything\LearnJsonEverything.csproj" />
   </ItemGroup>
 
 </Project>

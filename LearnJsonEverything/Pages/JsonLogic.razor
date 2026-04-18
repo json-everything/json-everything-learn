@@ -1,0 +1,8 @@
+@page "/json-logic"
+@using LearnJsonEverything.Services.Hosts
+
+<Teacher LessonSource="/data/lessons/json-logic.json" Host="@_host"></Teacher>
+
+@code {
+	private readonly ILessonHost _host = new JsonLogicHost();
+}

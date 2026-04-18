@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using System.Reflection;
 using System.Runtime.Loader;
+using Microsoft.CodeAnalysis.Emit;
 using static LearnJsonEverything.Services.Iconography;
 
 namespace LearnJsonEverything.Services;
@@ -18,6 +19,7 @@ public static class CompilationHelpers
 	[
 		"Json.More",
 		"JsonE.Net",
+		"JsonLogic",
 		"JsonPath.Net",
 		"JsonPointer.Net",
 		"JsonSchema.Net",
@@ -95,7 +97,16 @@ public static class CompilationHelpers
 		using var dllStream = new MemoryStream();
 		using var pdbStream = new MemoryStream();
 		using var xmlStream = new MemoryStream();
-		var emitResult = compilation.Emit(dllStream, pdbStream, xmlStream);
+		EmitResult emitResult;
+		if (IsBrowserRuntime)
+		{
+			// Avoid debugger-agent assertions in WASM by not emitting debug symbols.
+			emitResult = compilation.Emit(dllStream, xmlDocumentationStream: xmlStream);
+		}
+		else
+		{
+			emitResult = compilation.Emit(dllStream, pdbStream, xmlStream);
+		}
 		if (!emitResult.Success)
 		{
 			var diagnostics = new List<string>();
@@ -114,8 +125,9 @@ public static class CompilationHelpers
 		}
 
 		dllStream.Position = 0;
-		pdbStream.Position = 0;
 		xmlStream.Position = 0;
+		if (!IsBrowserRuntime)
+			pdbStream.Position = 0;
 
 #pragma warning disable IL2026
 #pragma warning disable IL2072

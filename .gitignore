@@ -10,6 +10,7 @@
 *.userosscache
 *.sln.docstates
 .github/instructions/personal-preferences.instructions.md
+.notes
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

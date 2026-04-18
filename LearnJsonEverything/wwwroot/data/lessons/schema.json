@@ -149,7 +149,7 @@
         "docs":  "schema/basics/#schema-inlining",
         "api":  "api/JsonSchema.Net/JsonSchemaBuilderExtensions",
         "schemaDocs":  null,
-        "instructions":  "Configure the provided `JsonSchemaBuilder` to produce a schema that validates a array instance filled with integers.  Ensure that the array has no more than 5 items.\n",
+        "instructions":  "Configure the provided `JsonSchemaBuilder` to produce a schema that validates an array instance filled with integers.  Ensure that the array has no more than 5 items.\n",
         "contextCode":  "using System.Text.Json;\nusing System.Text.Json.Nodes;\nusing Json.Schema;\n\nnamespace LearnJsonEverything;\n\npublic class Lesson : ILessonRunner\u003cEvaluationResults\u003e\n{\n    public EvaluationResults Run(JsonObject test)\n    {\n        var buildOptions = new BuildOptions();\n        var builder = new JsonSchemaBuilder(buildOptions);\n\n        /* USER CODE */\n\n        var schema = builder.Build();\n        var instance = test[\"instance\"]!.Deserialize<JsonElement>();\n        var options = new EvaluationOptions();\n\n        return schema.Evaluate(instance, options);\n    }\n}",
         "tests":  [
                       {

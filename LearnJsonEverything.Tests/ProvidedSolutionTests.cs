@@ -85,4 +85,22 @@ public class ProvidedSolutionTests
 			Assert.That(result, Does.StartWith(Iconography.SuccessIcon));
 		}
 	}
+
+	public static IEnumerable<TestCaseData> JsonLogicLessons => GetLessons("json-logic.json");
+
+	[TestCaseSource(nameof(JsonLogicLessons))]
+	public void JsonLogic(LessonData lesson)
+	{
+		var results = new JsonLogicHost().Run(lesson);
+
+		foreach (var result in results)
+		{
+			Console.WriteLine(result);
+		}
+
+		foreach (var result in results)
+		{
+			Assert.That(result, Does.StartWith(Iconography.SuccessIcon));
+		}
+	}
 }

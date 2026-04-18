@@ -187,7 +187,7 @@
     "docs": "path/basics",
     "api": null,
     "schemaDocs": null,
-    "instructions": "Write a single path that selects all of required nodes in the right order.",
+    "instructions": "Write a single path that selects all required nodes in the right order.",
     "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"/* USER CODE */\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}",
     "tests": [
       {
@@ -535,7 +535,7 @@
     "docs": "path/basics",
     "api": null,
     "schemaDocs": null,
-    "instructions": "Build a path that selects all objects for which the `foo` property has a value less that 10.",
+    "instructions": "Build a path that selects all objects for which the `foo` property has a value less than 10.",
     "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"/* USER CODE */\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}",
     "tests": [
       {
@@ -776,7 +776,7 @@
     "docs": "path/basics",
     "api": null,
     "schemaDocs": null,
-    "instructions": "Build a path that return values which end with the substring `\"foo\"`.",
+    "instructions": "Build a path that returns values which end with the substring `\"foo\"`.",
     "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"/* USER CODE */\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}",
     "tests": [
       {
