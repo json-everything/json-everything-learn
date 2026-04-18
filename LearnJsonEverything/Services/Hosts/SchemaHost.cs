@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Text.Json.Nodes;
 using Json.Schema;
 
 namespace LearnJsonEverything.Services.Hosts;
@@ -17,7 +18,7 @@ public class SchemaHost : ILessonHost
 		foreach (var test in lesson.Tests)
 		{
 			var expectedValidity = test!["isValid"]!.GetValue<bool>();
-			Console.WriteLine($"Running `{test["instance"].Print()}`");
+			Console.WriteLine($"Running `{GetTestInput(test)}`");
 			var result = runner.Run(test.AsObject());
 			Console.WriteLine($"Result: {JsonSerializer.Serialize(result, SerializerContext.Default.EvaluationResults)}");
 			correct &= expectedValidity == result.IsValid;
@@ -27,5 +28,13 @@ public class SchemaHost : ILessonHost
 		lesson.Achieved |= correct;
 
 		return [.. results];
+	}
+
+	private static string GetTestInput(JsonNode test)
+	{
+		if (test["instance"] is not null) return test["instance"]!.Print();
+		if (test["json"] is not null) return test["json"]!.Print();
+
+		return test.Print();
 	}
 }

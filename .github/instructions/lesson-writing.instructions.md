@@ -34,17 +34,31 @@ Each lesson is an object in the lesson plan array with these fields:
 - Explain the concept clearly before asking the user to use it.
 - Use Markdown formatting. Inline code and links are encouraged.
 - Keep it focused on what this lesson teaches — do not repeat content from prior lessons unless briefly recapping.
+- Do not break the fourth wall: background text must not reference tests, test runners, or lesson-host internals.
+- Teach the current API directly; do not describe how it changed from older versions.
+- Prefer in-depth backgrounds: typically at least two substantial paragraphs that cover both concept and practical usage.
 
 ### Instructions
 - State exactly what the user must do, in one or two sentences.
 - Use imperative language: "Parse the path…", "Write a query that…", "Return null if…".
 - Do not explain how — that belongs in the background.
+- Do not refer to the testing framework or expected test mechanics in user-facing task text.
 
 ### Context Code
 - Place `/* USER CODE */` at the exact point where the user should write their code.
 - The class must be named `Lesson` and implement `ILessonRunner<T>` with the appropriate type parameter.
 - Import only the namespaces needed for this lesson.
 - Keep surrounding scaffolding minimal so the user's task is obvious.
+
+### Schema Lesson Flow
+- For `JsonSchema` lessons, present code in this order whenever applicable:
+	1. Create `BuildOptions`.
+	2. Build the schema using those build options.
+	3. Read the instance from test input as `JsonElement`.
+	4. Create `EvaluationOptions`.
+	5. Evaluate using the evaluation options.
+- Prefer this explicit flow in both `contextCode` and `solution` for consistency, even when default options would also work.
+- Prefer `JsonElement` inputs to `schema.Evaluate(...)` instead of `JsonNode` values.
 
 ### Tests
 - Include at least two test cases: one typical case and one edge or boundary case.

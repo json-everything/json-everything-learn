@@ -25,6 +25,7 @@ This repository is an interactive learning site for JSON tooling libraries (`Jso
 - Lesson JSON files use camelCase property names and are deserialized with `PropertyNameCaseInsensitive = true`.
 - The `Skip` property allows a lesson to be excluded from both the UI and test runs.
 - Solutions in lesson JSON are complete C# class bodies implementing `ILessonRunner<T>`.
+- Schema lesson code samples should follow a consistent sequence when applicable: `BuildOptions` setup, schema build, instance retrieval, `EvaluationOptions` setup, and evaluation.
 
 ## Runtime Environment
 
@@ -35,4 +36,5 @@ This repository is an interactive learning site for JSON tooling libraries (`Jso
 ## JSON And Serialization
 
 - Use `System.Text.Json` patterns throughout; do not introduce alternate JSON stacks.
+- In schema lessons, use `JsonElement` as the evaluation input type for `JsonSchema.Evaluate(...)` examples.
 - For inline JSON literals in C# source, use two-space indentation.
