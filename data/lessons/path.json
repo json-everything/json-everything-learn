@@ -61,7 +61,7 @@
     "id": "fc358233-24d7-445c-b083-930f77f45c99",
     "skip": false,
     "title": "JSON Path: The Root",
-    "background": "JSON Path is a query syntax that allows simple selection of nodes within JSON data.  That's all it does.\r\n\r\nIt is often paired with other technologies that use JSON Path (or a similar syntax and _claim_ it's JSON Path) to identify locations within JSON data to further perform other operations.  One example of this is the popular JSON processor [`jq`](https://jqlang.github.io/jq/).\r\n\r\nTo build a JSON Path query (a \"path\"), we must always start with the root selector `$`, which corresponds with the root of the data.\r\n\r\n---\r\n\r\nObserve that the expected results in the tests below are always shown in a JSON array.  This is more for convenience than actually representative of the results.  JSON Path doesn't output a JSON array; it outputs a collection of nodes, where each node contains a value and the JSON Path location where value was found.\r\n\r\nFor simple paths, this may seem redundant.  However, as our selection criteria grows more complex and can select multiple or nested values, knowing where those values come can become very important.\r\n\r\nTo see the full results including the paths to the nodes, head over to the [main `json-everything` playground](https://json-everything.net/json-path).",
+    "background": "JSON Path is a query syntax that selects nodes from JSON data. A path expression is evaluated against a JSON document and returns a collection of matched nodes.\r\n\r\nMany tools display just node values for convenience, but a full JSON Path result conceptually includes both the matched value and the location where it was found. That location context becomes very useful when expressions are complex and match multiple nested branches.\r\n\r\nEvery path starts from the root selector `$`, which represents the entire input document. In this lesson, you will use the root selector directly to return the full JSON value.",
     "docs": "path/basics",
     "api": null,
     "schemaDocs": null,
@@ -187,7 +187,7 @@
     "docs": "path/basics",
     "api": null,
     "schemaDocs": null,
-    "instructions": "Write a single path that selects all of required nodes in the right order.",
+    "instructions": "Write a single path that selects all required nodes in the right order.",
     "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"/* USER CODE */\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}",
     "tests": [
       {
@@ -457,7 +457,7 @@
     "id": "7a6bebd5-2d9d-4c25-82df-d858870e01fe",
     "skip": false,
     "title": "JSON Path: Filtering on Value Existence",
-    "background": "The final selector type is the _filter selector_.  This selector takes an expression and selects children for which the expression evaluates to boolean **true**.  There are a lot of things that a filter expression can do, so the syntax is broken up into multiple lessons.\r\n\r\nFilter selectors operate on both arrays and objects by iterating over all of the children and applying an expression.  If the expression evaluates to a boolean **true** (not to be confused with the JSON `true` literal), then the child is selected; boolean **false** (again, not the JSON `false` literal) means the child is not selected.\r\n\r\nFilter selectors start with a question mark `?` followed by an expression.\r\n\r\n_**NOTE** The [original JSON Path](https://goessner.net/articles/JsonPath/) syntax required that the expression be contained in parenthesis `()`, but the specification removed this requirement.  It's still supported, but no longer required._\r\n\r\n---\r\n\r\nThe first filter expressions we'll cover checks whether any value exists at a given location within the item.  This check is called an _existence test_.\r\n\r\nExistence tests return boolean **true** if the value exists, and boolean **false** otherwise.\r\n\r\nThe test consists of a special form of JSON Path that starts with the _local root selector_ `@`.  The local root selector `@` operates just like the root selector `$`, however instead of always referring to the root of the entire JSON document, the local root selector `@` refers to the current child in the filter iteration.\r\n\r\n_**NOTE** The existence test doesn't care what the value is; it only cares that a value is there.  The JSON `null` literal is a value, as is the JSON `false` literal.  If the value exists, boolean **true** is returned._\r\n\r\nFor the path `$[?@]`, you'll get all of the children extracted from their parent because `@` selects the child root, which always must exist (or else it wouldn't be in the iteration).  This path isn't very interesting, so let's add a segment.\r\n\r\nFor the path `$[?@.foo]`, you'll get any child which has a `foo` property.\r\n\r\nTo test for absence, invert the result using the not `!` operator: `$[?!@.foo]`.\r\n\r\nExistence test paths support all segment types.  A non-empty result set translates to a boolean **true** result.",
+    "background": "The filter selector evaluates an expression for each child and keeps only children whose expression result is boolean **true**. This lets you express data-dependent selection criteria rather than selecting by name or index alone.\r\n\r\nFilters work for both arrays and objects because evaluation runs over the set of child nodes. The expression uses the local root selector `@`, which points to the current child being inspected.\r\n\r\nAn existence check asks whether a path under `@` returns at least one value. If a value exists, the condition is true. If no value exists, the condition is false. The value itself can be anything, including `null` or `false`; existence is about presence, not truthiness.\r\n\r\nExamples: `$[?@.foo]` selects children that contain `foo`, and `$[?!@.foo]` selects children where `foo` is absent. In this lesson, you will combine an existence check with an array-length condition.",
     "docs": "path/basics",
     "api": null,
     "schemaDocs": null,
@@ -535,7 +535,7 @@
     "docs": "path/basics",
     "api": null,
     "schemaDocs": null,
-    "instructions": "Build a path that selects all objects for which the `foo` property has a value less that 10.",
+    "instructions": "Build a path that selects all objects for which the `foo` property has a value less than 10.",
     "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"/* USER CODE */\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}",
     "tests": [
       {
@@ -776,7 +776,7 @@
     "docs": "path/basics",
     "api": null,
     "schemaDocs": null,
-    "instructions": "Build a path that return values which end with the substring `\"foo\"`.",
+    "instructions": "Build a path that returns values which end with the substring `\"foo\"`.",
     "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Path;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<PathResult>\r\n{\r\n    public PathResult Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n        var pathText = \"/* USER CODE */\";\r\n\r\n        var path = JsonPath.Parse(pathText);\r\n\r\n        return path.Evaluate(data);\r\n    }\r\n}",
     "tests": [
       {
@@ -888,7 +888,7 @@
     "id": "d42878da-401c-4187-8ef7-96ac0ed176f3",
     "skip": false,
     "title": "JSON Path: Filter Nesting",
-    "background": "Filter selectors can also be nested.  That is, a path build from the local root `@` can also have a filter selector.\r\n\r\nNested filters also use the local root `@`.  The local root `@` is contexted to the expression in which its found.",
+    "background": "Filter selectors can be nested, which allows parent selection criteria to depend on conditions evaluated inside child collections. This is a common pattern when querying hierarchical JSON such as orders-with-items, users-with-roles, or products-with-variants.\r\n\r\nIn nested filters, the local root `@` always refers to the current context of the expression where it appears. As evaluation descends into an inner filter, `@` is rebound to that inner item. Keeping that scoping model in mind is the key to writing correct nested expressions.\r\n\r\nIn this lesson, you will build a nested filter that finds objects and arrays containing a specific value.",
     "docs": "path/basics",
     "api": null,
     "schemaDocs": null,
@@ -1234,7 +1234,7 @@
     "id": "23d225a1-3746-4dde-a923-1e477aa00dbe",
     "skip": false,
     "title": "Options: Relative Path Start",
-    "background": "The JSON Path specification requires that a path start with the root selector `$`.  However, it was demonstrated that in some use cases, it may make sense to start a path with the local root selector `@`.\r\n\r\nThe `AllowRelativePathStart` option enables this behavior.",
+    "background": "Most path expressions start at the document root `$`, but some workflows benefit from expressions that begin at a local context instead. This is especially useful in reusable filter snippets and local-evaluation scenarios where the current node is already known.\r\n\r\n`PathParsingOptions.AllowRelativePathStart` enables parsing for expressions that begin with local root semantics. This can make path fragments easier to compose and reuse when building higher-level query features.\r\n\r\nIn this lesson, you will enable the option and parse a path that starts with `@`.",
     "docs": "api/JsonPath.Net/PathParsingOptions",
     "api": null,
     "schemaDocs": null,

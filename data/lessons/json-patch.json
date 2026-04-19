@@ -1,0 +1,204 @@
+﻿[
+    {
+        "id": "f871fab9-f09e-44af-ba20-3ee557bc6ac8",
+        "skip": false,
+        "title": "Create And Apply A Patch",
+        "background": "A practical starting point in *JsonPatch.Net* is to build a patch with operation factories and apply it to a document. This keeps the workflow concrete: define the transformation, then execute it to produce updated JSON.\r\n\r\nThis lesson focuses on creating a small patch in code and applying it to the provided input document. The objective is to produce the modified document as output.",
+        "docs": "patch/basics",
+        "api": "api/JsonPatch.Net/JsonPatch/",
+        "schemaDocs": null,
+        "instructions": "Build a patch that replaces `/status` with `published`, apply it to `document`, and return the modified document.",
+        "contextCode": "using System.Collections.Generic;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Patch;\r\nusing Json.Pointer;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner\u003cJsonNode\u003e\r\n{\r\n    public JsonNode Run(JsonObject test)\r\n    {\r\n        var document = test[\"document\"]!.DeepClone();\r\n\r\n        var patchOperations = new List\u003cPatchOperation\u003e();\r\n\r\n        /* USER CODE */\r\n\r\n        var patch = new JsonPatch(patchOperations);\r\n        return patch.Apply(document).Result;\r\n    }\r\n}",
+        "tests": [
+            {
+                "document": {
+                    "status": "draft"
+                },
+                "result": {
+                    "status": "published"
+                }
+            },
+            {
+                "document": {
+                    "status": "draft",
+                    "name": "alpha",
+                    "count": 2
+                },
+                "result": {
+                    "status": "published",
+                    "name": "alpha",
+                    "count": 2
+                }
+            }
+        ],
+        "solution": "using System.Collections.Generic;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Patch;\r\nusing Json.Pointer;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner\u003cJsonNode\u003e\r\n{\r\n    public JsonNode Run(JsonObject test)\r\n    {\r\n        var document = test[\"document\"]!.DeepClone();\r\n\r\n        var patchOperations = new List\u003cPatchOperation\u003e();\r\n\r\n        patchOperations.Add(PatchOperation.Replace(JsonPointer.Parse(\"/status\"), \"published\"));\r\n\r\n        var patch = new JsonPatch(patchOperations);\r\n        return patch.Apply(document).Result;\r\n    }\r\n}"
+    },
+    {
+        "id": "3419cde5-04f2-45a2-b8a5-6f1843b62fb3",
+        "skip": false,
+        "title": "Use PatchResult For Errors",
+        "background": "A key integration detail in *JsonPatch.Net* is that apply failures are reported through `PatchResult` rather than by defaulting to exception-driven flow. This gives you a predictable branch point for application logic and lets you return user-friendly messages without wrapping every apply call in broad catch blocks.\r\n\r\nThis lesson focuses on observing `PatchResult.Error` and `PatchResult.IsSuccess` after `Apply`. You will return a small status object that reports whether the operation succeeded and includes an error message only when the patch could not be applied.",
+        "docs": "patch/basics",
+        "api": "api/JsonPatch.Net/PatchResult/",
+        "schemaDocs": null,
+        "instructions": "Call `patch.Apply(document)` to get a `patchResult`. The scaffold will report `applied` or `failed` in `{ status, error }`.",
+        "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Patch;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner\u003cJsonNode\u003e\r\n{\r\n    public JsonNode Run(JsonObject test)\r\n    {\r\n        var document = test[\"document\"]!.DeepClone();\r\n        var patch = JsonSerializer.Deserialize\u003cJsonPatch\u003e(test[\"patch\"]!);\r\n\r\n        /* USER CODE */\r\n\r\n        return new JsonObject\r\n        {\r\n            [\"status\"] = patchResult.IsSuccess ? \"applied\" : \"failed\",\r\n            [\"error\"] = patchResult.Error\r\n        };\r\n    }\r\n}",
+        "tests": [
+            {
+                "patch": [
+                    {
+                        "op": "replace",
+                        "path": "/status",
+                        "value": "published"
+                    }
+                ],
+                "document": {
+                    "status": "draft"
+                },
+                "result": {
+                    "status": "applied",
+                    "error": null
+                }
+            },
+            {
+                "patch": [
+                    {
+                        "op": "replace",
+                        "path": "/missing",
+                        "value": "x"
+                    }
+                ],
+                "document": {
+                    "status": "draft"
+                },
+                "result": {
+                    "status": "failed",
+                    "error": "Target path `/missing` could not be reached."
+                }
+            }
+        ],
+        "solution": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Patch;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner\u003cJsonNode\u003e\r\n{\r\n    public JsonNode Run(JsonObject test)\r\n    {\r\n        var document = test[\"document\"]!.DeepClone();\r\n        var patch = JsonSerializer.Deserialize\u003cJsonPatch\u003e(test[\"patch\"]!);\r\n\r\n        var patchResult = patch.Apply(document);\r\n\r\n        return new JsonObject\r\n        {\r\n            [\"status\"] = patchResult.IsSuccess ? \"applied\" : \"failed\",\r\n            [\"error\"] = patchResult.Error\r\n        };\r\n    }\r\n}"
+    },
+    {
+        "id": "6f6ae9e2-f0ba-4f54-8f72-77a6e6828fdb",
+        "skip": false,
+        "title": "Apply To Typed Model With Options",
+        "background": "*JsonPatch.Net* also supports patching typed .NET models through extension overloads. In that workflow, serializer configuration matters because patch paths are resolved against the serialized property names produced by your `JsonSerializerOptions`.\n\nThis lesson uses the typed apply overload that accepts `JsonSerializerOptions`. You will apply a patch to a deserialized model with camel-case naming and observe the updated model.",
+        "docs": "patch/basics",
+        "api": "api/JsonPatch.Net/PatchExtensions/",
+        "schemaDocs": null,
+        "instructions": "Apply the patch to the typed `Person` model by calling `patch.Apply(person, options)` and assigning the result back to `person`. The scaffold returns the updated model.",
+        "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Patch;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Person\r\n{\r\n    public string FirstName { get; set; }\r\n    public int Age { get; set; }\r\n}\r\n\r\npublic class Lesson : ILessonRunner\u003cJsonNode\u003e\r\n{\r\n    public JsonNode Run(JsonObject test)\r\n    {\r\n        var modelJson = test[\"model\"]!;\r\n\r\n        var options = new JsonSerializerOptions\r\n        {\r\n            PropertyNamingPolicy = JsonNamingPolicy.CamelCase\r\n        };\r\n\r\n        var patch = JsonSerializer.Deserialize\u003cJsonPatch\u003e(test[\"patch\"]!);\r\n        var person = JsonSerializer.Deserialize\u003cPerson\u003e(modelJson, options)!;\r\n\r\n        /* USER CODE */\r\n\r\n        return JsonSerializer.SerializeToNode(person, options);\r\n    }\r\n}",
+        "tests": [
+            {
+                "patch": [
+                    {
+                        "op": "replace",
+                        "path": "/firstName",
+                        "value": "Ada Lovelace"
+                    }
+                ],
+                "model": {
+                    "firstName": "Ada",
+                    "age": 36
+                },
+                "result": {
+                    "firstName": "Ada Lovelace",
+                    "age": 36
+                }
+            },
+            {
+                "patch": [],
+                "model": {
+                    "firstName": "Grace",
+                    "age": 31
+                },
+                "result": {
+                    "firstName": "Grace",
+                    "age": 31
+                }
+            }
+        ],
+        "solution": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Patch;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Person\r\n{\r\n    public string FirstName { get; set; }\r\n    public int Age { get; set; }\r\n}\r\n\r\npublic class Lesson : ILessonRunner\u003cJsonNode\u003e\r\n{\r\n    public JsonNode Run(JsonObject test)\r\n    {\r\n        var modelJson = test[\"model\"]!;\r\n\r\n        var options = new JsonSerializerOptions\r\n        {\r\n            PropertyNamingPolicy = JsonNamingPolicy.CamelCase\r\n        };\r\n\r\n        var patch = JsonSerializer.Deserialize\u003cJsonPatch\u003e(test[\"patch\"]!);\r\n        var person = JsonSerializer.Deserialize\u003cPerson\u003e(modelJson, options)!;\r\n\r\n        person = patch.Apply(person, options);\r\n\r\n        return JsonSerializer.SerializeToNode(person, options);\r\n    }\r\n}"
+    },
+    {
+        "id": "4cf67b61-9670-474f-b38e-b32f74b42ea5",
+        "skip": false,
+        "title": "Create Patch From JsonNode",
+        "background": "*JsonPatch.Net* can generate patch documents by diffing start and target JSON values. This is useful when your application computes desired state and wants a compact patch payload to store, transmit, or apply later.\r\n\r\nThis lesson focuses on the `CreatePatch` extension for `JsonNode` values. You will generate the patch from two inputs and return the serialized patch document to inspect which operations the library produced.",
+        "docs": "patch/basics",
+        "api": "api/JsonPatch.Net/PatchExtensions/",
+        "schemaDocs": null,
+        "instructions": "Generate a patch from `start` to `target` using the `CreatePatch` extension on `JsonNode`. The scaffold returns the serialized patch.",
+        "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Patch;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner\u003cJsonNode\u003e\r\n{\r\n    public JsonNode Run(JsonObject test)\r\n    {\r\n        var start = test[\"start\"]!;\r\n        var target = test[\"target\"]!;\r\n\r\n        /* USER CODE */\r\n\r\n        return JsonSerializer.SerializeToNode(patch);\r\n    }\r\n}",
+        "tests": [
+            {
+                "start": {
+                    "status": "draft"
+                },
+                "target": {
+                    "status": "published"
+                },
+                "result": [
+                    {
+                        "op": "replace",
+                        "path": "/status",
+                        "value": "published"
+                    }
+                ]
+            },
+            {
+                "start": {
+                    "status": "draft"
+                },
+                "target": {
+                    "status": "draft"
+                },
+                "result": []
+            }
+        ],
+        "solution": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Patch;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner\u003cJsonNode\u003e\r\n{\r\n    public JsonNode Run(JsonObject test)\r\n    {\r\n        var start = test[\"start\"]!;\r\n        var target = test[\"target\"]!;\r\n\r\n        var patch = start.CreatePatch(target);\r\n\r\n        return JsonSerializer.SerializeToNode(patch);\r\n    }\r\n}"
+    },
+    {
+        "id": "639d14de-f65e-4412-ba06-a5c58e8e80e6",
+        "skip": false,
+        "title": "Create Patch From Typed Models",
+        "background": "Patch generation is also available for typed object graphs through generic extension overloads. This lets your application work in domain types first, then produce patch documents from model-to-model differences without manual operation construction.\r\n\r\nIn this lesson, you will use the typed `CreatePatch\u003cT\u003e` overload with serializer options. The focus is selecting the typed diff-generation API and returning the generated patch document for inspection.",
+        "docs": "patch/basics",
+        "api": "api/JsonPatch.Net/PatchExtensions/",
+        "schemaDocs": null,
+        "instructions": "Generate a patch between typed `Person` values using `CreatePatch\u003cT\u003e` with serializer options. The scaffold returns the serialized patch.",
+        "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Patch;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Person\r\n{\r\n    public string FirstName { get; set; }\r\n    public int Age { get; set; }\r\n}\r\n\r\npublic class Lesson : ILessonRunner\u003cJsonNode\u003e\r\n{\r\n    public JsonNode Run(JsonObject test)\r\n    {\r\n        var options = new JsonSerializerOptions\r\n        {\r\n            PropertyNamingPolicy = JsonNamingPolicy.CamelCase\r\n        };\r\n\r\n        var start = JsonSerializer.Deserialize\u003cPerson\u003e(test[\"start\"]!, options)!;\r\n        var target = JsonSerializer.Deserialize\u003cPerson\u003e(test[\"target\"]!, options)!;\r\n\r\n        /* USER CODE */\r\n\r\n        return JsonSerializer.SerializeToNode(patch, options);\r\n    }\r\n}",
+        "tests": [
+            {
+                "start": {
+                    "firstName": "Ada",
+                    "age": 36
+                },
+                "target": {
+                    "firstName": "Ada Lovelace",
+                    "age": 36
+                },
+                "result": [
+                    {
+                        "op": "replace",
+                        "path": "/firstName",
+                        "value": "Ada Lovelace"
+                    }
+                ]
+            },
+            {
+                "start": {
+                    "firstName": "Grace",
+                    "age": 31
+                },
+                "target": {
+                    "firstName": "Grace",
+                    "age": 31
+                },
+                "result": []
+            }
+        ],
+        "solution": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Patch;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Person\r\n{\r\n    public string FirstName { get; set; }\r\n    public int Age { get; set; }\r\n}\r\n\r\npublic class Lesson : ILessonRunner\u003cJsonNode\u003e\r\n{\r\n    public JsonNode Run(JsonObject test)\r\n    {\r\n        var options = new JsonSerializerOptions\r\n        {\r\n            PropertyNamingPolicy = JsonNamingPolicy.CamelCase\r\n        };\r\n\r\n        var start = JsonSerializer.Deserialize\u003cPerson\u003e(test[\"start\"]!, options)!;\r\n        var target = JsonSerializer.Deserialize\u003cPerson\u003e(test[\"target\"]!, options)!;\r\n\r\n        var patch = start.CreatePatch(target, options);\r\n\r\n        return JsonSerializer.SerializeToNode(patch, options);\r\n    }\r\n}"
+    }
+]

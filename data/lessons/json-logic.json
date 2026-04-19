@@ -1,0 +1,332 @@
+[
+  {
+    "id": "f3a5c8b2-4d1e-4f7a-9c2b-8e6d0a3f5c7b",
+    "skip": false,
+    "title": "Build and Evaluate a Rule",
+    "background": "The `Rule` class in *JsonLogic* represents a computation. You build rules from operators and values, then evaluate them to produce a result.\r\n\r\nThe `JsonLogic` class provides static factory methods that return typed `Rule` objects. Primitive C# values such as `int`, `decimal`, `bool`, and `string` implicitly convert to `Rule` via conversion operators defined on the `Rule` base class, so you can pass literals directly to factory methods without calling `JsonLogic.Literal` explicitly.",
+    "docs": "logic/basics",
+    "api": null,
+    "schemaDocs": null,
+    "instructions": "Build a rule that adds the `a` and `b` test values, then return the result of `rule.Apply()`.",
+    "contextCode": "using System.Text.Json.Nodes;\r\nusing Json.Logic;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var a = test[\"a\"];\r\n        var b = test[\"b\"];\r\n\r\n        /* USER CODE */\r\n\r\n        return null;\r\n    }\r\n}",
+    "tests": [
+      {
+        "a": 3,
+        "b": 4,
+        "result": 7
+      },
+      {
+        "a": 10,
+        "b": -3,
+        "result": 7
+      }
+    ],
+    "solution": "using System.Text.Json.Nodes;\r\nusing Json.Logic;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var a = test[\"a\"];\r\n        var b = test[\"b\"];\r\n\r\n        var rule = JsonLogic.Add(a, b);\r\n        return rule.Apply();\r\n\r\n        return null;\r\n    }\r\n}"
+  },
+  {
+    "id": "2c7e9b1d-5f3a-4c8b-b2d4-0e6a7f1c3d9b",
+    "skip": false,
+    "title": "Apply a Rule to Data",
+    "background": "Rules can read values from an input document by using `JsonLogic.Variable(...)` and then evaluating the rule with `rule.Apply(data)`. This is the basic pattern for data-driven evaluation in *JsonLogic*.\r\n\r\nYou can still compose the rule with typed factory methods in C#. Primitive C# values implicitly convert to `Rule` via `LiteralRule`, so literals and variable rules can be combined directly.",
+    "docs": "logic/basics",
+    "api": null,
+    "schemaDocs": null,
+    "instructions": "Build a rule that uses `JsonLogic.Variable(\"age\")` and returns `true` only when age is greater than 18 and less than 65, then apply it to the provided `data`.",
+    "contextCode": "using System.Text.Json.Nodes;\r\nusing Json.Logic;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n\r\n        /* USER CODE */\r\n\r\n        return null;\r\n    }\r\n}",
+    "tests": [
+      {
+        "data": {
+          "age": 30
+        },
+        "result": true
+      },
+      {
+        "data": {
+          "age": 15
+        },
+        "result": false
+      },
+      {
+        "data": {
+          "age": 65
+        },
+        "result": false
+      }
+    ],
+    "solution": "using System.Text.Json.Nodes;\r\nusing Json.Logic;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n\r\n        var rule = JsonLogic.And(\r\n            JsonLogic.MoreThan(JsonLogic.Variable(\"age\"), 18),\r\n            JsonLogic.LessThan(JsonLogic.Variable(\"age\"), 65)\r\n        );\r\n\r\n        return rule.Apply(data);\r\n\r\n        return null;\r\n    }\r\n}"
+  },
+  {
+    "id": "d1f4a7c3-8b2e-4d5f-a9c1-7e3b0d8f2a6c",
+    "skip": false,
+    "title": "Rule Deserialization",
+    "background": "Rules stored as JSON strings — in a database, config file, or API response — can be deserialized directly to a typed `Rule` using `System.Text.Json`. The library registers a `JsonConverter<Rule>` (`LogicComponentConverter`) that handles the conversion. A single-key JSON object is read as an operator rule; a multi-key object or primitive becomes a `LiteralRule`; a JSON array becomes a `RuleCollection`.\r\n\r\nOnce deserialized, the `Rule` is a first-class typed object you can evaluate with `rule.Apply(data)`, inspect, or serialize back to JSON. This makes it straightforward to load rules from any storage format and execute them in a strongly-typed context.",
+    "docs": "logic/basics",
+    "api": null,
+    "schemaDocs": null,
+    "instructions": "Deserialize `test[\"rule\"]` to a typed `Rule`, then apply it to `test[\"data\"]`.",
+    "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Logic;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var ruleJson = test[\"rule\"]!.ToJsonString();\r\n        var data = test[\"data\"];\r\n\r\n        /* USER CODE */\r\n\r\n        return null;\r\n    }\r\n}",
+    "tests": [
+      {
+        "rule": {
+          ">=": [
+            {
+              "var": "score"
+            },
+            50
+          ]
+        },
+        "data": {
+          "score": 75
+        },
+        "result": true
+      },
+      {
+        "rule": {
+          ">=": [
+            {
+              "var": "score"
+            },
+            50
+          ]
+        },
+        "data": {
+          "score": 30
+        },
+        "result": false
+      },
+      {
+        "rule": {
+          "var": "label"
+        },
+        "data": {
+          "label": "pass"
+        },
+        "result": "pass"
+      }
+    ],
+    "solution": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Logic;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var ruleJson = test[\"rule\"]!.ToJsonString();\r\n        var data = test[\"data\"];\r\n\r\n        var rule = JsonSerializer.Deserialize<Rule>(ruleJson)!;\r\n        return rule.Apply(data);\r\n\r\n        return null;\r\n    }\r\n}"
+  },
+  {
+    "id": "b5e2c8f1-3a9d-4b7e-8f2c-1d0a6b4e8c3f",
+    "skip": false,
+    "title": "Variable Paths and Fallbacks",
+    "background": "`JsonLogic.Variable(string path)` can read nested values using dot-delimited paths such as `\"profile.city\"`. When a path cannot be resolved, the rule returns `null`.\r\n\r\n`JsonLogic.Variable(string path, Rule defaultValue)` lets you provide a fallback value for missing paths. This is useful when input documents are incomplete and you want a predictable output instead of `null`.",
+    "docs": "logic/basics",
+    "api": null,
+    "schemaDocs": null,
+    "instructions": "Build a variable lookup rule for `profile.city` with a default of `\"unknown\"`, then apply it to the test data.",
+    "contextCode": "using System.Text.Json.Nodes;\r\nusing Json.Logic;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n\r\n        /* USER CODE */\r\n\r\n        return null;\r\n    }\r\n}",
+    "tests": [
+      {
+        "data": {
+          "profile": {
+            "city": "London"
+          }
+        },
+        "result": "London"
+      },
+      {
+        "data": {
+          "profile": {
+            "country": "UK"
+          }
+        },
+        "result": "unknown"
+      },
+      {
+        "data": {
+          "country": "UK"
+        },
+        "result": "unknown"
+      }
+    ],
+    "solution": "using System.Text.Json.Nodes;\r\nusing Json.Logic;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n\r\n        var rule = JsonLogic.Variable(\"profile.city\", \"unknown\");\r\n        return rule.Apply(data);\r\n\r\n        return null;\r\n    }\r\n}"
+  },
+  {
+    "id": "9c1e4b7f-2d8a-4c3e-b5f0-6a1d7e9b2c4f",
+    "skip": false,
+    "title": "Truthiness",
+    "background": "*JsonLogic* defines truthiness through the `IsTruthy()` extension method on `JsonNode?` (in the `Json.Logic` namespace). These rules drive the behavior of `And`, `Or`, `Not`, `If`, and other conditional operators throughout the library.\r\n\r\nThe falsey values are: `null`, `false`, `0`, `\"\"` (empty string), `[]` (empty array), and `{}` (empty object). The empty object being falsey is a difference from JavaScript that is worth noting when passing objects through conditional rules.",
+    "docs": "logic/basics",
+    "api": null,
+    "schemaDocs": null,
+    "instructions": "Return whether `test[\"value\"]` is truthy using the `IsTruthy()` extension method.",
+    "contextCode": "using System.Text.Json.Nodes;\r\nusing Json.Logic;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var value = test[\"value\"];\r\n\r\n        return /* USER CODE */;\r\n    }\r\n}",
+    "tests": [
+      {
+        "value": 0,
+        "result": false
+      },
+      {
+        "value": 1,
+        "result": true
+      },
+      {
+        "value": [],
+        "result": false
+      },
+      {
+        "value": {},
+        "result": false
+      }
+    ],
+    "solution": "using System.Text.Json.Nodes;\r\nusing Json.Logic;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var value = test[\"value\"];\r\n\r\n        return value.IsTruthy();\r\n    }\r\n}"
+  },
+  {
+    "id": "4f8d2a6c-1b5e-4a9d-8c3f-7e0b1d4f6a8c",
+    "skip": false,
+    "title": "Strict vs Loose Equality",
+    "background": "*JsonLogic* provides two equality modes. `JsonLogic.StrictEquals` (the `===` operator) compares by both type and value: the number `1` and the string `\"1\"` are not equal. `JsonLogic.LooseEquals` (the `==` operator) coerces values through `Numberify` before comparing: `\"1\"` is parsed as `1`, making them equal.\r\n\r\nChoosing the wrong mode is a common source of integration bugs. Strict equality is the safer default when you control the data shape. Loose equality is useful when rules may receive mixed types from external sources — for example, form fields that arrive as strings — and numeric equivalence is the intended comparison.",
+    "docs": "logic/basics",
+    "api": null,
+    "schemaDocs": null,
+    "instructions": "Build an equality rule that uses strict comparison when `test[\"strict\"]` is `true` and loose comparison otherwise, using `a` and `b` from the test. Apply it with no data.",
+    "contextCode": "using System.Text.Json.Nodes;\r\nusing Json.Logic;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var a = test[\"a\"];\r\n        var b = test[\"b\"];\r\n        var strict = test[\"strict\"]!.GetValue<bool>();\r\n\r\n        /* USER CODE */\r\n\r\n        return null;\r\n    }\r\n}",
+    "tests": [
+      {
+        "a": 1,
+        "b": 1,
+        "strict": true,
+        "result": true
+      },
+      {
+        "a": 1,
+        "b": "1",
+        "strict": true,
+        "result": false
+      },
+      {
+        "a": 1,
+        "b": "1",
+        "strict": false,
+        "result": true
+      }
+    ],
+    "solution": "using System.Text.Json.Nodes;\r\nusing Json.Logic;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var a = test[\"a\"];\r\n        var b = test[\"b\"];\r\n        var strict = test[\"strict\"]!.GetValue<bool>();\r\n\r\n        Rule rule = strict\r\n            ? JsonLogic.StrictEquals(a, b)\r\n            : JsonLogic.LooseEquals(a, b);\r\n\r\n        return rule.Apply();\r\n\r\n        return null;\r\n    }\r\n}"
+  },
+  {
+    "id": "7b3f9c1e-5a2d-4b8f-9e1c-3d6a0f7b2e5c",
+    "skip": false,
+    "title": "Numeric Coercion",
+    "background": "The arithmetic operators in *JsonLogic* — `Add`, `Subtract`, `Multiply`, `Divide`, `Modulus`, `Max`, and `Min` — pass each operand through a `Numberify()` conversion before computing. `Numberify` converts: `true` → `1`, `false` → `0`, `null` → `0`, parseable numeric strings like `\"3\"` → `3`, and non-parseable strings → `null` (which short-circuits the result to `null`).\r\n\r\nThis means that rules operating on data from external sources — where a field might be `\"5\"` or `5` depending on the sender — produce consistent arithmetic results without requiring the caller to normalize types in advance.",
+    "docs": "logic/basics",
+    "api": null,
+    "schemaDocs": null,
+    "instructions": "Build a numeric rule that sums `test[\"a\"]` and `test[\"b\"]`, then return the result of `rule.Apply()`.",
+    "contextCode": "using System.Text.Json.Nodes;\r\nusing Json.Logic;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var a = test[\"a\"];\r\n        var b = test[\"b\"];\r\n\r\n        /* USER CODE */\r\n\r\n        return null;\r\n    }\r\n}",
+    "tests": [
+      {
+        "a": 2,
+        "b": 3,
+        "result": 5
+      },
+      {
+        "a": "3",
+        "b": 2,
+        "result": 5
+      },
+      {
+        "a": true,
+        "b": 4,
+        "result": 5
+      }
+    ],
+    "solution": "using System.Text.Json.Nodes;\r\nusing Json.Logic;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var a = test[\"a\"];\r\n        var b = test[\"b\"];\r\n\r\n        var rule = JsonLogic.Add(a, b);\r\n        return rule.Apply();\r\n\r\n        return null;\r\n    }\r\n}"
+  },
+  {
+    "id": "5d9a1e4c-2f7b-4d3a-8e6c-0b3f5c9a1d7e",
+    "skip": false,
+    "title": "Rule Tree Serialization",
+    "background": "Every typed `Rule` built with the *JsonLogic* factory methods supports round-trip serialization. The `LogicComponentConverter` registered on `Rule` writes it back to its original operator-and-arguments JSON form. Deserializing that JSON with `JsonSerializer.Deserialize<Rule>()` reconstructs an equivalent rule that evaluates identically.\r\n\r\nThis makes typed rules suitable for storage, caching, and transport. You can build a rule in C#, serialize it to a string, store it, load it back, and evaluate it — all without losing fidelity. The same `System.Text.Json` options apply throughout, so no extra configuration is needed.",
+    "docs": "logic/basics",
+    "api": null,
+    "schemaDocs": null,
+    "instructions": "Serialize `rule` to JSON, deserialize it back to a typed `Rule`, then apply the deserialized rule to `test[\"data\"]`.",
+    "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Logic;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n\r\n        var rule = JsonLogic.Variable(\"value\");\r\n\r\n        /* USER CODE */\r\n\r\n        return null;\r\n    }\r\n}",
+    "tests": [
+      {
+        "data": {
+          "value": 42
+        },
+        "result": 42
+      },
+      {
+        "data": {
+          "value": "hello"
+        },
+        "result": "hello"
+      }
+    ],
+    "solution": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Logic;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var data = test[\"data\"];\r\n\r\n        var rule = JsonLogic.Variable(\"value\");\r\n\r\n        var json = JsonSerializer.Serialize(rule);\r\n        var deserialized = JsonSerializer.Deserialize<Rule>(json)!;\r\n        return deserialized.Apply(data);\r\n\r\n        return null;\r\n    }\r\n}"
+  },
+  {
+    "id": "8a2c6f0e-4b9d-4a1e-b7c3-2f5d0b8c4a6f",
+    "skip": false,
+    "title": "Unknown Operator Behavior",
+    "background": "The two evaluation paths in *JsonLogic* handle unknown operators differently. The model-less path — `JsonLogic.Apply(JsonNode? rule, ...)` — silently returns the original rule node unchanged when no handler is registered for the operator. The typed deserialization path — `JsonSerializer.Deserialize<Rule>(...)` — throws a `JsonException` immediately at deserialization time because the converter cannot map the operator string to a registered `Rule` type.\r\n\r\nThis distinction matters when building integration code that accepts rules from external sources. The typed path fails fast and is straightforward to reason about; the model-less path is permissive and requires you to inspect the result if you need to detect unrecognized operators.",
+    "docs": "logic/basics",
+    "api": null,
+    "schemaDocs": null,
+    "instructions": "Try to deserialize `test[\"rule\"]` as a `Rule` and apply it to `test[\"data\"]`. Catch `JsonException` and return `null` if the operator is unknown.",
+    "contextCode": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Logic;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var ruleJson = test[\"rule\"]!.ToJsonString();\r\n        var data = test[\"data\"];\r\n\r\n        /* USER CODE */\r\n\r\n        return null;\r\n    }\r\n}",
+    "tests": [
+      {
+        "rule": {
+          "==": [
+            {
+              "var": "x"
+            },
+            5
+          ]
+        },
+        "data": {
+          "x": 5
+        },
+        "result": true
+      },
+      {
+        "rule": {
+          "unknown-op": [
+            1,
+            2
+          ]
+        },
+        "data": {},
+        "result": null
+      }
+    ],
+    "solution": "using System.Text.Json;\r\nusing System.Text.Json.Nodes;\r\nusing Json.Logic;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var ruleJson = test[\"rule\"]!.ToJsonString();\r\n        var data = test[\"data\"];\r\n\r\n        try\r\n        {\r\n            var rule = JsonSerializer.Deserialize<Rule>(ruleJson)!;\r\n            return rule.Apply(data);\r\n        }\r\n        catch (JsonException)\r\n        {\r\n            return null;\r\n        }\r\n\r\n        return null;\r\n    }\r\n}"
+  },
+  {
+    "id": "3f7b4d9a-1c8e-4f2b-9d5a-6c0e3b7f1d4a",
+    "skip": false,
+    "title": "Custom Operators",
+    "background": "*JsonLogic* lets you add new operators by implementing the `IRule` interface — a single `Apply(JsonNode? args, EvaluationContext context)` method — and registering an instance with `RuleRegistry.AddRule(string op, IRule rule)`. Once registered, any evaluation that encounters that operator name will dispatch to your handler.\r\n\r\nInside the handler, `args` is the raw JSON argument from the rule. You can call `JsonLogic.Apply(args, context)` to evaluate it recursively, which allows your operator to accept nested rules as arguments just like the built-in operators do.",
+    "docs": "logic/basics",
+    "api": null,
+    "schemaDocs": null,
+    "instructions": "Implement an `IRule` handler for a `\"double\"` operator that multiplies its evaluated argument by 2, then register it in the rule registry before evaluation.",
+    "contextCode": "using System.Text.Json.Nodes;\r\nusing Json.Logic;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var rule = test[\"rule\"];\r\n        var data = test[\"data\"];\r\n\r\n        /* USER CODE */\r\n\r\n        return JsonLogic.Apply(rule, data);\r\n    }\r\n}\r\n\r\ninternal class DoubleRule : IRule\r\n{\r\n    public JsonNode? Apply(JsonNode? args, EvaluationContext context)\r\n    {\r\n        var value = JsonLogic.Apply(args, context);\r\n        var number = value.Numberify();\r\n        if (number == null) return null;\r\n        return number.Value * 2;\r\n    }\r\n}",
+    "tests": [
+      {
+        "rule": {
+          "double": 5
+        },
+        "data": null,
+        "result": 10
+      },
+      {
+        "rule": {
+          "double": {
+            "var": "x"
+          }
+        },
+        "data": {
+          "x": 3
+        },
+        "result": 6
+      }
+    ],
+    "solution": "using System.Text.Json.Nodes;\r\nusing Json.Logic;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var rule = test[\"rule\"];\r\n        var data = test[\"data\"];\r\n\r\n        RuleRegistry.AddRule(\"double\", new DoubleRule());\r\n\r\n        return JsonLogic.Apply(rule, data);\r\n    }\r\n}\r\n\r\ninternal class DoubleRule : IRule\r\n{\r\n    public JsonNode? Apply(JsonNode? args, EvaluationContext context)\r\n    {\r\n        var value = JsonLogic.Apply(args, context);\r\n        var number = value.Numberify();\r\n        if (number == null) return null;\r\n        return number.Value * 2;\r\n    }\r\n}"
+  }
+]

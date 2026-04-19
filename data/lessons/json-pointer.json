@@ -1,0 +1,226 @@
+[
+	{
+		"id": "8f64d871-98a6-4f2c-8353-7e1a9fc67796",
+		"skip": false,
+		"title": "Parse a JSON Pointer String",
+		"background": "JSON Pointer values are usually received as text from configuration, API input, or document metadata. The first practical step in most workflows is turning that text into a `JsonPointer` value you can pass to evaluation or composition APIs.\n\nIn this lesson, you will parse incoming pointer text and inspect a simple property (`SegmentCount`) to confirm the pointer was constructed correctly. This establishes the parse-first workflow used throughout the rest of the pointer lessons.",
+		"docs": "pointer/basics",
+		"api": "api/JsonPointer.Net/JsonPointer/",
+		"schemaDocs": null,
+		"instructions": "Parse `pointerText` into `pointer` and return `pointer.SegmentCount`.",
+		"contextCode": "using System.Text.Json.Nodes;\nusing Json.Pointer;\n\nnamespace LearnJsonEverything;\n\npublic class Lesson : ILessonRunner<JsonNode?>\n{\n    public JsonNode? Run(JsonObject test)\n    {\n        var pointerText = test[\"pointer\"]!.GetValue<string>();\n\n        /* USER CODE */\n\n        return JsonValue.Create(pointer.SegmentCount);\n    }\n}",
+		"tests": [
+			{
+				"pointer": "/customer/name",
+				"result": 2
+			},
+			{
+				"pointer": "",
+				"result": 0
+			},
+			{
+				"pointer": "/orders/0/id",
+				"result": 3
+			},
+			{
+				"pointer": "#/orders/0/id",
+				"result": 3
+			},
+			{
+				"pointer": "/meta/~0flags",
+				"result": 2
+			}
+		],
+		"solution": "using System.Text.Json.Nodes;\nusing Json.Pointer;\n\nnamespace LearnJsonEverything;\n\npublic class Lesson : ILessonRunner<JsonNode?>\n{\n    public JsonNode? Run(JsonObject test)\n    {\n        var pointerText = test[\"pointer\"]!.GetValue<string>();\n\n        var pointer = JsonPointer.Parse(pointerText);\n\n        return JsonValue.Create(pointer.SegmentCount);\n    }\n}"
+	},
+	{
+		"id": "415de0e3-1d24-4c4b-bd88-1a3f381e688f",
+		"skip": false,
+		"title": "Parse Safely with TryParse",
+		"background": "`JsonPointer.Parse(...)` is the direct path when input is trusted, but user-supplied pointers are often invalid. In those scenarios, exception-driven control flow creates noisy code and makes input validation harder to read.\n\n`JsonPointer.TryParse(...)` lets you validate and parse in one step while keeping branching explicit. This lesson focuses on using that safe parse workflow and returning structured output that reflects parse success.",
+		"docs": "pointer/basics",
+		"api": "api/JsonPointer.Net/JsonPointer/",
+		"schemaDocs": null,
+		"instructions": "Use `JsonPointer.TryParse(...)` to populate `parsed` and `pointer`.",
+		"contextCode": "using System.Text.Json.Nodes;\nusing Json.Pointer;\n\nnamespace LearnJsonEverything;\n\npublic class Lesson : ILessonRunner<JsonNode?>\n{\n    public JsonNode? Run(JsonObject test)\n    {\n        var pointerText = test[\"pointer\"]!.GetValue<string>();\n\n        /* USER CODE */\n\n        return new JsonObject\n        {\n            [\"parsed\"] = parsed,\n            [\"segmentCount\"] = parsed ? pointer.SegmentCount : null\n        };\n    }\n}",
+		"tests": [
+			{
+				"pointer": "/orders/0/id",
+				"result": {
+					"parsed": true,
+					"segmentCount": 3
+				}
+			},
+			{
+				"pointer": "orders/0/id",
+				"result": {
+					"parsed": false,
+					"segmentCount": null
+				}
+			},
+			{
+				"pointer": "/meta/~2flags",
+				"result": {
+					"parsed": false,
+					"segmentCount": null
+				}
+			}
+		],
+		"solution": "using System.Text.Json.Nodes;\nusing Json.Pointer;\n\nnamespace LearnJsonEverything;\n\npublic class Lesson : ILessonRunner<JsonNode?>\n{\n    public JsonNode? Run(JsonObject test)\n    {\n        var pointerText = test[\"pointer\"]!.GetValue<string>();\n\n        var parsed = JsonPointer.TryParse(pointerText, out var pointer);\n\n        return new JsonObject\n        {\n            [\"parsed\"] = parsed,\n            [\"segmentCount\"] = parsed ? pointer.SegmentCount : null\n        };\n    }\n}"
+	},
+	{
+		"id": "ca2f7fc8-1f7e-4eca-b5c3-e2f2d8f053fc",
+		"skip": false,
+		"title": "Evaluate on JsonNode",
+		"background": "When your application already uses `JsonNode`, the most direct pointer workflow is `TryEvaluate(JsonNode?, out JsonNode?)`. This API returns whether the path was found and exposes the matched node separately.\n\nIn this lesson, the pointer and document are provided. Your task is to call `TryEvaluate` and return the matched value when available.",
+		"docs": "pointer/basics",
+		"api": "api/JsonPointer.Net/JsonPointer/",
+		"schemaDocs": null,
+		"instructions": "Use `TryEvaluate(...)` to set `found` and `value`, then return `value` only when `found` is true.",
+		"contextCode": "using System.Text.Json.Nodes;\nusing Json.Pointer;\n\nnamespace LearnJsonEverything;\n\npublic class Lesson : ILessonRunner<JsonNode?>\n{\n    public JsonNode? Run(JsonObject test)\n    {\n        var document = test[\"document\"];\n        var pointer = JsonPointer.Parse(test[\"pointer\"]!.GetValue<string>());\n\n        var found = false;\n        JsonNode? value = null;\n\n        /* USER CODE */\n\n        return found ? value : null;\n    }\n}",
+		"tests": [
+			{
+				"document": {
+					"customer": {
+						"name": "Ada"
+					}
+				},
+				"pointer": "/customer/name",
+				"result": "Ada"
+			},
+			{
+				"document": {
+					"customer": {
+						"name": "Ada"
+					}
+				},
+				"pointer": "/customer/id",
+				"result": null
+			}
+		],
+		"solution": "using System.Text.Json.Nodes;\nusing Json.Pointer;\n\nnamespace LearnJsonEverything;\n\npublic class Lesson : ILessonRunner<JsonNode?>\n{\n    public JsonNode? Run(JsonObject test)\n    {\n        var document = test[\"document\"];\n        var pointer = JsonPointer.Parse(test[\"pointer\"]!.GetValue<string>());\n\n        var found = false;\n        JsonNode? value = null;\n\n        found = pointer.TryEvaluate(document, out value);\n\n        return found ? value : null;\n    }\n}"
+	},
+	{
+		"id": "46275781-e5f9-435f-8df7-f1e97733f8ca",
+		"skip": false,
+		"title": "Distinguish Missing Path vs Found Null (JsonNode)",
+		"background": "With `JsonNode`, a missing path and a found JSON `null` both involve null-like values, but they are not the same outcome. `TryEvaluate(...)` separates these cases through its `bool` return and `out` node result.\n\nThat distinction is important when business logic treats absent data differently from explicit null values. This lesson focuses on preserving that information in the returned shape.",
+		"docs": "pointer/basics",
+		"api": "api/JsonPointer.Net/JsonPointer/",
+		"schemaDocs": null,
+		"instructions": "Call `TryEvaluate(...)` and return `{ found, value }` so missing and null results remain distinguishable.",
+		"contextCode": "using System.Text.Json.Nodes;\nusing Json.Pointer;\n\nnamespace LearnJsonEverything;\n\npublic class Lesson : ILessonRunner<JsonNode?>\n{\n    public JsonNode? Run(JsonObject test)\n    {\n        var document = test[\"document\"];\n        var pointer = JsonPointer.Parse(test[\"pointer\"]!.GetValue<string>());\n\n        var found = false;\n        JsonNode? value = null;\n\n        /* USER CODE */\n\n        return new JsonObject\n        {\n            [\"found\"] = found,\n            [\"value\"] = value\n        };\n    }\n}",
+		"tests": [
+			{
+				"document": {
+					"a": null
+				},
+				"pointer": "/a",
+				"result": {
+					"found": true,
+					"value": null
+				}
+			},
+			{
+				"document": {
+					"b": 1
+				},
+				"pointer": "/a",
+				"result": {
+					"found": false,
+					"value": null
+				}
+			},
+			{
+				"document": {
+					"a": 42
+				},
+				"pointer": "/a",
+				"result": {
+					"found": true,
+					"value": 42
+				}
+			}
+		],
+		"solution": "using System.Text.Json.Nodes;\nusing Json.Pointer;\n\nnamespace LearnJsonEverything;\n\npublic class Lesson : ILessonRunner<JsonNode?>\n{\n    public JsonNode? Run(JsonObject test)\n    {\n        var document = test[\"document\"];\n        var pointer = JsonPointer.Parse(test[\"pointer\"]!.GetValue<string>());\n\n        var found = false;\n        JsonNode? value = null;\n\n        found = pointer.TryEvaluate(document, out value);\n\n        return new JsonObject\n        {\n            [\"found\"] = found,\n            [\"value\"] = value\n        };\n    }\n}"
+	},
+	{
+		"id": "2054c440-e08e-4948-b173-72e11eaf38be",
+		"skip": false,
+		"title": "Evaluate on JsonElement",
+		"background": "Many code paths process JSON through `JsonDocument` and `JsonElement` for lower allocation overhead and immutability. `JsonPointer.Evaluate(JsonElement)` supports this workflow directly and returns a nullable `JsonElement`.\n\nIn this lesson, you will evaluate a pointer against a `JsonElement` document and return the matched value as `JsonNode` for test comparison.",
+		"docs": "pointer/basics",
+		"api": "api/JsonPointer.Net/JsonPointer/",
+		"schemaDocs": null,
+		"instructions": "Use `Evaluate(JsonElement)` to set `result`, then return it as JSON when found.",
+		"contextCode": "using System.Text.Json;\nusing System.Text.Json.Nodes;\nusing Json.Pointer;\n\nnamespace LearnJsonEverything;\n\npublic class Lesson : ILessonRunner<JsonNode?>\n{\n    public JsonNode? Run(JsonObject test)\n    {\n        var document = test[\"document\"]!.Deserialize<JsonElement>();\n        var pointer = JsonPointer.Parse(test[\"pointer\"]!.GetValue<string>());\n\n        JsonElement? result = null;\n\n        /* USER CODE */\n\n        if (result is null) return null;\n\n        return JsonSerializer.SerializeToNode(result.Value);\n    }\n}",
+		"tests": [
+			{
+				"document": {
+					"customer": {
+						"name": "Ada"
+					}
+				},
+				"pointer": "/customer/name",
+				"result": "Ada"
+			},
+			{
+				"document": {
+					"customer": {
+						"name": "Ada"
+					}
+				},
+				"pointer": "/customer/id",
+				"result": null
+			}
+		],
+		"solution": "using System.Text.Json;\nusing System.Text.Json.Nodes;\nusing Json.Pointer;\n\nnamespace LearnJsonEverything;\n\npublic class Lesson : ILessonRunner<JsonNode?>\n{\n    public JsonNode? Run(JsonObject test)\n    {\n        var document = test[\"document\"]!.Deserialize<JsonElement>();\n        var pointer = JsonPointer.Parse(test[\"pointer\"]!.GetValue<string>());\n\n        JsonElement? result = null;\n\n        result = pointer.Evaluate(document);\n\n        if (result is null) return null;\n\n        return JsonSerializer.SerializeToNode(result.Value);\n    }\n}"
+	},
+	{
+		"id": "6f11fd30-ab56-4da8-90c7-a35306cca5ea",
+		"skip": false,
+		"title": "Distinguish Missing Path vs Found Null (JsonElement)",
+		"background": "`Evaluate(JsonElement)` returns `JsonElement?`, so a missing path appears as a null nullable value. A found JSON `null` is different: it is a present `JsonElement` whose `ValueKind` is `Null`.\n\nWhen your application distinguishes absent data from explicit nulls, that difference must be preserved. This lesson focuses on returning both presence and null-kind information.",
+		"docs": "pointer/basics",
+		"api": "api/JsonPointer.Net/JsonPointer/",
+		"schemaDocs": null,
+		"instructions": "Evaluate the pointer, then return `{ found, isJsonNull, value }` using `JsonElement?` semantics.",
+		"contextCode": "using System.Text.Json;\nusing System.Text.Json.Nodes;\nusing Json.Pointer;\n\nnamespace LearnJsonEverything;\n\npublic class Lesson : ILessonRunner<JsonNode?>\n{\n    public JsonNode? Run(JsonObject test)\n    {\n        var document = test[\"document\"]!.Deserialize<JsonElement>();\n        var pointer = JsonPointer.Parse(test[\"pointer\"]!.GetValue<string>());\n\n        JsonElement? result = null;\n\n        /* USER CODE */\n\n        return new JsonObject\n        {\n            [\"found\"] = result is not null,\n            [\"isJsonNull\"] = result is not null && result.Value.ValueKind == JsonValueKind.Null,\n            [\"value\"] = result is null ? null : JsonSerializer.SerializeToNode(result.Value)\n        };\n    }\n}",
+		"tests": [
+			{
+				"document": {
+					"a": null
+				},
+				"pointer": "/a",
+				"result": {
+					"found": true,
+					"isJsonNull": true,
+					"value": null
+				}
+			},
+			{
+				"document": {
+					"b": 1
+				},
+				"pointer": "/a",
+				"result": {
+					"found": false,
+					"isJsonNull": false,
+					"value": null
+				}
+			},
+			{
+				"document": {
+					"a": 42
+				},
+				"pointer": "/a",
+				"result": {
+					"found": true,
+					"isJsonNull": false,
+					"value": 42
+				}
+			}
+		],
+		"solution": "using System.Text.Json;\nusing System.Text.Json.Nodes;\nusing Json.Pointer;\n\nnamespace LearnJsonEverything;\n\npublic class Lesson : ILessonRunner<JsonNode?>\n{\n    public JsonNode? Run(JsonObject test)\n    {\n        var document = test[\"document\"]!.Deserialize<JsonElement>();\n        var pointer = JsonPointer.Parse(test[\"pointer\"]!.GetValue<string>());\n\n        JsonElement? result = null;\n\n        result = pointer.Evaluate(document);\n\n        return new JsonObject\n        {\n            [\"found\"] = result is not null,\n            [\"isJsonNull\"] = result is not null && result.Value.ValueKind == JsonValueKind.Null,\n            [\"value\"] = result is null ? null : JsonSerializer.SerializeToNode(result.Value)\n        };\n    }\n}"
+	}
+]
