@@ -3,45 +3,49 @@
     "id": "391f6512-f9f2-47be-94f8-315788b76638",
     "skip": false,
     "title": "Basic Evaluate Call",
-    "background": "Most application code uses JsonE.Net through a single method call: `JsonE.Evaluate(template, context)`. You provide the template as a `JsonNode` and the context as another JSON value, and the library returns the evaluated output as `JsonNode?`.\r\n\r\nThis lesson focuses on wiring that call correctly. The objective is not to design template syntax, but to execute an evaluation from C# and return the library result unchanged.",
+    "background": "JsonE.Net can evaluate templates with a single call to `JsonE.Evaluate(template)`. This is the simplest integration path and keeps calling code minimal.\r\n\r\nThis lesson focuses on wiring that basic evaluation call and returning the library result unchanged.",
     "docs": "/json-e/basics",
     "api": null,
     "schemaDocs": null,
-    "instructions": "Evaluate the template against the provided context using the library evaluation API, and return the result.",
-    "contextCode": "using System.Text.Json.Nodes;\r\nusing Json.JsonE;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var template = test[\"template\"];\r\n        var context = test[\"context\"];\r\n\r\n        return /* USER CODE */;\r\n    }\r\n}",
+    "instructions": "Evaluate the provided template using the library API and return the result.",
+    "contextCode": "using System.Text.Json.Nodes;\r\nusing Json.JsonE;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var template = test[\"template\"];\r\n\r\n        return /* USER CODE */;\r\n    }\r\n}",
     "tests": [
       {
         "template": {
-          "message": "hello ${key}"
-        },
-        "context": {
-          "key": "world"
+          "hello": "world"
         },
         "result": {
-          "message": "hello world"
+          "hello": "world"
         }
       },
       {
         "template": {
-          "value": 5
+          "items": [
+            1,
+            2,
+            3
+          ]
         },
-        "context": {},
         "result": {
-          "value": 5
+          "items": [
+            1,
+            2,
+            3
+          ]
         }
       }
     ],
-    "solution": "using System.Text.Json.Nodes;\r\nusing Json.JsonE;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var template = test[\"template\"];\r\n        var context = test[\"context\"];\r\n\r\n        return JsonE.Evaluate(template, context);\r\n    }\r\n}"
+    "solution": "using System.Text.Json.Nodes;\r\nusing Json.JsonE;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var template = test[\"template\"];\r\n\r\n        return JsonE.Evaluate(template);\r\n    }\r\n}"
   },
   {
     "id": "593ab361-8be4-4a16-9f2a-be9992f0c3da",
     "skip": false,
-    "title": "Context Fallback",
-    "background": "In production code, input data may not always include a usable context object. JsonE.Net accepts an empty object context, so a common integration pattern is to normalize a missing or null context to `new JsonObject()` before evaluating.\r\n\r\nThis keeps your wrapper predictable and avoids propagating input-shape assumptions throughout your app. The lesson focuses on context preparation in C#, not template design.",
+    "title": "Evaluate With Context",
+    "background": "When templates reference symbols, pass a context object to supply those values. JsonE.Net accepts context as a `JsonNode`, so the usual integration pattern is `JsonE.Evaluate(template, context)`.\r\n\r\nThis lesson introduces context-aware evaluation by wiring the provided context into the call.",
     "docs": "/json-e/basics",
     "api": null,
     "schemaDocs": null,
-    "instructions": "Use an empty `JsonObject` when `test[\"context\"]` is null, then evaluate the template.",
+    "instructions": "Evaluate the template using the provided context object and return the result.",
     "contextCode": "using System.Text.Json.Nodes;\r\nusing Json.JsonE;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var template = test[\"template\"];\r\n\r\n        /* USER CODE */\r\n\r\n        return null;\r\n    }\r\n}",
     "tests": [
       {
@@ -55,49 +59,21 @@
       },
       {
         "template": {
-          "ok": true
+          "$eval": "name"
         },
-        "context": null,
-        "result": {
-          "ok": true
-        }
+        "context": {
+          "name": "json-e"
+        },
+        "result": "json-e"
       }
     ],
-    "solution": "using System.Text.Json.Nodes;\r\nusing Json.JsonE;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var template = test[\"template\"];\r\n\r\n        var context = test[\"context\"] as JsonObject ?? new JsonObject();\r\n\r\n        return JsonE.Evaluate(template, context);\r\n    }\r\n}"
-  },
-  {
-    "id": "135d89b9-c35d-4320-a92f-cb1c313a8438",
-    "skip": false,
-    "title": "Built-in Function Invocation",
-    "background": "JsonE.Net exposes built-in functions through expression evaluation. From C#, you invoke them by passing a template expression to `JsonE.Evaluate`, then supplying the required symbols in context.\r\n\r\nThis lesson practices constructing an expression string for a built-in function call. The library skill is building the template input for evaluation, then returning the evaluated `JsonNode`.",
-    "docs": "/json-e/basics/#built-in-functions",
-    "api": null,
-    "schemaDocs": null,
-    "instructions": "Set the `$eval` expression so evaluation returns the greater value of `x` and `y`.",
-    "contextCode": "using System.Text.Json.Nodes;\r\nusing Json.JsonE;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var context = test[\"context\"];\r\n\r\n        var template = new JsonObject\r\n        {\r\n            [\"$eval\"] = \"/* USER CODE */\"\r\n        };\r\n\r\n        return JsonE.Evaluate(template, context);\r\n    }\r\n}",
-    "tests": [
-      {
-        "context": {
-          "x": 5,
-          "y": 1
-        },
-        "result": 5
-      },
-      {
-        "context": {
-          "x": 5,
-          "y": 15
-        },
-        "result": 15
-      }
-    ],
-    "solution": "using System.Text.Json.Nodes;\r\nusing Json.JsonE;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var context = test[\"context\"];\r\n\r\n        var template = new JsonObject\r\n        {\r\n            [\"$eval\"] = \"max(x, y)\"\r\n        };\r\n\r\n        return JsonE.Evaluate(template, context);\r\n    }\r\n}"
+    "solution": "using System.Text.Json.Nodes;\r\nusing Json.JsonE;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var template = test[\"template\"];\r\n\r\n        var context = test[\"context\"];\r\n        return JsonE.Evaluate(template, context);\r\n\r\n        return null;\r\n    }\r\n}"
   },
   {
     "id": "6a83a410-4f60-4f10-90a7-94be921e4daa",
     "skip": false,
     "title": "Custom Function Registration",
-    "background": "When built-ins are not enough, JsonE.Net lets you register custom functions by adding `JsonFunction` values to the context object. The function can then be called from expressions evaluated by `JsonE.Evaluate`.\r\n\r\nThis lesson focuses on adding a function to context before evaluation. You are exercising the `JsonFunction.Create(...)` extension point from C# code.",
+    "background": "JsonE.Net includes built-in functions for common operations. When those built-ins are not enough, you can register custom functions by adding `JsonFunction` values to the context object. The function can then be called from expressions evaluated by `JsonE.Evaluate`.\r\n\r\nCustom functions receive arguments as `JsonNode?[]`, which gives you direct access to JSON values passed from expressions. This lesson focuses on adding a function to context before evaluation. You are exercising the `JsonFunction.Create(...)` extension point from C# code.",
     "docs": "/json-e/basics/#custom-functions",
     "api": null,
     "schemaDocs": null,
@@ -125,7 +101,7 @@
         "result": 2
       }
     ],
-    "solution": "using System.Text.Json.Nodes;\r\nusing Json.JsonE;\r\nusing Json.More;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var template = test[\"template\"];\r\n        var context = test[\"context\"]!.AsObject();\r\n\r\n        context[\"mod\"] = JsonFunction.Create((parameters, _) =>\r\n            parameters[0]!.AsValue().GetNumber() % parameters[1]!.AsValue().GetNumber()\r\n        );\r\n\r\n        return JsonE.Evaluate(template, context);\r\n    }\r\n}"
+    "solution": "using System.Text.Json.Nodes;\r\nusing Json.JsonE;\r\nusing Json.More;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var template = test[\"template\"];\r\n        var context = test[\"context\"]!.AsObject();\r\n\r\n        context[\"mod\"] = JsonFunction.Create((parameters, _) =>\r\n        {\r\n            var x = parameters[0]!.AsValue().GetNumber();\r\n            var y = parameters[1]!.AsValue().GetNumber();\r\n\r\n            return x % y;\r\n        });\r\n\r\n        return JsonE.Evaluate(template, context);\r\n    }\r\n}"
   },
   {
     "id": "beb27217-989d-42bd-9b22-bedba0582373",
@@ -165,7 +141,7 @@
     "id": "a93790fa-f6df-4b53-ae7a-c0b48fa7e211",
     "skip": false,
     "title": "EvaluationContext Access",
-    "background": "JsonE.Net passes an `EvaluationContext` into custom functions. This lets a function inspect currently available symbols without hard-coding every value into its argument list.\r\n\r\nIn this lesson, you will use context-aware behavior through `IsDefined(...)`. The goal is to practice the library extension point, not to teach template operators.",
+    "background": "JsonE.Net also passes an `EvaluationContext` into custom functions. This lets a function inspect currently available symbols without hard-coding every value into its argument list.\r\n\r\nIn this lesson, you will use context-aware behavior through `IsDefined(...)`. The goal is to practice the library extension point, not to teach template operators.",
     "docs": "/json-e/basics/#custom-functions",
     "api": null,
     "schemaDocs": null,
@@ -197,11 +173,11 @@
     "id": "d97e48ee-9751-4be4-991c-f2ea19ebfa35",
     "skip": false,
     "title": "Deterministic Time Context",
-    "background": "Some JsonE evaluations depend on current time. In app code and tests, deterministic behavior is important, so a common approach is to inject a fixed `now` value into context before calling `JsonE.Evaluate`.\r\n\r\nThis lesson practices controlling time-sensitive behavior at the library integration layer. You will add `now` only when it is missing.",
+    "background": "Some JsonE evaluations depend on current time. `EvaluationContext` includes a default `now` value internally, based on the current clock.\r\n\r\nFor deterministic behavior in tests and repeatable workflows, set a fixed `now` in the context you pass to evaluation.",
     "docs": "/json-e/basics",
     "api": null,
     "schemaDocs": null,
-    "instructions": "If `now` is missing from context, add it from `test[\"now\"]` before evaluation.",
+    "instructions": "Set `context[\"now\"]` from `test[\"now\"]` before evaluation.",
     "contextCode": "using System.Text.Json.Nodes;\r\nusing Json.JsonE;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var template = test[\"template\"];\r\n        var context = test[\"context\"]!.AsObject();\r\n\r\n        /* USER CODE */\r\n\r\n        return JsonE.Evaluate(template, context);\r\n    }\r\n}",
     "tests": [
       {
@@ -217,116 +193,12 @@
           "$eval": "fromNow('1 day')"
         },
         "context": {
-          "now": "2020-02-01T00:00:00Z"
+          "region": "UTC"
         },
         "now": "2020-01-01T00:00:00Z",
-        "result": "2020-02-02T00:00:00Z"
+        "result": "2020-01-02T00:00:00Z"
       }
     ],
-    "solution": "using System.Text.Json.Nodes;\r\nusing Json.JsonE;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var template = test[\"template\"];\r\n        var context = test[\"context\"]!.AsObject();\r\n\r\n        if (!context.ContainsKey(\"now\"))\r\n            context[\"now\"] = test[\"now\"]!.DeepClone();\r\n\r\n        return JsonE.Evaluate(template, context);\r\n    }\r\n}"
-  },
-  {
-    "id": "48a65656-ecea-44de-8c0d-8feffa2d7b68",
-    "skip": false,
-    "title": "Reusable Evaluation Method",
-    "background": "Applications often centralize JsonE evaluation behind a small helper method so context normalization and invocation rules are in one place. This keeps call sites simple and consistent.\r\n\r\nThis lesson focuses on implementing that helper pattern in C#. You will call a private method that wraps `JsonE.Evaluate`.",
-    "docs": "/json-e/basics",
-    "api": null,
-    "schemaDocs": null,
-    "instructions": "Implement `EvaluateTemplate` so it normalizes null context to an empty object, then use it from `Run`.",
-    "contextCode": "using System.Text.Json.Nodes;\r\nusing Json.JsonE;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    private static JsonNode? EvaluateTemplate(JsonNode? template, JsonNode? context)\r\n    {\r\n        return /* USER CODE */;\r\n    }\r\n\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        return EvaluateTemplate(test[\"template\"], test[\"context\"]);\r\n    }\r\n}",
-    "tests": [
-      {
-        "template": {
-          "$eval": "name"
-        },
-        "context": {
-          "name": "json-everything"
-        },
-        "result": "json-everything"
-      },
-      {
-        "template": {
-          "ok": true
-        },
-        "context": null,
-        "result": {
-          "ok": true
-        }
-      }
-    ],
-    "solution": "using System.Text.Json.Nodes;\r\nusing Json.JsonE;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    private static JsonNode? EvaluateTemplate(JsonNode? template, JsonNode? context)\r\n    {\r\n        return JsonE.Evaluate(template, context as JsonObject ?? new JsonObject());\r\n    }\r\n\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        return EvaluateTemplate(test[\"template\"], test[\"context\"]);\r\n    }\r\n}"
-  },
-  {
-    "id": "84a80f6c-9b0f-4f9b-97e2-7da2eac1160b",
-    "skip": false,
-    "title": "JsonEException Catch Pattern",
-    "background": "Runtime evaluation can fail for several reasons. At integration points, the most practical baseline is to catch `JsonEException` and return a controlled diagnostic value instead of propagating failures directly to UI code.\r\n\r\nThis lesson focuses on implementing that catch pattern. It gives you a stable library-facing error boundary for calling `JsonE.Evaluate`.",
-    "docs": "/json-e/basics/#errors",
-    "api": null,
-    "schemaDocs": null,
-    "instructions": "Wrap evaluation in a `try/catch` for Json-e exceptions and return the exception type name when evaluation fails.",
-    "contextCode": "using System.Text.Json.Nodes;\r\nusing Json.JsonE;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var template = test[\"template\"];\r\n        var context = test[\"context\"];\r\n\r\n        /* USER CODE */\r\n\r\n        return null;\r\n    }\r\n}",
-    "tests": [
-      {
-        "template": {
-          "$reverse": true
-        },
-        "context": {},
-        "result": "TemplateException"
-      },
-      {
-        "template": {
-          "$eval": "max(2, 4)"
-        },
-        "context": {},
-        "result": 4
-      }
-    ],
-    "solution": "using System.Text.Json.Nodes;\r\nusing Json.JsonE;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var template = test[\"template\"];\r\n        var context = test[\"context\"];\r\n\r\n        try\r\n        {\r\n            return JsonE.Evaluate(template, context);\r\n        }\r\n        catch (JsonEException e)\r\n        {\r\n            return e.GetType().Name;\r\n        }\r\n    }\r\n}"
-  },
-  {
-    "id": "ce59148e-4715-4bcb-b794-9447ceb21cae",
-    "skip": false,
-    "title": "Exception Type Mapping",
-    "background": "Sometimes applications need simplified error categories instead of raw exception type names. You can catch `JsonEException` and map known subtypes to stable labels for telemetry or UI messaging.\r\n\r\nThis lesson focuses on subtype mapping logic around JsonE.Net exceptions. The key skill is handling library exceptions consistently in C# code.",
-    "docs": "/json-e/basics/#errors",
-    "api": null,
-    "schemaDocs": null,
-    "instructions": "Catch `JsonEException` and map subtypes to these strings: `template`, `interpreter`, `builtin`, `syntax`, otherwise `unknown`.",
-    "contextCode": "using System.Text.Json.Nodes;\r\nusing Json.JsonE;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    private static string Map(JsonEException error)\r\n    {\r\n        return /* USER CODE */;\r\n    }\r\n\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        try\r\n        {\r\n            return JsonE.Evaluate(test[\"template\"], test[\"context\"]);\r\n        }\r\n        catch (JsonEException error)\r\n        {\r\n            return Map(error);\r\n        }\r\n    }\r\n}",
-    "tests": [
-      {
-        "template": {
-          "$reverse": true
-        },
-        "context": {},
-        "result": "template"
-      },
-      {
-        "template": {
-          "$eval": "ceil(true)"
-        },
-        "context": {},
-        "result": "builtin"
-      },
-      {
-        "template": {
-          "$eval": "key.{"
-        },
-        "context": {
-          "key": {}
-        },
-        "result": "syntax"
-      },
-      {
-        "template": {
-          "$eval": "missing.value"
-        },
-        "context": {},
-        "result": "interpreter"
-      }
-    ],
-    "solution": "using System.Text.Json.Nodes;\r\nusing Json.JsonE;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    private static string Map(JsonEException error)\r\n    {\r\n        return error switch\r\n        {\r\n            TemplateException => \"template\",\r\n            InterpreterException => \"interpreter\",\r\n            BuiltInException => \"builtin\",\r\n            SyntaxException => \"syntax\",\r\n            _ => \"unknown\"\r\n        };\r\n    }\r\n\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        try\r\n        {\r\n            return JsonE.Evaluate(test[\"template\"], test[\"context\"]);\r\n        }\r\n        catch (JsonEException error)\r\n        {\r\n            return Map(error);\r\n        }\r\n    }\r\n}"
+    "solution": "using System.Text.Json.Nodes;\r\nusing Json.JsonE;\r\n\r\nnamespace LearnJsonEverything;\r\n\r\npublic class Lesson : ILessonRunner<JsonNode?>\r\n{\r\n    public JsonNode? Run(JsonObject test)\r\n    {\r\n        var template = test[\"template\"];\r\n        var context = test[\"context\"]!.AsObject();\r\n\r\n        context[\"now\"] = test[\"now\"]!.DeepClone();\r\n\r\n        return JsonE.Evaluate(template, context);\r\n    }\r\n}"
   }
 ]
