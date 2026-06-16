@@ -12,12 +12,6 @@ public class ProvidedSolutionTests
 			PropertyNameCaseInsensitive = true
 		};
 
-	[OneTimeSetUp]
-	public void Setup()
-	{
-		CompilationHelpers.TestOnly_SetReferences(ReferenceLoader.Load());
-	}
-
 	private static IEnumerable<TestCaseData> GetLessons(string filename)
 	{
 		var json = File.ReadAllText(filename);
