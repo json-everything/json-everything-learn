@@ -18,8 +18,6 @@ builder.Services.AddScoped<EditorOptions>();
 var host = builder.Build();
 _ = host.Services.GetService<HttpClient>();
 
-_ = CompilationHelpers.LoadAssemblyReferences(host.Services.GetService<HttpClient>()!);
-
 // Initialize theme before the UI renders so controls get the correct initial theme.
 var localStorage = host.Services.GetRequiredService<ILocalStorageService>();
 var savedTheme = await localStorage.GetItemAsync<string>("theme");

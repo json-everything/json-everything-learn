@@ -8,7 +8,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using LearnJsonEverything.Services;
 
 namespace LearnJsonEverything.LessonEditor;
 
@@ -21,6 +20,6 @@ public partial class MainWindow : Window
 	{
 		InitializeComponent();
 
-		CompilationHelpers.TestOnly_SetReferences(ReferenceLoader.Load());
+		ReferenceLoader.Load();
 	}
 }

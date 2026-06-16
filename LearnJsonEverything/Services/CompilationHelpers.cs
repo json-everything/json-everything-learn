@@ -1,7 +1,8 @@
-﻿using Json.Schema.Generation.XmlComments;
+using Json.Schema.Generation.XmlComments;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using System.Reflection;
+using System.Reflection.Metadata;
 using System.Runtime.Loader;
 using Microsoft.CodeAnalysis.Emit;
 using static LearnJsonEverything.Services.Iconography;
@@ -11,78 +12,32 @@ namespace LearnJsonEverything.Services;
 public static class CompilationHelpers
 {
 	private static AssemblyLoadContext? _assemblyLoadContext;
-	private static MetadataReference[]? _references;
-	private static bool _isLoading;
-	private static readonly bool IsBrowserRuntime = OperatingSystem.IsBrowser();
+	private static readonly Compilation _baseCompilation = CSharpCompilation.Create("BaseCompilation")
+		.WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
+		.AddReferences(GetAssemblyReferences());
 
-	private static readonly string[] EnsuredAssemblies =
-	[
-		"Json.More",
-		"JsonE.Net",
-		"JsonLogic",
-		"JsonPatch.Net",
-		"JsonPath.Net",
-		"JsonPointer.Net",
-		"JsonSchema.Net",
-		"JsonSchema.Net.Generation",
-		"LearnJsonEverything.Template",
-		//"Yaml2JsonNode",
-	];
-
-	public static void TestOnly_SetReferences(MetadataReference[] references) => _references = references;
-
-	public static async Task<MetadataReference[]?> LoadAssemblyReferences(HttpClient client)
+	private static unsafe MetadataReference? TryCreateReferenceFromRawMetadata(Assembly assembly)
 	{
-		if (_references is null)
+		if (!assembly.TryGetRawMetadata(out var metadataBlob, out var metadataLength))
 		{
-			if (_isLoading) return null;
-			_isLoading = true;
-
-			try
-			{
-				var refs = AppDomain.CurrentDomain.GetAssemblies();
-				var names = refs
-					.Where(x => !x.IsDynamic)
-					.Select(x => x.FullName!.Split(',')[0])
-					.Concat(EnsuredAssemblies)
-					.Distinct()
-					.OrderBy(x => x)
-					.ToArray();
-
-				var references = new List<MetadataReference>(names.Length);
-				foreach (var assemblyName in names)
-				{
-					var source = $"/_framework/{assemblyName}.dll";
-					try
-					{
-						Console.WriteLine($"Loading {assemblyName}...");
-						var bytes = await client.GetByteArrayAsync(source);
-						using var stream = new MemoryStream(bytes, writable: false);
-						references.Add(MetadataReference.CreateFromStream(stream));
-					}
-					catch (Exception e)
-					{
-						Console.WriteLine(e);
-						Console.WriteLine(source);
-					}
-				}
-
-				_references = [.. references];
-			}
-			finally
-			{
-				_isLoading = false;
-			}
+			return null;
 		}
-
-		return _references;
+		var metadata = ModuleMetadata.CreateFromMetadata((nint)metadataBlob, metadataLength, () => GC.KeepAlive(assembly));
+		var location = assembly.Location;
+		if (location == "")
+		{
+			location = null;
+		}
+		return AssemblyMetadata.Create(metadata).GetReference(filePath: location, display: assembly.GetName().Name);
 	}
+
+	public static IEnumerable<MetadataReference> GetAssemblyReferences() => AppDomain.CurrentDomain.GetAssemblies()
+		.Where(assembly => !assembly.IsDynamic)
+		.Select(TryCreateReferenceFromRawMetadata)
+		.Where(reference => reference is not null)!;
 
 	public static (ILessonRunner<T>?, string[]) GetRunner<T>(LessonData lesson)
 	{
-		if (_references is null)
-			return (null, ["Compilation assemblies still loading.  Please wait until complete and try again."]);
-
 		var fullSource = lesson.UserCode ?? string.Empty;
 
 		Console.WriteLine($"Compiling...\n\n{fullSource}");
@@ -90,16 +45,15 @@ public static class CompilationHelpers
 		var syntaxTree = CSharpSyntaxTree.ParseText(fullSource, new CSharpParseOptions(LanguageVersion.Latest));
 		var assemblyPath = Path.ChangeExtension(Path.GetTempFileName(), "dll");
 
-		var compilation = CSharpCompilation.Create(Path.GetFileName(assemblyPath))
-			.WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
-			.AddReferences(_references)
+		var compilation = _baseCompilation
+			.WithAssemblyName(Path.GetFileName(assemblyPath))
 			.AddSyntaxTrees(syntaxTree);
 
 		using var dllStream = new MemoryStream();
 		using var pdbStream = new MemoryStream();
 		using var xmlStream = new MemoryStream();
 		EmitResult emitResult;
-		if (IsBrowserRuntime)
+		if (OperatingSystem.IsBrowser())
 		{
 			// Avoid debugger-agent assertions in WASM by not emitting debug symbols.
 			emitResult = compilation.Emit(dllStream, xmlDocumentationStream: xmlStream);
@@ -127,14 +81,14 @@ public static class CompilationHelpers
 
 		dllStream.Position = 0;
 		xmlStream.Position = 0;
-		if (!IsBrowserRuntime)
+		if (!OperatingSystem.IsBrowser())
 			pdbStream.Position = 0;
 
 #pragma warning disable IL2026
 #pragma warning disable IL2072
 #pragma warning disable IL2070
 		Assembly assembly;
-		if (IsBrowserRuntime)
+		if (OperatingSystem.IsBrowser())
 		{
 			assembly = Assembly.Load(dllStream.ToArray());
 		}

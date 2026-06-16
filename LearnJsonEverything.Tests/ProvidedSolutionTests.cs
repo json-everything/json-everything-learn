@@ -15,7 +15,7 @@ public class ProvidedSolutionTests
 	[OneTimeSetUp]
 	public void Setup()
 	{
-		CompilationHelpers.TestOnly_SetReferences(ReferenceLoader.Load());
+		ReferenceLoader.Load();
 	}
 
 	private static IEnumerable<TestCaseData> GetLessons(string filename)

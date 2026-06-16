@@ -4,11 +4,11 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-	  <NoWarn>NU1701;BL0007</NoWarn>
-	  <LangVersion>latest</LangVersion>
-    <WasmEnableWebcil>false</WasmEnableWebcil>
+    <NoWarn>NU1701;BL0007</NoWarn>
+    <LangVersion>latest</LangVersion>
     <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
     <PublishTrimmed>false</PublishTrimmed>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
