@@ -1,3 +1,9 @@
+﻿using Json.Logic;
+using Json.JsonE;
+using Json.More;
+using Json.Path;
+using Json.Schema;
+using Json.Schema.Generation;
 using Json.Schema.Generation.XmlComments;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -15,6 +21,18 @@ public static class CompilationHelpers
 	private static readonly Compilation _baseCompilation = CSharpCompilation.Create("BaseCompilation")
 		.WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
 		.AddReferences(GetAssemblyReferences());
+
+	static CompilationHelpers()
+	{
+		// force some assemblies to load
+		_ = typeof(ILessonRunner<int>);
+		_ = typeof(EnumStringConverter<DayOfWeek>);
+		_ = typeof(JsonSchema);
+		_ = typeof(MinimumAttribute);
+		_ = typeof(JsonPath);
+		_ = typeof(JsonFunction);
+		_ = typeof(Rule);
+	}
 
 	private static unsafe MetadataReference? TryCreateReferenceFromRawMetadata(Assembly assembly)
 	{
